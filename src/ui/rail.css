@@ -1,0 +1,158 @@
+/* ═══════════════════════════════════════════════════════════════════════════════════════
+   THE RAIL · corner marks · the clock — DESIGN-BIBLE §7.4 · owner ui/rail
+   Overrides the lead's placeholders in ui.css (same selectors, one level more specific).
+   Tokens only — no hex here (hex is allowed inside the SVG strings in rail.ts).
+   ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── the rail: a 1 px line, 14 ticks, the gold strand, the star, S·U·N ───────────────── */
+aside.rail {
+  position: fixed; left: var(--rail-x); top: var(--rail-top); height: 52vh; width: 24px;
+  z-index: var(--z-header); pointer-events: none; overflow: visible; display: block;
+  --rail-p: 0;                                   /* continuous progress 0→1 down the rail (written by rail.ts) */
+  opacity: 1; transition: opacity .32s linear;
+}
+html.is-black aside.rail, html.nav-open aside.rail { opacity: 0; }
+
+.rail__line { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--rule); transition: background-color .42s linear; }
+
+/* the guilloche — two gold strands braided around the line; pathLength=1, dashoffset follows progress */
+.rail__strand { position: absolute; left: -6px; top: 0; width: 12px; height: 100%; overflow: visible; display: block; }
+.rail__strand path { fill: none; stroke-width: 1; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .4s var(--ease-tide); }
+.rail__strand .strand--a { stroke: var(--gold-leaf); opacity: .92; }
+.rail__strand .strand--b { stroke: var(--gold-deep); opacity: .92; }
+/* the 2 px mobile strand (hidden on desktop) */
+.rail__bar { display: none; }
+
+/* ticks: a zero-width anchor on the line (the preloader FLIPs its star to this box's centre) + a visible bar */
+.rail .rail__tick { position: absolute; left: 0; width: 0; height: 1px; background: none; opacity: 1; transition: none; }
+.rail .rail__tick::before {
+  content: ''; position: absolute; left: 0; top: 0; width: 9px; height: 1px; background: var(--rule-strong);
+  opacity: .38; transition: width .5s var(--ease), opacity .35s linear;
+}
+.rail .rail__tick.is-past::before { opacity: .55; }
+.rail .rail__tick.is-lit::before { opacity: 1; }
+.rail .rail__tick.is-active { width: 0; }
+.rail .rail__tick.is-active::before { width: 22px; opacity: 1; }
+
+/* the active tick's 9 px mono label: `04 · THE TENTH DAWN` — VERTICAL along the line (QA round 1: horizontal labels
+   crossed the headline column at left 7 %). It rises from its tick and reads bottom → top (vertical-rl turned 180°),
+   hugging the line's right side at 13 px so it never enters the content column; fades in and slides 4 px up. */
+.rail__label {
+  position: absolute; left: 13px; bottom: calc(100% + 5px); top: auto;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  white-space: nowrap; line-height: 1; font-style: normal; font-size: var(--fs-index); color: var(--fg-muted);
+  transform: rotate(180deg); transform-origin: 50% 50%; opacity: 0;
+  transition: opacity .35s linear;
+}
+.rail .rail__tick.is-active.is-shown .rail__label { opacity: 1; animation: rail-label-rise .5s var(--ease) both; }
+@keyframes rail-label-rise { from { transform: translateY(4px) rotate(180deg); } to { transform: translateY(0) rotate(180deg); } }
+/* hovering the rail reveals every label (the active one bright) — a quiet legend; a glyph hover shows its tooltip instead.
+   The legend is horizontal: fourteen vertical labels cannot share a 52 vh line (only the active label stands upright). */
+.rail__hit { position: absolute; left: -24px; top: -10px; bottom: -10px; width: 62px; pointer-events: auto; }
+aside.rail:hover .rail__tick .rail__label, aside.rail:hover .rail__tick.is-active.is-shown .rail__label {
+  writing-mode: horizontal-tb; left: 30px; top: 50%; bottom: auto;
+  transform: translate(0, -50%); animation: none;
+}
+aside.rail:hover .rail__tick .rail__label { opacity: .5; }
+aside.rail:hover .rail__tick.is-active .rail__label { opacity: 1; }
+aside.rail:has(.rail__g:hover) .rail__tick .rail__label { opacity: 0; }
+
+/* THE STAR — §9.1, 12 px, sits on the active tick, descends one rung per chapter (--ease-tide .9 s) */
+.rail__star {
+  position: absolute; left: 0; top: 0; width: 12px; height: 12px; margin: -6px 0 0 -6px;
+  opacity: 0; transition: top .9s var(--ease-tide), left .9s var(--ease-tide), opacity .32s linear .25s;
+}
+aside.rail.is-lit .rail__star { opacity: 1; }
+.rail__star svg { width: 12px; height: 12px; overflow: visible; display: block; filter: drop-shadow(0 0 3px var(--gold-leaf)); }
+html.is-ready:not(.reduced-motion) .rail__star .star__core { animation: rail-twinkle var(--loop-twinkle) ease-in-out infinite; }
+@keyframes rail-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* S · U · N — hollow Fraunces 300 glyphs beside ticks 02 / 05 / 09; fill gold on mtf:glyph; leave on mtf:sunrise */
+.rail__g {
+  position: absolute; left: -18px; top: 0; width: 14px; height: 14px; margin-top: -7px;
+  pointer-events: auto; cursor: default; transform-origin: 50% 50%; will-change: transform;
+  transition: opacity .32s linear;
+}
+.rail__glyph { width: 14px; height: 14px; overflow: visible; display: block; }
+.rail__glyph text {
+  font-family: var(--font-display); font-weight: 300; font-size: 14px; font-style: normal;
+  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+  fill: transparent; stroke: var(--rule-strong); stroke-width: 1px; stroke-linejoin: round; paint-order: stroke fill;
+  transition: fill .42s linear, stroke .42s linear;
+}
+.rail__g.is-filled .rail__glyph text { fill: var(--gold); stroke: var(--gold); }
+.rail__halo { opacity: 0; }
+.rail__g.is-shining .rail__halo { animation: rail-shine 1.1s var(--ease) 1; }
+.rail__g.is-shining .rail__glyph text { animation: rail-shine-fill 1.1s var(--ease) 1; }
+@keyframes rail-shine { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes rail-shine-fill { 0% { fill: var(--gold); } 30% { fill: var(--star); stroke: var(--star); } 100% { fill: var(--gold); } }
+.rail__g.is-flying { pointer-events: none; transition: none; }
+.rail__g.is-gone { visibility: hidden; }
+
+/* tooltip: the pillar's question, a mono chip to the right of the rail (hover only — decorative) */
+.rail__tip {
+  position: absolute; left: calc(100% + 34px); top: 50%; white-space: nowrap; pointer-events: none;
+  transform: translate(-4px, -50%); opacity: 0;
+  transition: opacity .32s linear, transform .5s var(--ease);
+  padding: .55em .9em .5em; border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--bg) 88%, transparent); box-shadow: inset 0 0 0 1px var(--rule);
+  color: var(--fg); line-height: 1;
+}
+.rail__tip b { font-weight: 500; color: var(--gold-leaf); margin-right: .9em; }
+html.theme-paper .rail__tip b { color: var(--terra); }
+.rail__g:hover .rail__tip, .rail__g:focus-visible .rail__tip { opacity: 1; transform: translate(0, -50%); }
+.rail__g.is-flying .rail__tip { opacity: 0; }
+
+/* ── corner marks ─────────────────────────────────────────────────────────────────────── */
+#corners.corners { opacity: 1; transition: opacity .32s linear; }
+html.nav-open #corners.corners { opacity: 0; }
+/* under the true black only the clock stays — "it is the only thing left" (§6.11) */
+html.is-black #corners.corners { opacity: 1; }
+html.is-black #corners.corners .corner--bl, html.is-black #corners.corners .corner__count, html.is-black #corners.corners .corner__scroll { opacity: 0; }
+
+#corners .corner {
+  position: fixed; bottom: 0; display: flex; align-items: center; gap: .8rem;
+  padding: 1.1rem var(--gutter); padding-bottom: max(1.1rem, env(safe-area-inset-bottom));
+  color: var(--fg-muted); line-height: 1; transition: opacity .32s linear;
+}
+#corners .corner--bl { left: 0; }
+#corners .corner--br { right: 0; gap: 1.6rem; }
+#corners .corner .cross { flex: none; }
+html.is-ready:not(.reduced-motion) #corners .corner--bl .cross { animation: shine var(--loop-shine) linear infinite; }
+#corners .corner .index { line-height: 1; transition: opacity .16s linear; }
+#corners .corner .index.is-swap { opacity: 0; }
+#corners .corner__label { display: inline-block; min-width: 1ch; }
+
+/* `SCROLL` with a breathing 1 px rule — becomes the canto after the first scroll */
+#corners .corner__scroll { display: inline-flex; align-items: center; gap: .8rem; }
+#corners .corner__pulse { display: block; width: 1px; height: 12px; background: var(--rule-strong); transform-origin: 50% 50%; }
+html.is-ready:not(.reduced-motion) #corners .corners__wrap:not(.is-scrolled) .corner__pulse { animation: rail-breathe 2.4s var(--ease-in-out) infinite alternate; }
+@keyframes rail-breathe { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+
+#corners .corner__clock { font-variant-numeric: tabular-nums; min-width: 4.6em; text-align: right; }
+
+/* ── collapse < 820 px: the star + S·U·N + a 2 px strand at the left edge; no ticks, no labels ── */
+@media (max-width: 819.98px) {
+  aside.rail { left: 5px; width: 2px; display: block; }
+  .rail__line, .rail__strand, .rail .rail__tick, .rail__label, .rail__hit { display: none; }
+  .rail__bar { display: block; position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: var(--rule); }
+  .rail__bar::after { content: ''; position: absolute; inset: 0; background: linear-gradient(var(--gold-leaf), var(--gold)); transform-origin: 50% 0; transform: scaleY(var(--rail-p)); }
+  .rail__star { left: 1px; }
+  .rail__g { left: 5px; }
+  .rail__tip { left: calc(100% + 10px); }
+  #corners .corner--bl { display: none; }
+  #corners .corner--br { gap: 1rem; }
+}
+@media (min-width: 600px) and (max-width: 819.98px) {
+  #corners .corner--bl { display: flex; }
+}
+/* < 600 px: the REGISTER pill docks bottom-centre (header.css, bottom 1 rem + safe area) — the count · clock sit
+   right-aligned ABOVE that band (QA round 1: they collided with the pill); the bottom-left crosshair stays hidden. */
+@media (max-width: 599.98px) {
+  #corners .corner__scroll { display: none; }
+  #corners .corner--br { bottom: calc(env(safe-area-inset-bottom, 0px) + 4.4rem); padding-top: 0; padding-bottom: 0; justify-content: flex-end; }
+}
+
+/* reduced motion: the clock and the rail still follow scroll (user-driven); loops off */
+html.reduced-motion .rail__star .star__core, html.reduced-motion #corners .corner__pulse, html.reduced-motion #corners .cross { animation: none; }
+html.reduced-motion .rail__label { animation: none; }

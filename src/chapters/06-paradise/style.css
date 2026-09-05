@@ -1,0 +1,48 @@
+/* Chapter 06 — Paradise · the daylight chapter · scoped under #ch-paradise only */
+#ch-paradise .pin{--sky-top-static:color-mix(in oklab,var(--sky) 45%,var(--paper));--sky-bottom-static:var(--sand)}
+#ch-paradise .pin__layer.shadow{color:var(--sand)}
+#ch-paradise .isle{position:absolute;left:50%;bottom:calc(100% - var(--horizon-now,62%));width:min(64vw,56rem);transform:translateX(-50%);opacity:0}
+#ch-paradise .isle svg{display:block;width:100%;height:auto}
+#ch-paradise.chapter--film :is(.head,.stack,.day,.foot){opacity:0}
+#ch-paradise :is(.eye__rule,.day__rule,.hl__in){transform-origin:left center}
+#ch-paradise .head{position:absolute;left:7%;top:15%;display:flex;flex-direction:column;gap:1rem;max-width:34%}
+#ch-paradise .eye{display:flex;flex-wrap:wrap;gap:.6em .9em;white-space:nowrap}
+#ch-paradise .eye__d{flex-basis:100%;padding-left:calc(2.4rem + .9em)}
+#ch-paradise .eye__rule{display:block;width:2.4rem;height:1px;background:var(--rule-strong)}
+#ch-paradise .hl{font-size:clamp(3rem,6.6vw,6rem);color:var(--fg)}
+#ch-paradise .hl__m{display:block;overflow:hidden;padding-bottom:.22em;margin-bottom:-.22em}
+#ch-paradise .hl__in{display:block}
+#ch-paradise .stack{position:absolute;left:7%;top:36%;width:30%;display:flex;flex-direction:column}
+#ch-paradise .stack .s{--old:0;margin:0 0 .32em;overflow:hidden;color:color-mix(in oklab,var(--fg) calc(100% - var(--old) * 100%),var(--fg-faint))}
+#ch-paradise .days{position:absolute;left:41%;right:7%;top:39%;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;align-items:start}
+#ch-paradise .day{position:relative;background:var(--sand);box-shadow:inset 0 0 0 1px var(--rule-paper);padding:1.1rem 1.1rem 1rem;display:grid;grid-template-columns:auto 1fr;gap:.75rem .7rem;align-items:center}
+#ch-paradise .day>*{grid-column:1/-1}
+#ch-paradise .day__disc{grid-column:1;justify-self:start}
+#ch-paradise .day__disc svg{display:block}
+#ch-paradise .day__head{color:var(--fg);margin:0}
+#ch-paradise .day__items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem;font-size:var(--fs-small);line-height:1.4;color:var(--fg)}
+#ch-paradise .day__items li{display:grid;grid-template-columns:1.6rem 1fr;gap:.4rem;align-items:baseline;text-wrap:pretty}
+#ch-paradise .day__i{font-family:var(--font-mono);font-weight:500;font-size:var(--fs-index);letter-spacing:var(--ls-index);color:var(--fg-muted)}
+#ch-paradise .day__st,#ch-paradise .day__fb{color:var(--fg-muted)}
+#ch-paradise .day__fb{margin:0;font-size:var(--fs-fine);font-style:italic}
+#ch-paradise .day__sub{padding-left:1rem}
+#ch-paradise .day__four{justify-self:start}
+#ch-paradise .day__foot{position:relative;padding-top:.7rem}
+#ch-paradise .day__rule{position:absolute;left:0;right:0;top:0;height:1px;background:var(--rule-strong)}
+#ch-paradise .day__sum{color:var(--fg-muted);white-space:normal;line-height:1.5;margin:0}
+#ch-paradise .foot{position:absolute;left:7%;bottom:14%;display:flex;flex-direction:column;gap:.9rem;align-items:flex-start}
+#ch-paradise .note{margin:0}
+@media (max-width:820px){
+#ch-paradise .isle{width:96vw}
+#ch-paradise .head{top:11%;max-width:86%;gap:.75rem}
+#ch-paradise .hl{font-size:clamp(2.6rem,11vw,3.4rem)}
+#ch-paradise .stack{top:26%;width:86%}
+#ch-paradise .days{left:6%;right:6%;top:43%;grid-template-columns:1fr}
+#ch-paradise .day{grid-area:1/1;padding:.9rem .9rem .8rem;gap:.5rem .7rem}
+#ch-paradise .day__head{grid-column:2}
+#ch-paradise .day__items{gap:.18rem}
+#ch-paradise .foot{bottom:12%;flex-direction:row;align-items:center;gap:1rem}
+}
+#ch-paradise.chapter--static :is(.head,.stack,.days,.foot){position:static;width:auto;max-width:none;margin-bottom:var(--gap-y)}
+#ch-paradise.chapter--static .days{grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+#ch-paradise.chapter--static .day{grid-area:auto}

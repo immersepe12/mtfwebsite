@@ -1,0 +1,68 @@
+/* Chapter 08 — The Hand Upon the Rudder · #ch-rudder only · tokens only · DESIGN-BIBLE §6.8 */
+#ch-rudder .pin{--sky-top-static:var(--sky);--sky-bottom-static:var(--sky)}
+/* the instrument: a hairline ring at the frame's centre under the type; EAST/WEST on the horizon at true bearings */
+#ch-rudder .instrument{position:absolute;inset:0;pointer-events:none}
+#ch-rudder .ring-wrap{position:absolute;left:50%;top:50%;width:110vh;height:110vh;margin:-55vh 0 0 -55vh;--flash:0}
+#ch-rudder .ring-wrap svg{display:block;width:100%;height:100%;overflow:visible}
+#ch-rudder .glyph--compass .ticks{stroke:color-mix(in oklab,var(--gold-leaf) calc(var(--flash)*100%),var(--star));stroke-opacity:calc(.5 + .5*var(--flash))}
+/* the card turns with the world (clockwise for +yaw — Three.js convention, §10.2): its cardinals are mirrored (E left, W right)
+   so E rises under the needle as Orion comes ahead at π/2; each letter un-mirrors itself and stays upright */
+#ch-rudder .glyph--compass .cardinals{transform-box:view-box;transform-origin:500px 500px;transform:scaleX(-1)}
+#ch-rudder .glyph--compass .cardinals text{transform-box:fill-box;transform-origin:center;transform:rotate(var(--yaw,0rad)) scaleX(-1)}
+#ch-rudder .glyph--compass .needle{transform-box:view-box;transform-origin:500px 500px;transform:rotate(var(--tremble,0deg))}
+#ch-rudder .bearing-lbl{position:absolute;left:0;top:var(--horizon-now,62%);color:var(--gold-leaf);transform:translate(-200vw,0)}
+/* the six Ps orbit the ring once, upright and in front of the panel they will dock into */
+#ch-rudder .orbit{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;--spin:0deg;transform:rotate(var(--spin))}
+#ch-rudder .orb{position:absolute;left:0;top:0;transform:rotate(var(--a)) translateX(24vh)}
+#ch-rudder .orb__t{display:block;transform:translate(-50%,-50%) rotate(calc(-1*(var(--a) + var(--spin))));color:var(--gold-leaf);white-space:nowrap}
+/* placement (§4.2): head + storyteller as one left column; panels right 7%; sign-off left 7% bottom 14% */
+#ch-rudder .col{position:absolute;left:7%;top:18%;width:44%;display:flex;flex-direction:column;gap:1.6rem}
+#ch-rudder .head{display:flex;flex-direction:column;gap:1.4rem}
+#ch-rudder .eye{flex-direction:column;align-items:flex-start;gap:.9rem}
+#ch-rudder .eye__rule{display:block;width:11em;height:1px;background:var(--rule)}
+#ch-rudder .hl{max-width:var(--measure-title);overflow:hidden}
+#ch-rudder .stack .s{margin:0 0 .5em;padding-right:.15em;overflow:hidden}
+#ch-rudder .s--c{color:var(--fg-muted)}
+#ch-rudder .ulysses{margin:.4em 0 0;color:var(--cream);font-variation-settings:"SOFT" 0}
+#ch-rudder .bearings{list-style:none;margin:0;padding:0}
+#ch-rudder .bearing{position:absolute;right:7%;top:24%;width:min(42%,36rem);max-height:70vh;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;align-items:flex-start;gap:.75rem;background:color-mix(in oklab,var(--abyss) 62%,transparent)}
+#ch-rudder .bearing__head{display:flex;flex-direction:column;gap:.9rem;margin-bottom:.35rem}
+#ch-rudder .bearing__mono{color:var(--gold)}
+#ch-rudder .bearing__title{display:flex;align-items:center;gap:1rem}
+#ch-rudder .bearing__title svg{width:3.5rem;height:3.5rem;flex:none}
+#ch-rudder .bearing h3,#ch-rudder .bearing p{margin:0}
+#ch-rudder .bearing__sub{margin-top:.25em;color:var(--fg-muted)}
+#ch-rudder .bearing__body,#ch-rudder .bearing__more{display:flex;flex-direction:column;align-items:flex-start;gap:.75rem;width:100%}
+#ch-rudder .bearing .f,#ch-rudder .bearing .body{font-size:var(--fs-body);line-height:var(--lh-body)}
+#ch-rudder .bearing .f strong{font-weight:500;font-size:var(--fs-lead);line-height:var(--lh-lead)}
+#ch-rudder .bearing .body,#ch-rudder .bearing .small,#ch-rudder .partner{color:var(--fg-muted)}
+#ch-rudder .bearing .small{font-size:var(--fs-small);line-height:1.5}
+#ch-rudder .chain{color:var(--gold-leaf);display:block;line-height:1.7;max-width:100%}
+#ch-rudder .mantras,#ch-rudder .ladder,#ch-rudder .ps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.25rem}
+#ch-rudder .mantras{font:500 var(--fs-body)/var(--lh-body) var(--font-sans)}
+#ch-rudder .ladder li,#ch-rudder .ps__row{display:grid;grid-template-columns:1.8em 1fr;gap:0 .6em;align-items:baseline;font:400 var(--fs-small)/1.5 var(--font-sans)}
+#ch-rudder .ps__row{grid-template-columns:9.5em 1fr}
+#ch-rudder .ladder__k,#ch-rudder .ps__k{font:500 var(--fs-label)/1 var(--font-mono);letter-spacing:var(--ls-label);color:var(--gold-leaf)}
+#ch-rudder .bearing__more{padding-top:.5rem;box-shadow:0 -1px var(--rule)}
+#ch-rudder .bearing__more[hidden]{display:none}
+#ch-rudder .bearing__more .label{color:var(--gold)}
+#ch-rudder .explore{margin-top:.25rem;background:none;border:0;padding:0;cursor:pointer}
+#ch-rudder .cta{position:absolute;left:7%;bottom:14%}
+#ch-rudder:not(.is-active) .glyph--event :is(.pulse,.steam path){animation-play-state:paused}
+/* portrait: the ring at the top third, the stack over it, the panels as full-width sheets over the lower 58% */
+@media (max-width:820px){
+#ch-rudder .ring-wrap{width:84vw;height:84vw;top:33%;margin:-42vw 0 0 -42vw}
+#ch-rudder .orbit{display:none}
+#ch-rudder .bearing-lbl{display:none}
+#ch-rudder .col{top:7%;width:86%;gap:1rem}
+#ch-rudder .head{gap:.9rem}
+#ch-rudder .stack .s{margin-bottom:.35em}
+#ch-rudder .bearing{left:0;right:0;top:42%;width:auto;max-height:46%;padding:1.2rem var(--gutter) 1.5rem;background:color-mix(in oklab,var(--abyss) 86%,transparent);gap:.55rem}
+#ch-rudder .bearing__title svg{width:2.6rem;height:2.6rem}
+#ch-rudder .cta{bottom:7.5%}
+}
+/* reduced motion: a flowing stack, everything visible */
+#ch-rudder.chapter--static :is(.instrument,.orbit){display:none}
+#ch-rudder.chapter--static :is(.col,.cta){position:static;width:auto;max-width:var(--measure);margin:0 0 var(--gap-y)}
+#ch-rudder.chapter--static .bearings{display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));gap:var(--gap);margin-bottom:var(--gap-y)}
+#ch-rudder.chapter--static .bearing{position:static;width:auto;max-height:none}

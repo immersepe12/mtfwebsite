@@ -1,0 +1,9 @@
+node_modules
+dist
+.DS_Store
+*.log
+.vercel
+shots
+
+# client source documents: unreleased concept deck, the gala script (draft cast) and third-party reference CSS
+brief

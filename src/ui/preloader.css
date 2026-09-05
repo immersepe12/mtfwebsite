@@ -1,0 +1,68 @@
+/* Preloader — "NINE NIGHTS" (DESIGN-BIBLE §7.1). Owner: ui/preloader.
+   The film's first frame, not a loader: press-black, one italic line, a hairline horizon, one gold star, the nights.
+   Overrides the baseline `.preloader` rules in ui.css (same class, higher specificity via the id). Tokens only. */
+
+#preloader.preloader {
+  position: fixed; inset: 0; z-index: var(--z-preloader);
+  display: block; background: var(--press); color: var(--fg);
+  clip-path: inset(0 0 0 0);
+  overflow: clip;
+}
+/* the black lifts bottom → top (inset from the bottom grows to 100%) */
+#preloader.preloader.is-open { clip-path: inset(0 0 100% 0); transition: clip-path 1.1s var(--ease-veil); }
+
+/* the Storyteller's first line — arrives whole, 4 px rise; exits up 8 px */
+.preloader__line {
+  position: absolute; left: 50%; top: calc(var(--horizon-now, 62%) - 15%); margin: 0;
+  transform: translate(-50%, -50%) translateY(4px);
+  font-family: var(--font-display); font-style: italic; font-weight: 300; font-optical-sizing: auto;
+  font-size: var(--fs-h3); line-height: var(--lh-story); letter-spacing: -.006em;
+  font-variation-settings: "WONK" 1, "SOFT" 12;
+  color: var(--fg-muted); white-space: nowrap; text-align: center;
+  opacity: 0;
+  transition: top var(--dur-6) var(--ease-tide);
+}
+.preloader__line.is-in { opacity: 1; transform: translate(-50%, -50%); transition: opacity var(--dur-5) linear, transform var(--dur-5) var(--ease), top var(--dur-6) var(--ease-tide); }
+.preloader__line.is-out { opacity: 0; transform: translate(-50%, -50%) translateY(-8px); transition: opacity var(--dur-4) linear, transform var(--dur-4) var(--ease), top var(--dur-6) var(--ease-tide); }
+
+/* the horizon — a hairline drawn left → right on the world's sea line; ignites gold on the tenth night */
+.preloader__rule {
+  position: absolute; left: 0; right: 0; top: var(--horizon-now, 62%); height: 1px;
+  background: var(--rule-strong); transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform var(--dur-6) var(--ease-press), top var(--dur-6) var(--ease-tide), background-color .32s linear, box-shadow .32s linear;
+}
+.preloader__rule.is-drawn { transform: scaleX(1); }
+.preloader__rule.is-gold { background: var(--gold-leaf); box-shadow: 0 0 14px color-mix(in oklab, var(--gold-leaf) 45%, transparent); }
+
+/* the star — 14 px, centred on (0, horizon); GSAP moves it with transforms (x across, negative y = above the rule) */
+.preloader__star {
+  position: absolute; left: 0; top: var(--horizon-now, 62%); width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  opacity: 0; will-change: transform;
+  transition: top var(--dur-6) var(--ease-tide), opacity .6s linear;
+}
+.preloader__star.is-lit { opacity: 1; }
+.preloader__star svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 5px color-mix(in oklab, var(--gold-leaf) 70%, transparent)); }
+/* in flight to the rail: reparented to <body>, fixed, above the lifting black */
+.preloader__star--flight { position: fixed; left: 0; top: 0; margin: 0; z-index: calc(var(--z-preloader) + 1); pointer-events: none; transition: none; }
+
+/* the nights — mono, bottom-left, on the corners' baseline */
+.preloader__night {
+  position: absolute; left: var(--gutter); bottom: 1.1rem; margin: 0;
+  display: flex; align-items: center; gap: .8rem;
+  font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-index); line-height: 1;
+  letter-spacing: var(--ls-index); text-transform: uppercase; font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+}
+.preloader__nightText { transition: color .38s linear; }
+.preloader__night.is-tenth .preloader__nightText { color: var(--gold-leaf); }
+
+@media (max-width: 600px) {
+  .preloader__line { top: calc(var(--horizon-now, 62%) - 18%); }
+}
+
+/* reduced motion: static star, no arc, 0-duration reveal */
+html.reduced-motion #preloader.preloader, html.reduced-motion .preloader__line, html.reduced-motion .preloader__rule,
+html.reduced-motion .preloader__star, html.reduced-motion .preloader__nightText { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  #preloader.preloader, .preloader__line, .preloader__rule, .preloader__star, .preloader__nightText { transition: none !important; }
+}

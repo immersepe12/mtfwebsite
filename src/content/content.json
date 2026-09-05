@@ -1,0 +1,3432 @@
+{
+ "meta": {
+  "title": "MTF11 content model — Mediterranean Tourism Forum 2026",
+  "version": "1.0.0",
+  "generatedAt": "2026-09-05",
+  "editor": "content editor (Claude) — every string below is lifted from the source files unless origin says \"editor\"",
+  "statusLegend": {
+   "confirmed": "Stated in the MTF11 concept deck (01) or the Calypso's Odyssey script (02) — the 2026 ground truth.",
+   "tbc": "Not in any 2026 source. Needs client confirmation before it is shown as fact.",
+   "carried-from-2025": "Taken from the current mtf.global site (03) or the MTF10 speaker list (04). Safe as history / precedent; label as 2025 if shown."
+  },
+  "originLegend": {
+   "deck": "brief/01-mtf11-concept-deck.txt",
+   "gala-script": "brief/02-calypsos-odyssey-gala-script.txt",
+   "current-site": "brief/03-current-site-mtf-global-text.txt + live mtf.global hrefs fetched 2026-09-05",
+   "speakers-2025": "brief/04-speakers-mtf10.md",
+   "pear-no": "brief/05-pear-no-deconstruction.md",
+   "client-brief": "the client's verbatim brief",
+   "editor": "written by the content editor; proposal, not fact"
+  },
+  "sources": [
+   "/Users/kusha1/Documents/mtfwebsite/brief/01-mtf11-concept-deck.txt",
+   "/Users/kusha1/Documents/mtfwebsite/brief/02-calypsos-odyssey-gala-script.txt",
+   "/Users/kusha1/Documents/mtfwebsite/brief/03-current-site-mtf-global-text.txt",
+   "/Users/kusha1/Documents/mtfwebsite/brief/04-speakers-mtf10.md",
+   "/Users/kusha1/Documents/mtfwebsite/brief/05-pear-no-deconstruction.md",
+   "/Users/kusha1/Documents/mtfwebsite/brief/06-x-references.md",
+   "https://mtf.global (live hrefs, fetched 2026-09-05)"
+  ],
+  "editorNotes": [
+   "COUNTRIES: the 2026 deck says 31+ countries; the 2025 site said 35+. The site uses the deck figure (31+) — it is the newer, client-authored number.",
+   "DECK TYPO (slide 7): 'BETTER LIVESREATE MORE VALUE…' is normalised to 'BETTER LIVES' + 'CREATE MORE VALUE WITH FEWER RESOURCES — AND SHARE THAT VALUE WITH THE COMMUNITY.'",
+   "DECK TYPO (slide 8): 'forces far beyond tourism:.' normalised to a single colon.",
+   "DECK ARTEFACT (slide 18): trailing 'SLIDE 16 — BEAUTIFUL DESTINATIONS' is a leftover note, ignored.",
+   "KNOWLEDGE FORUM DATES: slide 12 header reads '25/27 NOVEMBER' while the day grids list it on 25 and 26. Exact days flagged tbc.",
+   "VENUE: the deck never names a venue. MTF10 was Hilton Malta. Venue is tbc — do not print 'Hilton' for 2026.",
+   "TIMES: the deck gives no times of day for any programme item. All times tbc; 2025 morning/afternoon/evening pattern is recorded as precedent only.",
+   "REGISTRATION LINKS: the buttons on mtf.global resolve to the WordPress origin cwk.shq.mybluehost.me. Recorded verbatim as currentUrl; the new site should use clean mtf.global paths (proposedPath) and 301 the old ones.",
+   "FACEBOOK URL contains the misspelling 'Mediterraean' — that is the real, live URL. Keep it.",
+   "GALA: the script is the 'shorter version' working draft (~65–69 min). Songs and singers are as scripted; production may change them. Song TITLES may be shown; never reproduce lyrics (licensing).",
+   "SPEAKERS: Manfredi Lefebvre d'Ovidio and Francisco Almeida have no country in the source; country is null. MTF11 speakers are TBA — the 2025 list is for a 'Voices of MTF' / past-speakers treatment only.",
+   "BRAIN: 2025 ran 15 open BRAIN sessions; MTF11 fixes 11 named think tanks ('11 for 11'). The BRAIN expansion (Business Research and Innovation Network) is carried from 2025."
+  ]
+ },
+ "event": {
+  "name": {
+   "value": "Mediterranean Tourism Forum 2026",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "shortName": {
+   "value": "MTF11",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "edition": {
+   "value": 11,
+   "ordinal": "11th",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "dates": {
+   "start": "2026-11-25",
+   "end": "2026-11-27",
+   "display": "25–27 November 2026",
+   "displayShort": "25–27 Nov 2026",
+   "weekdays": [
+    "Wednesday",
+    "Thursday",
+    "Friday"
+   ],
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "city": {
+   "value": "Malta",
+   "status": "confirmed",
+   "origin": "client-brief"
+  },
+  "country": {
+   "value": "Malta",
+   "iso": "MT",
+   "status": "confirmed",
+   "origin": "client-brief"
+  },
+  "venue": {
+   "value": null,
+   "display": "Venue to be announced",
+   "precedent2025": "Hilton Malta (MTF10, 26–28 November 2025)",
+   "status": "tbc",
+   "origin": "current-site"
+  },
+  "theme": {
+   "name": "Mediterranean SUN",
+   "acronym": "SUN",
+   "expansion": "Stewardship · Unity · Net Positive",
+   "expansionDeck": "STEWARDSHIP – UNITY – NET POSITIVE",
+   "letters": [
+    "S",
+    "U",
+    "N"
+   ],
+   "previousTheme2025": "Mediterranean SEA — Sustainability, Experience & Artificial Intelligence",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "domain": {
+   "value": "mtf.global",
+   "url": "https://mtf.global",
+   "status": "confirmed",
+   "origin": "client-brief"
+  },
+  "deckHeadlines": [
+   {
+    "text": "THREE DAYS. ONE ECOSYSTEM.",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "text": "ONE MEDITERRANEAN CONVERSATION.",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "text": "Different sectors. Different generations. Different countries.",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "text": "11TH EDITION. 11 THINK TANKS. ONE MEDITERRANEAN.",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "text": "KNOWLEDGE INTO ACTION",
+    "status": "confirmed",
+    "origin": "deck"
+   }
+  ],
+  "taglineCandidates": [
+   {
+    "id": "sun",
+    "text": "Mediterranean SUN — Stewardship · Unity · Net Positive",
+    "use": "primary / hero sub-line",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "three-days",
+    "text": "Three days. One ecosystem.",
+    "use": "programme section",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "one-conversation",
+    "text": "One Mediterranean conversation.",
+    "use": "audience / who-comes section",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "eleven",
+    "text": "11th edition. 11 think tanks. One Mediterranean.",
+    "use": "11 for 11 section",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "leave-more",
+    "text": "Leave more than we take.",
+    "use": "Net Positive / closing / footer",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "greatest-journeys",
+    "text": "The greatest journeys are not always across the sea.",
+    "use": "gala / story spine",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "id": "what-leave-behind",
+    "text": "What should tourism leave behind?",
+    "use": "hero question / why SUN",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "think-learn-act",
+    "text": "Think together. Learn together. Act together.",
+    "use": "foundation / footer",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "open-hand",
+    "text": "Love is the hand that opens.",
+    "use": "gala finale only",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "id": "under-one-sun",
+    "text": "Under one Sun.",
+    "use": "editor proposal — hero kicker beneath 'Mediterranean SUN'",
+    "status": "tbc",
+    "origin": "editor"
+   },
+   {
+    "id": "read-heavens",
+    "text": "When they lost sight of earth, they read the heavens.",
+    "use": "editor pick from the script — Why Now transition",
+    "status": "confirmed",
+    "origin": "gala-script"
+   }
+  ],
+  "heroCopy": {
+   "eyebrow": {
+    "text": "MEDITERRANEAN TOURISM FORUM · 11TH EDITION",
+    "status": "confirmed",
+    "origin": "editor"
+   },
+   "h1": {
+    "text": "Mediterranean SUN",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   "sub": {
+    "text": "Stewardship · Unity · Net Positive",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   "meta": {
+    "text": "25–27 November 2026 · Malta",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   "ctaPrimary": {
+    "text": "Register",
+    "status": "tbc",
+    "origin": "editor"
+   },
+   "ctaSecondary": {
+    "text": "Watch MTF10",
+    "status": "carried-from-2025",
+    "origin": "current-site"
+   }
+  },
+  "editionLabel": "11th edition",
+  "datesLabel": "25–27 November 2026 · Malta"
+ },
+ "foundation": {
+  "name": {
+   "value": "Mediterranean Tourism Foundation",
+   "acronym": "MTF",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "founded": {
+   "value": 2013,
+   "status": "carried-from-2025",
+   "origin": "speakers-2025"
+  },
+  "basedIn": {
+   "value": "Malta",
+   "status": "carried-from-2025",
+   "origin": "speakers-2025"
+  },
+  "legalForm": {
+   "value": "International non-profit",
+   "status": "carried-from-2025",
+   "origin": "speakers-2025"
+  },
+  "whoIsMtf": {
+   "heading": "WHO IS MTF?",
+   "lines": [
+    "MTF brings together the public sector, private sector, academia and the next generation around one purpose:",
+    "Advancing peace, prosperity and a better quality of life through tourism.",
+    "Tourism is more than an industry. It shapes our economies, communities, cities, environment, employment, culture and quality of life."
+   ],
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "mission": {
+   "value": "Advancing peace, prosperity and a better quality of life through tourism.",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "tagline": {
+   "value": "THINK TOGETHER • LEARN TOGETHER • ACT TOGETHER",
+   "sentenceCase": "Think together. Learn together. Act together.",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "forum": {
+   "heading": "THE MEDITERRANEAN TOURISM FORUM",
+   "lead": "MTF's flagship annual gathering connects:",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  "descriptionCurrentSite": {
+   "value": "We connect Mediterranean tourism stakeholders to promote dialogue, peace, and stability. Through education networks and sustainable projects, we support training, intercultural initiatives, and hospitality professionals, driving growth and resilience across the region's tourism and development sectors.",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "pastProjects": {
+   "items": [
+    "Concerts with Radio Italia",
+    "Televised specials with Andrea Bocelli",
+    "Forbes Travel Guide training",
+    "Research with HVS",
+    "Destination plans with WSP"
+   ],
+   "status": "carried-from-2025",
+   "origin": "speakers-2025"
+  },
+  "leadership": [
+   {
+    "name": "Tony Zahra",
+    "role": "President, Mediterranean Tourism Foundation",
+    "country": "Malta",
+    "status": "carried-from-2025",
+    "origin": "speakers-2025"
+   },
+   {
+    "name": "Andrew Agius Muscat",
+    "role": "Secretary General, Mediterranean Tourism Foundation",
+    "country": "Malta",
+    "status": "carried-from-2025",
+    "origin": "speakers-2025"
+   },
+   {
+    "name": "Tijani Haddad",
+    "role": "MTF Deputy President; President of FIJET & Former Minister for Tourism",
+    "country": "Tunisia",
+    "status": "carried-from-2025",
+    "origin": "speakers-2025"
+   }
+  ],
+  "mediaBrand": {
+   "name": "The Mediterranean Observer",
+   "note": "MTF's social/media identity; all social handles use it. Also the name of think tank 06.",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  }
+ },
+ "stats": [
+  {
+   "id": "participants",
+   "value": "1,600+",
+   "number": 1600,
+   "label": "Participants",
+   "deckText": "1,600+ PARTICIPANTS",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "split",
+   "value": "60 / 40",
+   "label": "Malta / International",
+   "deckText": "60% Malta • 40% International",
+   "parts": [
+    {
+     "pct": 60,
+     "label": "Malta"
+    },
+    {
+     "pct": 40,
+     "label": "International"
+    }
+   ],
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "countries",
+   "value": "31+",
+   "number": 31,
+   "label": "Countries",
+   "detail": "Across all continents",
+   "deckText": "31+ COUNTRIES - Across all continents",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "edition",
+   "value": "11",
+   "number": 11,
+   "label": "Edition",
+   "deckText": "11TH EDITION",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "think-tanks",
+   "value": "11",
+   "number": 11,
+   "label": "Think tanks",
+   "deckText": "11 THINK TANKS",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "days",
+   "value": "3",
+   "number": 3,
+   "label": "Days",
+   "deckText": "THREE DAYS. ONE ECOSYSTEM.",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "specialist-events",
+   "value": "4",
+   "number": 4,
+   "label": "Specialist events",
+   "deckText": "Followed by four specialist events",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "id": "gala-songs",
+   "value": "9",
+   "number": 9,
+   "label": "Songs in Calypso's Odyssey",
+   "status": "confirmed",
+   "origin": "gala-script"
+  },
+  {
+   "id": "founded",
+   "value": "2013",
+   "number": 2013,
+   "label": "Foundation founded",
+   "status": "carried-from-2025",
+   "origin": "speakers-2025"
+  },
+  {
+   "id": "mtf10-delegates",
+   "value": "1500+",
+   "number": 1500,
+   "label": "Delegates (MTF10, 2025)",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  {
+   "id": "mtf10-countries",
+   "value": "35+",
+   "number": 35,
+   "label": "Countries (MTF10, 2025)",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  {
+   "id": "mtf10-speakers",
+   "value": "60+",
+   "number": 60,
+   "label": "Speakers (MTF10, 2025)",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  }
+ ],
+ "theme": {
+  "heading": "Why Mediterranean SUN?",
+  "lines": [
+   "For thousands of years, the Sun has shaped Mediterranean civilisation, architecture, agriculture, food, culture and way of life.",
+   "Today, SUN represents the tourism model we want to build.",
+   "It asks three questions:"
+  ],
+  "questions": [
+   {
+    "letter": "S",
+    "text": "WHAT MUST WE PROTECT?",
+    "sentenceCase": "What must we protect?"
+   },
+   {
+    "letter": "U",
+    "text": "WHAT CAN WE ACHIEVE TOGETHER?",
+    "sentenceCase": "What can we achieve together?"
+   },
+   {
+    "letter": "N",
+    "text": "WHAT SHOULD TOURISM LEAVE BEHIND?",
+    "sentenceCase": "What should tourism leave behind?"
+   }
+  ],
+  "status": "confirmed",
+  "origin": "deck",
+  "pillars": [
+   {
+    "letter": "S",
+    "name": "Stewardship",
+    "deckTitle": "S | STEWARDSHIP",
+    "question": "WHAT MUST WE PROTECT?",
+    "domains": [
+     "Heritage",
+     "Environment",
+     "Communities",
+     "Culture",
+     "Destinations",
+     "Sea"
+    ],
+    "lines": [
+     "Tourism brings opportunity — but also responsibility.",
+     "Visitors, businesses, authorities and communities all have a role in protecting the places we share.",
+     "Enjoy the destination. Respect the place.",
+     "Growth must improve the places people visit — not consume what makes them special."
+    ],
+    "verbs": [
+     "Protect",
+     "Respect",
+     "Preserve",
+     "Enhance"
+    ],
+    "closingLine": "PROTECT WHAT MAKES THE MEDITERRANEAN SPECIAL.",
+    "relatedThinkTanks": [
+     "07",
+     "08",
+     "10"
+    ],
+    "mythMotif": "Helios' cattle — 'Do not touch what belongs to the Sun.'",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "letter": "U",
+    "name": "Unity",
+    "deckTitle": "U | UNITY",
+    "question": "WHAT CAN WE ACHIEVE TOGETHER?",
+    "lead": "The Mediterranean becomes stronger when it is better connected.",
+    "collaborateOn": [
+     "Knowledge",
+     "Skills",
+     "Recruitment",
+     "Ethical Mobility",
+     "Training",
+     "Regional Connectivity",
+     "Shared Challenges"
+    ],
+    "strengthen": [
+     {
+      "key": "AIR",
+      "text": "destinations and markets"
+     },
+     {
+      "key": "SEA",
+      "text": "islands, ports and communities"
+     },
+     {
+      "key": "DIGITAL",
+      "text": "knowledge, business and opportunity"
+     },
+     {
+      "key": "PEOPLE",
+      "text": "Mediterranean talent and careers"
+     }
+    ],
+    "lines": [
+     "CONNECT PEOPLE • CONNECT DESTINATIONS • CONNECT OPPORTUNITY",
+     "ACHIEVE TOGETHER WHAT WE CANNOT ACHIEVE ALONE"
+    ],
+    "closingLine": "CONNECT THE MEDITERRANEAN.",
+    "relatedThinkTanks": [
+     "04",
+     "05",
+     "06",
+     "09"
+    ],
+    "mythMotif": "The star — the sailors who read the heavens; 'a hand when we needed one.'",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "letter": "N",
+    "name": "Net Positive",
+    "deckTitle": "N | NET POSITIVE",
+    "question": "WHAT SHOULD TOURISM LEAVE BEHIND?",
+    "lines": [
+     "Tourism's success should not be measured only by arrivals, nights and expenditure.",
+     "The ultimate measure:",
+     "DOES TOURISM IMPROVE THE STANDARD OF LIVING OF THE COMMUNITIES THAT HOST IT?",
+     "Net Positive means:"
+    ],
+    "means": [
+     "Better Jobs",
+     "Better Careers",
+     "Better Public Spaces",
+     "Better Services",
+     "Stronger Local Businesses",
+     "Healthier Environments",
+     "Better Experiences",
+     "Greater Opportunity"
+    ],
+    "subSections": [
+     {
+      "title": "SERVICE EXCELLENCE",
+      "lines": [
+       "Extend hospitality beyond hotels and restaurants to the whole destination.",
+       "FROM A HOSPITALITY INDUSTRY → TO A HOSPITALITY CULTURE."
+      ]
+     },
+     {
+      "title": "AI AS AN ENABLER",
+      "lines": [
+       "BETTER TOURISM • BETTER BUSINESSES • BETTER EXPERIENCES • BETTER LIVES",
+       "CREATE MORE VALUE WITH FEWER RESOURCES — AND SHARE THAT VALUE WITH THE COMMUNITY."
+      ],
+      "note": "Deck source has a typo ('LIVESREATE'); normalised."
+     }
+    ],
+    "closingLine": "LEAVE MORE THAN WE TAKE.",
+    "relatedThinkTanks": [
+     "01",
+     "02",
+     "03",
+     "11"
+    ],
+    "mythMotif": "The open hand — what remains because we lived.",
+    "status": "confirmed",
+    "origin": "deck"
+   }
+  ]
+ },
+ "whyNow": {
+  "heading": "WHY NOW?",
+  "lead": "Tourism is being reshaped by forces far beyond tourism:",
+  "forces": [
+   "AI & Automation",
+   "Climate Change",
+   "Sea-Level Rise",
+   "Overtourism",
+   "Geopolitical Tensions & Conflict",
+   "Security & Migration Pressures",
+   "Talent Shortages",
+   "Housing & Real-Estate Pressures",
+   "Connectivity",
+   "Changing Visitor Expectations",
+   "Sustainability & Investment"
+  ],
+  "forcesCount": 11,
+  "statement": "Events in one part of the Mediterranean can rapidly affect connectivity, visitor confidence, investment, supply chains and destination perception across the region.",
+  "questions": {
+   "framingOld": "The question is no longer:",
+   "old": "HOW MANY TOURISTS CAN WE ATTRACT?",
+   "framingNew": "It is:",
+   "new": "WHAT KIND OF TOURISM CREATES THE GREATEST VALUE AND RESILIENCE FOR PEOPLE, PLACES AND BUSINESSES?"
+  },
+  "status": "confirmed",
+  "origin": "deck"
+ },
+ "programme": {
+  "heading": "THREE DAYS. ONE ECOSYSTEM.",
+  "status": "confirmed",
+  "origin": "deck",
+  "days": [
+   {
+    "index": 1,
+    "label": "DAY 01",
+    "date": "2026-11-25",
+    "display": "25 November",
+    "displayFull": "Wednesday 25 November 2026",
+    "deckHeading": "THREE DAYS. ONE ECOSYSTEM. 25 NOVEMBER",
+    "keywords": [
+     "KNOWLEDGE",
+     "BUSINESS",
+     "CONNECTION",
+     "RECOGNITION"
+    ],
+    "keywordsLine": "KNOWLEDGE • BUSINESS • CONNECTION • RECOGNITION",
+    "status": "confirmed",
+    "origin": "deck",
+    "items": [
+     {
+      "id": "kpf",
+      "title": "Knowledge & Policy Forum",
+      "ref": "knowledgeForum",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Morning & afternoon — Mediterranean Knowledge & Exchange Policy Forum (Day 1)"
+     },
+     {
+      "id": "forbes-training",
+      "title": "Forbes Travel Guide Plus Training",
+      "ref": "forbes",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Forbes Travel Guide Training — Sea View Hotel, Saint Paul's Bay"
+     },
+     {
+      "id": "b2b",
+      "title": "B2B Business Meetings",
+      "ref": "skillsCareersBusiness.b2b",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": null
+     },
+     {
+      "id": "networking",
+      "title": "Networking Events",
+      "ref": "skillsCareersBusiness.b2b",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Networking Event at the Farsons Brewery Experience — by invitation"
+     },
+     {
+      "id": "awards",
+      "title": "Mediterranean Tourism Awards",
+      "ref": "awards",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Evening — Palace of the President — by invitation"
+     }
+    ]
+   },
+   {
+    "index": 2,
+    "label": "DAY 02",
+    "date": "2026-11-26",
+    "display": "26 November",
+    "displayFull": "Thursday 26 November 2026",
+    "deckHeading": "THREE DAYS. ONE ECOSYSTEM. 26 NOVEMBER",
+    "keywords": [
+     "PEOPLE",
+     "SKILLS",
+     "IDEAS",
+     "BUSINESS",
+     "EXPERIENCE"
+    ],
+    "keywordsLine": "PEOPLE • SKILLS • IDEAS • BUSINESS • EXPERIENCE",
+    "status": "confirmed",
+    "origin": "deck",
+    "items": [
+     {
+      "id": "kpf",
+      "title": "Mediterranean Knowledge & Policy Forum",
+      "ref": "knowledgeForum",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Morning & afternoon — Day 2"
+     },
+     {
+      "id": "skills-competitions",
+      "title": "Hospitality Skills Competitions",
+      "ref": "skillsCareersBusiness.competitions",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Finals: Receptionist of the Year, Housekeeping Attendants, Culinary Arts, Waiter of the Year"
+     },
+     {
+      "id": "careers",
+      "title": "Hospitality Careers Programme",
+      "ref": "skillsCareersBusiness.careers",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Careers in Hospitality Seminar"
+     },
+     {
+      "id": "eleven-for-eleven",
+      "title": "11 FOR 11 — MTF Brain Think Tanks",
+      "ref": "thinkTanks",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "BRAIN Think Tanks (15 sessions), morning & afternoon"
+     },
+     {
+      "id": "b2b",
+      "title": "B2B Business Meetings",
+      "ref": "skillsCareersBusiness.b2b",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Projects Match-Making Meetings"
+     },
+     {
+      "id": "networking",
+      "title": "Networking Events",
+      "ref": "skillsCareersBusiness.b2b",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "MTF Networking Card Exchange"
+     },
+     {
+      "id": "forbes-sessions",
+      "title": "Forbes Travel Guide Plus Sessions",
+      "ref": "forbes",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Forbes Travel Guide Training — Hilton Hotel, Malta"
+     },
+     {
+      "id": "gala",
+      "title": "Calypso's Odyssey Gala",
+      "ref": "gala",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Evening — Mediterranean STARS Concert, Mediterranean Orchestra under Maestro Bruno Santori — by invitation"
+     }
+    ]
+   },
+   {
+    "index": 3,
+    "label": "DAY 03",
+    "date": "2026-11-27",
+    "display": "27 November",
+    "displayFull": "Friday 27 November 2026",
+    "deckHeading": "THREE DAYS. ONE ECOSYSTEM. 27 NOVEMBER",
+    "keywords": [
+     "MEDITERRANEAN SUN"
+    ],
+    "keywordsLine": "MEDITERRANEAN SUN",
+    "followedBy": "Followed by four specialist events:",
+    "status": "confirmed",
+    "origin": "deck",
+    "items": [
+     {
+      "id": "plenary",
+      "title": "International Morning Plenary",
+      "ref": "plenary",
+      "timeOfDay": "morning",
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": "Mediterranean Tourism Forum Plenary – 10th Edition + Master Classes (28 Nov 2025, Hilton)"
+     },
+     {
+      "id": "beautiful-destinations",
+      "title": "Beautiful Destinations",
+      "subtitle": "Architecture, Design & the Economics of Place",
+      "ref": "specialistEvents[0]",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": null
+     },
+     {
+      "id": "med-ready",
+      "title": "MED READY",
+      "subtitle": "Safe & Resilient Tourism Destinations",
+      "ref": "specialistEvents[1]",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": null
+     },
+     {
+      "id": "ai-powered-hospitality",
+      "title": "AI-Powered Hospitality",
+      "subtitle": "Re-Engineering the Tourism Economy",
+      "ref": "specialistEvents[2]",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": null
+     },
+     {
+      "id": "coffee-experience",
+      "title": "The Coffee Experience",
+      "subtitle": "Powered by Lavazza",
+      "ref": "specialistEvents[3]",
+      "timeOfDay": null,
+      "venue": null,
+      "status": "confirmed",
+      "origin": "deck",
+      "precedent2025": null
+     }
+    ]
+   }
+  ]
+ },
+ "plenary": {
+  "title": "International Morning Plenary",
+  "date": "2026-11-27",
+  "description": null,
+  "precedent2025": {
+   "title": "Mediterranean Tourism Forum Plenary – 10th Edition",
+   "text": "The Plenary Session on 28 November will be the highlight of the Forum. Leading experts will dive deep into how the Mediterranean — both as a place and as a concept — drives sustainable growth, immersive experiences, and technological innovation in tourism.",
+   "moderator": "Rajan Datar, BBC Broadcaster and Journalist (UK)",
+   "programmeUrl": "https://drive.google.com/file/d/1ejbXce72ckeSKfWW4MLx9VMAKQLLKRlE/view?usp=drive_link",
+   "masterClassesUrl": "https://cwk.shq.mybluehost.me/master-classes-template/"
+  },
+  "status": "confirmed",
+  "origin": "deck",
+  "note": "Only the title is confirmed for 2026. Speakers, running order and description are tbc."
+ },
+ "thinkTanks": {
+  "heading": "11 FOR 11",
+  "name": "11 MTF BRAIN THINK TANKS",
+  "date": "2026-11-26",
+  "brainExpansion": {
+   "value": "Business Research and Innovation Network",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "brainDescription2025": {
+   "value": "BRAIN stands for Business Research and Innovation Network. This project aims to unite diverse professionals from various countries, professions, and cultures to collaboratively brainstorm and devise innovative solutions to pressing challenges in business and society. By fostering cross-disciplinary dialogue and collaboration, the BRAIN Project seeks to stimulate creative thinking and practical initiatives that can lead to impactful outcomes.",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "formula": "11 Challenges • 11 Expert Groups • 11 Actions",
+  "who": "Industry leaders, policymakers, academics, experts, entrepreneurs and young professionals work towards:",
+  "outputs": [
+   "Recommendations",
+   "Pilot Projects",
+   "Partnerships",
+   "Permanent MTF Initiatives"
+  ],
+  "process": "THINK → CHALLENGE → DESIGN → ACT",
+  "processSteps": [
+   "THINK",
+   "CHALLENGE",
+   "DESIGN",
+   "ACT"
+  ],
+  "closingLine": "11TH EDITION.  11 THINK TANKS.  ONE MEDITERRANEAN.",
+  "groups": [
+   {
+    "id": "people-innovation",
+    "name": "People & Innovation",
+    "deckTitle": "11 FOR 11 | PEOPLE & INNOVATION",
+    "numbers": [
+     "01",
+     "02",
+     "03"
+    ]
+   },
+   {
+    "id": "regional-action",
+    "name": "Regional Action",
+    "deckTitle": "11 FOR 11 | REGIONAL ACTION",
+    "numbers": [
+     "04",
+     "05",
+     "06"
+    ]
+   },
+   {
+    "id": "responsibility-value",
+    "name": "Responsibility & Value",
+    "deckTitle": "11 FOR 11 | RESPONSIBILITY & VALUE",
+    "numbers": [
+     "07",
+     "08",
+     "09"
+    ]
+   },
+   {
+    "id": "culture-service",
+    "name": "Culture & Service",
+    "deckTitle": "11 FOR 11 | CULTURE & SERVICE",
+    "numbers": [
+     "10",
+     "11"
+    ]
+   }
+  ],
+  "status": "confirmed",
+  "origin": "deck",
+  "items": [
+   {
+    "number": "01",
+    "id": "hospitality-talent",
+    "title": "Attracting & Retaining Hospitality Talent",
+    "deckTitle": "ATTRACTING & RETAINING HOSPITALITY TALENT",
+    "subtitle": "Making Hospitality a Career of Choice",
+    "description": "Recruitment • housing • working conditions • career progression • training • recognition • technology • employee experience.",
+    "keywords": [
+     "Recruitment",
+     "Housing",
+     "Working conditions",
+     "Career progression",
+     "Training",
+     "Recognition",
+     "Technology",
+     "Employee experience"
+    ],
+    "closingLine": "Moving from continuously replacing workers to building and retaining talent.",
+    "group": "People & Innovation",
+    "pillar": "N",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "02",
+    "id": "ai-powered-hotel",
+    "title": "The AI-Powered Hotel",
+    "deckTitle": "THE AI-POWERED HOTEL",
+    "subtitle": "Re-Engineering Hospitality Around People & the Guest",
+    "description": "AI across sales, marketing, revenue, guest experience, F&B, operations, finance and HR.",
+    "keywords": [
+     "Sales",
+     "Marketing",
+     "Revenue",
+     "Guest experience",
+     "F&B",
+     "Operations",
+     "Finance",
+     "HR"
+    ],
+    "closingLine": "AI IN THE BACK OFFICE. HUMANS AT THE FRONT.",
+    "group": "People & Innovation",
+    "pillar": "N",
+    "relatedSpecialistEvent": "ai-powered-hospitality",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "03",
+    "id": "hospitality-for-all",
+    "title": "Hospitality for All",
+    "deckTitle": "HOSPITALITY FOR ALL",
+    "subtitle": "Accessibility by Design",
+    "description": "Integrating physical, sensory and cognitive accessibility naturally into hotels, restaurants, mobility, digital journeys and experiences.",
+    "keywords": [
+     "Physical accessibility",
+     "Sensory accessibility",
+     "Cognitive accessibility",
+     "Hotels",
+     "Restaurants",
+     "Mobility",
+     "Digital journeys",
+     "Experiences"
+    ],
+    "closingLine": "DESIGNED FOR EVERYONE.",
+    "group": "People & Innovation",
+    "pillar": "N",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "04",
+    "id": "med-ready",
+    "title": "MED READY",
+    "deckTitle": "MED READY",
+    "subtitle": "Safe & Resilient Tourism Destinations",
+    "description": "Developing the MED READY Centre of Excellence, standards and certification for Mediterranean destinations and tourism properties.",
+    "keywords": [
+     "Centre of Excellence",
+     "Standards",
+     "Certification",
+     "Destinations",
+     "Tourism properties"
+    ],
+    "closingLine": null,
+    "closingLineFromSpecialistEvent": "FROM CRISIS REACTION → TO DESTINATION READINESS.",
+    "group": "Regional Action",
+    "pillar": "U",
+    "relatedSpecialistEvent": "med-ready",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "05",
+    "id": "link-up-mediterranean",
+    "title": "Link Up Mediterranean",
+    "deckTitle": "LINK UP MEDITERRANEAN",
+    "subtitle": "Mediterranean Talent. Mediterranean Opportunity.",
+    "description": "Connecting employers, talent, students, education and governments through recruitment, skills recognition, training and ethical mobility.",
+    "keywords": [
+     "Employers",
+     "Talent",
+     "Students",
+     "Education",
+     "Governments",
+     "Recruitment",
+     "Skills recognition",
+     "Training",
+     "Ethical mobility"
+    ],
+    "closingLine": null,
+    "group": "Regional Action",
+    "pillar": "U",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "06",
+    "id": "mediterranean-observer",
+    "title": "Mediterranean Observer",
+    "deckTitle": "MEDITERRANEAN OBSERVER",
+    "subtitle": "Turning Data into Better Decisions",
+    "description": "A regional platform for data, research, trends, competitiveness, connectivity, investment and destination performance.",
+    "keywords": [
+     "Data",
+     "Research",
+     "Trends",
+     "Competitiveness",
+     "Connectivity",
+     "Investment",
+     "Destination performance"
+    ],
+    "closingLine": "DATA → KNOWLEDGE → FORESIGHT → ACTION",
+    "group": "Regional Action",
+    "pillar": "U",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "07",
+    "id": "enjoy-respect",
+    "title": "Enjoy & Respect",
+    "deckTitle": "ENJOY & RESPECT",
+    "subtitle": "Better Visitors. Better Destinations.",
+    "description": "Creating shared responsibility between visitors, businesses, authorities and communities around: Behaviour • Cleanliness • Noise • Beaches • Culture • Environment • Public Spaces",
+    "keywords": [
+     "Behaviour",
+     "Cleanliness",
+     "Noise",
+     "Beaches",
+     "Culture",
+     "Environment",
+     "Public Spaces"
+    ],
+    "closingLine": "ENJOY THE DESTINATION. RESPECT THE PLACE.",
+    "group": "Responsibility & Value",
+    "pillar": "S",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "08",
+    "id": "blue-protection-centre",
+    "title": "Mediterranean Blue Protection Centre",
+    "deckTitle": "MEDITERRANEAN BLUE PROTECTION CENTRE",
+    "subtitle": "Protecting the Sea that Connects Us",
+    "description": "Sharing best practices in: Coastal Management • Beaches • Marinas • Marine Ecosystems • Pollution • Climate Adaptation • Sustainable Maritime Tourism",
+    "keywords": [
+     "Coastal Management",
+     "Beaches",
+     "Marinas",
+     "Marine Ecosystems",
+     "Pollution",
+     "Climate Adaptation",
+     "Sustainable Maritime Tourism"
+    ],
+    "closingLine": null,
+    "group": "Responsibility & Value",
+    "pillar": "S",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "09",
+    "id": "luxury-yachting-hub",
+    "title": "Malta — Mediterranean Luxury Yachting Hub",
+    "deckTitle": "MALTA — MEDITERRANEAN LUXURY YACHTING HUB",
+    "subtitle": "Building the Economy Around the Yacht",
+    "description": "Superyachts • Marinas • Refit • Crew Services • Luxury Hospitality • Gastronomy • Events • Investment",
+    "keywords": [
+     "Superyachts",
+     "Marinas",
+     "Refit",
+     "Crew Services",
+     "Luxury Hospitality",
+     "Gastronomy",
+     "Events",
+     "Investment"
+    ],
+    "closingLine": "ATTRACT THE YACHT. SERVE THE YACHT. RETAIN THE VALUE.",
+    "group": "Responsibility & Value",
+    "pillar": "U",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "10",
+    "id": "olive-oil-consortium",
+    "title": "Mediterranean Olive Oil Consortium",
+    "deckTitle": "MEDITERRANEAN OLIVE OIL CONSORTIUM",
+    "subtitle": "From Product to Mediterranean Experience",
+    "description": "Connecting growers, producers, chefs, restaurants, hotels and destinations through quality, gastronomy, culture and tourism.",
+    "keywords": [
+     "Growers",
+     "Producers",
+     "Chefs",
+     "Restaurants",
+     "Hotels",
+     "Destinations",
+     "Quality",
+     "Gastronomy",
+     "Culture",
+     "Tourism"
+    ],
+    "closingLine": "PRODUCT → STORY → EXPERIENCE → VALUE",
+    "group": "Culture & Service",
+    "pillar": "S",
+    "mythMotif": "The single olive tree of the gala's conclusion.",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "number": "11",
+    "id": "service-excellence",
+    "title": "Service Excellence",
+    "deckTitle": "SERVICE EXCELLENCE",
+    "subtitle": "Hospitality Across Every Economic Sector",
+    "description": "Taking hospitality principles into: Airports • Transport • Retail • Healthcare • Public Services • Police • Attractions • Culture • Marinas • Events",
+    "keywords": [
+     "Airports",
+     "Transport",
+     "Retail",
+     "Healthcare",
+     "Public Services",
+     "Police",
+     "Attractions",
+     "Culture",
+     "Marinas",
+     "Events"
+    ],
+    "closingLine": "THE WHOLE DESTINATION DELIVERS THE EXPERIENCE.",
+    "closingLine2": "FROM A HOSPITALITY INDUSTRY → TO A HOSPITALITY CULTURE.",
+    "group": "Culture & Service",
+    "pillar": "N",
+    "status": "confirmed",
+    "origin": "deck"
+   }
+  ]
+ },
+ "specialistEvents": [
+  {
+   "index": 1,
+   "id": "beautiful-destinations",
+   "title": "Beautiful Destinations",
+   "deckTitle": "BEAUTIFUL DESTINATIONS",
+   "subtitle": "Architecture, Design & the Economics of Place",
+   "date": "2026-11-27",
+   "headline": "BEAUTY CREATES VALUE.",
+   "question": "How can we create destinations that are:",
+   "qualities": [
+    "BEAUTIFUL",
+    "GREEN",
+    "ACCESSIBLE",
+    "LIVEABLE",
+    "INVESTABLE"
+   ],
+   "qualitiesLine": "BEAUTIFUL • GREEN • ACCESSIBLE • LIVEABLE • INVESTABLE?",
+   "covering": [
+    "Cities",
+    "Towns",
+    "Villages",
+    "Waterfronts",
+    "Ports",
+    "Harbours",
+    "Marinas",
+    "Beaches",
+    "Public Spaces",
+    "Hotels",
+    "Restaurants",
+    "Heritage"
+   ],
+   "exploring": [
+    "Architecture",
+    "Urban Design",
+    "Landscaping",
+    "Universal Design",
+    "Heritage Regeneration",
+    "Hotel & Restaurant Design",
+    "Waterfronts",
+    "Ports & Harbours",
+    "Green Infrastructure",
+    "Real Estate",
+    "Investment",
+    "Green Funding"
+   ],
+   "mantras": [
+    "GREEN CAN BE BEAUTIFUL.",
+    "ACCESSIBLE CAN BE BEAUTIFUL.",
+    "FUNCTIONAL CAN BE BEAUTIFUL."
+   ],
+   "chain": "BEAUTY → QUALITY → INVESTMENT → VALUE",
+   "chainSteps": [
+    "BEAUTY",
+    "QUALITY",
+    "INVESTMENT",
+    "VALUE"
+   ],
+   "closingLine": "Better-designed destinations can generate higher-value tourism, stronger investment, better real-estate value, regeneration and greater resident pride.",
+   "pillar": "S",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "index": 2,
+   "id": "med-ready",
+   "title": "MED READY",
+   "deckTitle": "MED READY",
+   "subtitle": "Safe & Resilient Tourism Destinations",
+   "subtitleDeck": "SAFE & RESILIENT TOURISM DESTINATIONS",
+   "date": "2026-11-27",
+   "question": "HOW MED READY IS YOUR DESTINATION?",
+   "acronym": [
+    {
+     "letter": "M",
+     "word": "Mediterranean"
+    },
+    {
+     "letter": "E",
+     "word": "Emergency"
+    },
+    {
+     "letter": "D",
+     "word": "Destination"
+    },
+    {
+     "letter": "R",
+     "word": "Resilience"
+    },
+    {
+     "letter": "E",
+     "word": "Early Warning"
+    },
+    {
+     "letter": "A",
+     "word": "Action"
+    },
+    {
+     "letter": "D",
+     "word": "Disruption Readiness"
+    },
+    {
+     "letter": "Y",
+     "word": "Year-Round"
+    }
+   ],
+   "addressing": [
+    "Overtourism",
+    "Beaches",
+    "Climate Change",
+    "Sea-Level Rise",
+    "Wildfires",
+    "Floods",
+    "Earthquakes",
+    "Terrorism",
+    "Medical Emergencies",
+    "Irregular Migration",
+    "Cyber Threats",
+    "Geopolitical Conflict",
+    "Infrastructure & Connectivity"
+   ],
+   "closingLine": "FROM CRISIS REACTION → TO DESTINATION READINESS.",
+   "centreOfExcellence": {
+    "title": "MED READY CENTRE OF EXCELLENCE",
+    "lead": "A regional Mediterranean platform bringing together:",
+    "brings": [
+     "Tourism",
+     "Police",
+     "Civil Protection",
+     "Armed Forces",
+     "Medical Emergency",
+     "Fire & Rescue",
+     "Migration Authorities",
+     "Airports & Ports",
+     "Hospitality",
+     "Technology",
+     "Academia"
+    ],
+    "missionLead": "Its mission:",
+    "mission": "SHARE → PREPARE → STANDARDISE → CERTIFY → IMPROVE",
+    "missionSteps": [
+     {
+      "step": "SHARE",
+      "text": "Best practices • knowledge exchange • lessons learned"
+     },
+     {
+      "step": "PREPARE",
+      "text": "Training • risk assessments • simulations • exercises"
+     },
+     {
+      "step": "STANDARDISE",
+      "text": "Develop measurable MED READY standards"
+     },
+     {
+      "step": "CERTIFY",
+      "text": "Destinations and tourism properties"
+     },
+     {
+      "step": "IMPROVE",
+      "text": "Benchmark • learn • adapt • reassess"
+     }
+    ]
+   },
+   "certification": {
+    "title": "MED READY CERTIFICATION",
+    "chain": "FROM BEST PRACTICE → STANDARD → CERTIFICATION",
+    "developingLead": "Developing:",
+    "developing": [
+     "MED READY CERTIFIED DESTINATION",
+     "MED READY CERTIFIED PROPERTY"
+    ],
+    "assessingLead": "Assessing:",
+    "assessing": [
+     "Safety",
+     "Policing",
+     "Crowds",
+     "Beaches",
+     "Medical Response",
+     "Fire & Civil Protection",
+     "Climate",
+     "Sea-Level Rise",
+     "Natural Disasters",
+     "Geopolitical Risk",
+     "Migration",
+     "Cybersecurity",
+     "Infrastructure",
+     "Crisis Communication",
+     "Business Continuity",
+     "Recovery"
+    ],
+    "supportedByLead": "Supported by:",
+    "supportedBy": [
+     "AI",
+     "Drones",
+     "Smart Cameras",
+     "Sensors",
+     "Satellite Data",
+     "Predictive Analytics",
+     "Digital Twins"
+    ],
+    "chainFinal": "ANTICIPATE → PREPARE → PROTECT → RESPOND → ADAPT → RECOVER",
+    "chainFinalSteps": [
+     "ANTICIPATE",
+     "PREPARE",
+     "PROTECT",
+     "RESPOND",
+     "ADAPT",
+     "RECOVER"
+    ]
+   },
+   "relatedThinkTank": "04",
+   "pillar": "U",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "index": 3,
+   "id": "ai-powered-hospitality",
+   "title": "AI-Powered Hospitality",
+   "deckTitle": "AI-POWERED HOSPITALITY",
+   "subtitle": "Re-Engineering the Tourism Economy",
+   "subtitleDeck": "RE-ENGINEERING THE TOURISM ECONOMY",
+   "date": "2026-11-27",
+   "lead": [
+    "AI should not simply automate today's hospitality business.",
+    "IT SHOULD HELP US REDESIGN TOMORROW'S."
+   ],
+   "acrossLead": "Across:",
+   "across": [
+    "Sales & Marketing",
+    "Guest Experience",
+    "Food & Beverage",
+    "Operations",
+    "People & Talent",
+    "Finance & Back Office",
+    "STR Management"
+   ],
+   "applicationsLead": "Applications include:",
+   "applications": [
+    "Personalisation",
+    "Revenue",
+    "Food Management",
+    "Food-Waste Reduction",
+    "Recruitment",
+    "Rostering",
+    "Training",
+    "Talent Retention",
+    "Finance",
+    "Procurement",
+    "Energy",
+    "Productivity"
+   ],
+   "opportunityLead": "The opportunity:",
+   "opportunity": [
+    "SIMPLIFY",
+    "AUTOMATE",
+    "PREDICT",
+    "OPTIMISE",
+    "ELIMINATE WASTE"
+   ],
+   "opportunityLine": "SIMPLIFY • AUTOMATE • PREDICT • OPTIMISE • ELIMINATE WASTE",
+   "closingLine": "AI IN THE BACK OFFICE. HUMANS AT THE FRONT.",
+   "blueprint": {
+    "title": "AI-POWERED HOSPITALITY BLUEPRINT",
+    "lead": "A practical framework for:",
+    "for": [
+     "HOTELS",
+     "RESTAURANTS",
+     "F&B",
+     "STRs"
+    ],
+    "sixPsLead": "Built around six Ps:",
+    "sixPs": [
+     {
+      "p": "PEOPLE",
+      "text": "Better jobs & talent retention"
+     },
+     {
+      "p": "PRODUCTIVITY",
+      "text": "Automation & process redesign"
+     },
+     {
+      "p": "PERFORMANCE",
+      "text": "Sales, marketing, revenue & costs"
+     },
+     {
+      "p": "PERSONALISATION",
+      "text": "Better guest experiences"
+     },
+     {
+      "p": "PLANET",
+      "text": "Energy, water & food waste"
+     },
+     {
+      "p": "PROFITABILITY",
+      "text": "Turning AI into business value"
+     }
+    ],
+    "strLead": "Including AI-powered STR management:",
+    "str": [
+     "Registration",
+     "Compliance",
+     "Real-Time Mapping",
+     "Illegal Listings",
+     "Capacity Monitoring",
+     "Licensing Intelligence",
+     "Smarter Enforcement"
+    ],
+    "closingLines": [
+     "SMARTER BEHIND THE SCENES.",
+     "MORE HUMAN IN FRONT OF THE GUEST."
+    ]
+   },
+   "relatedThinkTank": "02",
+   "pillar": "N",
+   "status": "confirmed",
+   "origin": "deck"
+  },
+  {
+   "index": 4,
+   "id": "coffee-experience",
+   "title": "The Coffee Experience",
+   "deckTitle": "THE COFFEE EXPERIENCE",
+   "subtitle": "Powered by Lavazza",
+   "subtitleDeck": "POWERED BY LAVAZZA",
+   "partner": "Lavazza",
+   "date": "2026-11-27",
+   "lead": [
+    "Coffee is more than a product.",
+    "In Mediterranean hospitality, it is part of the welcome, culture and guest experience."
+   ],
+   "exploringLead": "Exploring:",
+   "exploring": [
+    "Coffee Culture",
+    "Consumer Trends",
+    "Product Innovation",
+    "Barista Skills",
+    "Service Excellence",
+    "Sustainability",
+    "Technology",
+    "F&B Profitability",
+    "Guest Experience"
+   ],
+   "closingLine": "FROM COFFEE AS A PRODUCT TO COFFEE AS AN EXPERIENCE",
+   "closingLines": [
+    "FROM COFFEE AS A PRODUCT",
+    "TO COFFEE AS AN EXPERIENCE"
+   ],
+   "pillar": "N",
+   "status": "confirmed",
+   "origin": "deck"
+  }
+ ],
+ "knowledgeForum": {
+  "title": "Mediterranean Knowledge & Policy Forum",
+  "deckTitle": "MEDITERRANEAN KNOWLEDGE & POLICY FORUM",
+  "heading": "KNOWLEDGE INTO ACTION",
+  "deckDates": "25/27 NOVEMBER",
+  "days": {
+   "value": [
+    "2026-11-25",
+    "2026-11-26"
+   ],
+   "status": "tbc",
+   "note": "Day grids list it on 25 and 26; the section header says 25/27."
+  },
+  "bringingTogetherLead": "Bringing together:",
+  "bringingTogether": [
+   "Academics",
+   "Policymakers",
+   "Industry",
+   "Researchers",
+   "Students"
+  ],
+  "connectingLead": "Connecting:",
+  "chain": "RESEARCH → POLICY → BUSINESS → IMPLEMENTATION",
+  "chainSteps": [
+   "RESEARCH",
+   "POLICY",
+   "BUSINESS",
+   "IMPLEMENTATION"
+  ],
+  "themesLead": "Themes include:",
+  "themes": [
+   "Competitiveness",
+   "Destination Management",
+   "AI",
+   "Sustainability",
+   "Visitor Behaviour",
+   "Connectivity",
+   "Mobility",
+   "Skills",
+   "Climate",
+   "Investment",
+   "Community Wellbeing"
+  ],
+  "lines": [
+   "Knowledge should not remain inside universities.",
+   "TURN KNOWLEDGE INTO POLICY — AND POLICY INTO ACTION."
+  ],
+  "closingLine": "TURN KNOWLEDGE INTO POLICY — AND POLICY INTO ACTION.",
+  "chair": {
+   "name": "Prof. Dimitrios Buhalis",
+   "role": "Chair, MTF Research Forum; Professor, Bournemouth University",
+   "country": "UK",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "precedent2025": {
+   "title": "The Mediterranean Tourism Knowledge Exchange and Policy Forum 2025",
+   "text": "The Mediterranean Tourism Knowledge Exchange and Policy Forum chaired by Prof. Dimitrios Buhalis will unite researchers and policymakers to share insights and research, enhancing regional development and sustainability. It promotes regenerative tourism that revitalises environments and communities, fostering mutually beneficial relationships between tourists and locals, ensuring all stakeholders co-create value and enhance the overall experience.",
+   "url": "https://mediterraneantourismresearch.com/",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "status": "confirmed",
+  "origin": "deck"
+ },
+ "skillsCareersBusiness": {
+  "heading": "SKILLS, CAREERS & BUSINESS",
+  "date": "2026-11-26",
+  "status": "confirmed",
+  "origin": "deck",
+  "competitions": {
+   "title": "Hospitality Skills Competitions",
+   "deckTitle": "HOSPITALITY SKILLS COMPETITIONS",
+   "lead": "CELEBRATING EXCELLENCE IN:",
+   "categories": [
+    "Front Office",
+    "Housekeeping",
+    "Restaurant Service",
+    "Chefs",
+    "Food & Beverage"
+   ],
+   "status": "confirmed",
+   "origin": "deck",
+   "precedent2025": {
+    "competitions": [
+     {
+      "name": "Receptionist of the Year",
+      "dates": "26 & 27 November 2025",
+      "url": "https://cwk.shq.mybluehost.me/receptionist-of-the-year-competition/"
+     },
+     {
+      "name": "Housekeeping Attendants",
+      "dates": "26 & 27 November 2025",
+      "url": "https://cwk.shq.mybluehost.me/housekeeping-attendant-of-the-year-competition/"
+     },
+     {
+      "name": "Culinary Arts",
+      "dates": "27 November 2025",
+      "url": "https://cwk.shq.mybluehost.me/culinary-arts-competition/"
+     },
+     {
+      "name": "Waiter of the Year",
+      "dates": "27 November 2025",
+      "url": "https://cwk.shq.mybluehost.me/waiter-of-the-year-competition/"
+     }
+    ],
+    "status": "carried-from-2025",
+    "origin": "current-site"
+   }
+  },
+  "careers": {
+   "title": "Hospitality Careers Programme",
+   "deckTitle": "HOSPITALITY CAREERS",
+   "lead": "Introducing young people to opportunities across:",
+   "fields": [
+    "Hospitality",
+    "Technology",
+    "AI",
+    "Finance",
+    "Culinary",
+    "Sustainability",
+    "Design",
+    "Marketing",
+    "Events",
+    "Entrepreneurship"
+   ],
+   "status": "confirmed",
+   "origin": "deck",
+   "precedent2025": "Careers in Hospitality Seminar (27 November 2025)"
+  },
+  "b2b": {
+   "title": "B2B Business Meetings & Networking",
+   "deckTitle": "B2B BUSINESS MEETINGS & NETWORKING",
+   "lead": "Connecting:",
+   "connecting": [
+    "Hotels",
+    "Tourism Operators",
+    "Buyers",
+    "Suppliers",
+    "Technology Companies",
+    "Investors",
+    "Destinations",
+    "Service Providers"
+   ],
+   "chain": "CONTACTS → RELATIONSHIPS → OPPORTUNITIES → PARTNERSHIPS → BUSINESS",
+   "chainSteps": [
+    "CONTACTS",
+    "RELATIONSHIPS",
+    "OPPORTUNITIES",
+    "PARTNERSHIPS",
+    "BUSINESS"
+   ],
+   "status": "confirmed",
+   "origin": "deck",
+   "precedent2025": {
+    "networking": "MTF Networking Card Exchange, 26 November 2025 — Farsons Brewery Experience, by invitation",
+    "url": "https://cwk.shq.mybluehost.me/networking-event/",
+    "matchmaking": "Projects Match-Making Meetings (27 November 2025)"
+   }
+  }
+ },
+ "forbes": {
+  "title": "Forbes Travel Guide Plus",
+  "items": [
+   {
+    "title": "Forbes Travel Guide Plus Training",
+    "date": "2026-11-25",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "title": "Forbes Travel Guide Plus Sessions",
+    "date": "2026-11-26",
+    "status": "confirmed",
+    "origin": "deck"
+   }
+  ],
+  "precedent2025": {
+   "title": "STAR Journey in Partnership with Forbes Travel Guide",
+   "text": "In collaboration with Forbes Travel Guide, we are working with Malta's Hotels and Restaurants to deliver exceptional hospitality.",
+   "url": "https://starjourney.mt/forbes-travel-guide-hospitality-training-program/",
+   "venues": [
+    "Sea View Hotel, Saint Paul's Bay (26 Nov 2025)",
+    "Hilton Hotel, Malta (27 Nov 2025)"
+   ],
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "description": null,
+  "note": "2026 description tbc — only the two titles are confirmed."
+ },
+ "awards": {
+  "title": "Mediterranean Tourism Awards",
+  "date": "2026-11-25",
+  "status": "confirmed",
+  "origin": "deck",
+  "precedent2025": {
+   "venue": "Palace of the President",
+   "access": "By invitation",
+   "timeOfDay": "Evening",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "description": null,
+  "note": "Categories, venue and access for 2026 tbc."
+ },
+ "gala": {
+  "title": "Calypso's Odyssey",
+  "titleCaps": "CALYPSO'S ODYSSEY",
+  "subtitle": "The Greatest Journeys Are Not Always Across the Sea",
+  "subtitleCaps": "THE GREATEST JOURNEYS ARE NOT ALWAYS ACROSS THE SEA",
+  "programmeTitle": "Calypso's Odyssey Gala",
+  "date": "2026-11-26",
+  "venue": null,
+  "access": {
+   "value": null,
+   "precedent2025": "By invitation (Mediterranean STARS Concert)",
+   "status": "tbc"
+  },
+  "format": {
+   "storyteller": "One Storyteller. No dialogue.",
+   "runningTime": "approximately 65–69 minutes",
+   "runningTimeCeiling": "75 minutes",
+   "structure": "Preamble + seven Cantos + Conclusion; nine songs; aerial and acrobatic company; three screens",
+   "narrationCapPerChapter": "3:00",
+   "status": "confirmed",
+   "origin": "gala-script",
+   "note": "Per the 'shorter version' working script. Final production values tbc."
+  },
+  "storyline": "Ulysses — King of Ithaca, husband of Penelope, father of Telemachus, the man who conquered Troy — has survived the Cyclops, Circe and the Sirens when his companions do the one thing they were warned against: they touch what belongs to the Sun, the cattle of Helios. Zeus answers with thunder; the ship breaks apart and every sailor is lost. Alone between sea and sky, with the gods silent, Ulysses does what Mediterranean sailors have always done when they lose sight of land: he reads the heavens. One star grows brighter, follows him for nine nights and, on the tenth dawn, touches the earth as the nymph Calypso on the island of Ogygia — a primeval name the story roots in Gozo: red earth at Ramla, honey-coloured limestone, caves watching the horizon, and above the bay a cave that still carries her name. Her name holds the key — kalyptein, to draw a veil. She asks the stranger his name and he answers 'Nobody'; she does not silence his grief for his brothers in arms, she simply stays beside him. Before she loves him, she saves him: one wave, one breath, one morning at a time. Mercy becomes tenderness, tenderness becomes love, and then there is paradise — thyme on the wind, olive leaves turning silver, salt, wine, music — and a woman saying 'Stay today.' Under her veil, time passes unnoticed; seven years feel like one season. Happiness brings its shadow, fear, and Calypso does what frightened hearts have always done: she tries to bargain with goodbye, offering him immortality — forever young, forever together — not to defeat death but to defeat departure. Ulysses understands what eternity had hidden from her: life matters because it ends. One night the stars — Orion, the Bear — remind him who he is; navigation awakens memory, memory awakens identity: 'I am Ulysses.' The veil tears. Calypso, knowing he will leave and afraid she is not enough, meets jealousy — but he is not returning to Penelope so much as to himself. Hermes descends with Zeus's command to release him; Olympus can command her hand but not her heart. She rebuilds his raft from the wreckage that first threw him onto her shore, and then comes the net she had woven for seven years to keep him. She cuts it. Love is not the hand that closes; love is the hand that opens. The star that once guided him toward her now guides him away. He goes home, becomes husband, father and king again — but never again the man who left — grows old beneath an olive tree, and dies; three thousand years later we still know his name. Everything disappears and the Storyteller removes his cloak: 'I am Homer.' This was never an ancient story. Calypso is each one of us — when someone enters our life and changes it, when we hold too tightly, and when life finally teaches us to open our hand. Ulysses crossed the Mediterranean; Calypso never left Ogygia. Which travelled farther? He crossed seas. She crossed herself — from loneliness to love, from love to fear, from fear to jealousy, from jealousy to loss, and from loss to freedom. She turns from the horizon and walks back toward her island, toward herself, toward life, as the Mediterranean sunrise spreads across the sea. I lived.",
+  "storylineStatus": "confirmed",
+  "storylineOrigin": "gala-script (editor's one-paragraph synopsis of the script's beats)",
+  "keyLines": [
+   {
+    "text": "LOVE IS NOT THE HAND THAT CLOSES.",
+    "sentenceCase": "Love is not the hand that closes.",
+    "where": "final image",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "LOVE IS THE HAND THAT OPENS.",
+    "sentenceCase": "Love is the hand that opens.",
+    "where": "final image",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "The Greatest Journeys Are Not Always Across the Sea",
+    "where": "title",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Do not touch what belongs to the Sun.",
+    "where": "preamble — Helios",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "When they lost sight of earth... they read the heavens.",
+    "where": "preamble — the stars",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Where do I go from here?",
+    "where": "preamble",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "A sky full of stars.",
+    "where": "preamble / Song I",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "The heart of the Mediterranean. Its eye upon the sea. Its soul carved in stone. A diamond set in blue.",
+    "where": "Canto I — Gozo",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Kalyptein. To cover. To conceal. To draw a veil.",
+    "where": "Canto I — the veil",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Sometimes courage is simply... getting up again.",
+    "where": "Canto II",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "I was different because you were there.",
+    "where": "Canto II",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Stay today.",
+    "where": "Canto III",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "We rarely recognise paradise while we are living inside it.",
+    "where": "Canto III",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "She did not stop time. She made time... unnoticed.",
+    "where": "Canto IV",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "And we all have our Ogygia.",
+    "where": "Canto IV",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Life matters because it ends.",
+    "where": "Canto V",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "A mortal counts life in years. An immortal counts departures.",
+    "where": "Canto V",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "I AM ULYSSES.",
+    "where": "Canto VI",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "The wind may belong to destiny. The hand upon the rudder remains ours.",
+    "where": "Canto VI",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Perhaps that is what we must do with our own wreckage. Build from it.",
+    "where": "Canto VII",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Holding tighter does not stop departure. Sometimes... it turns love into a chain.",
+    "where": "Canto VII",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "We cannot always choose what leaves us. But we can choose what the leaving makes of us.",
+    "where": "Canto VII",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Not every star is our destination. Some illuminate only part of our voyage.",
+    "where": "Canto VII",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "I am Homer.",
+    "where": "conclusion",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Calypso is each one of us.",
+    "where": "Homer's revelation",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "He crossed seas. She crossed herself.",
+    "where": "Homer's revelation",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "Perhaps immortality was never about refusing to die. Perhaps it is what remains because we lived.",
+    "where": "conclusion",
+    "status": "confirmed",
+    "origin": "gala-script"
+   },
+   {
+    "text": "I LIVED.",
+    "where": "finale / Song IX",
+    "status": "confirmed",
+    "origin": "gala-script"
+   }
+  ],
+  "chapters": [
+   {
+    "index": 0,
+    "label": "Preamble",
+    "title": "The Last Ship",
+    "emotion": "Destiny",
+    "narrationCap": "3:00",
+    "songIndex": "I",
+    "beats": [
+     "Darkness. The Mediterranean.",
+     "Troy; Cyclops, Circe, Sirens.",
+     "The cattle of Helios — the Sun fills the screens.",
+     "Zeus answers; the ship breaks apart.",
+     "Ulysses alone between sea and sky; the gods answer with silence.",
+     "Stars appear; one grows brighter."
+    ]
+   },
+   {
+    "index": 1,
+    "label": "Canto I",
+    "title": "The Stranger",
+    "emotion": "Loss",
+    "narrationCap": "3:00",
+    "songIndex": "II",
+    "beats": [
+     "The star descends and becomes Calypso.",
+     "Ogygia — Gozo emerges: Ramla, limestone, caves, the cave that carries her name.",
+     "The veil: kalyptein.",
+     "Title reveal.",
+     "'Nobody.' The drowned sailors; grief; she remains beside him."
+    ]
+   },
+   {
+    "index": 2,
+    "label": "Canto II",
+    "title": "The Awakening",
+    "emotion": "Healing → Love",
+    "narrationCap": "2:45",
+    "songIndex": "III",
+    "beats": [
+     "She saves him before she loves him.",
+     "One wave. One breath. One morning.",
+     "Ulysses walks alone.",
+     "Mercy → tenderness → affection → love."
+    ]
+   },
+   {
+    "index": 3,
+    "label": "Canto III",
+    "title": "Paradise",
+    "emotion": "Joy",
+    "narrationCap": "2:45",
+    "songIndex": "IV",
+    "beats": [
+     "Gozo explodes into colour.",
+     "Paradise has a landscape: Ramla, red earth, thyme, olive, salt, wine, music.",
+     "'Stay today.' Again. And again."
+    ]
+   },
+   {
+    "index": 4,
+    "label": "Canto IV",
+    "title": "Seven Years",
+    "emotion": "Time",
+    "narrationCap": "3:00",
+    "songIndex": "V",
+    "beats": [
+     "Sunrise → sunset → seasons.",
+     "They stopped counting.",
+     "The veil crosses the screens: time made unnoticed.",
+     "Before Ulysses / after Ulysses."
+    ]
+   },
+   {
+    "index": 5,
+    "label": "Canto V",
+    "title": "Forever",
+    "emotion": "Fear",
+    "narrationCap": "3:00",
+    "songIndex": "VI",
+    "beats": [
+     "Happiness has a shadow.",
+     "She bargains with goodbye: immortality.",
+     "An immortal counts departures.",
+     "Life matters because it ends."
+    ]
+   },
+   {
+    "index": 6,
+    "label": "Canto VI",
+    "title": "The Other Woman",
+    "emotion": "Jealousy → Loss",
+    "narrationCap": "3:00",
+    "songIndex": "VII",
+    "beats": [
+     "Stars return: Orion, the Bear.",
+     "Navigation → memory → identity: 'I am Ulysses.'",
+     "The veil tears.",
+     "Jealousy — 'Why am I not enough?'"
+    ]
+   },
+   {
+    "index": 7,
+    "label": "Canto VII",
+    "title": "The Open Hand",
+    "emotion": "Letting Go",
+    "narrationCap": "3:00",
+    "songIndex": "VIII",
+    "beats": [
+     "Hermes descends: release him.",
+     "The raft built from the wreckage.",
+     "The net. She cuts it.",
+     "She opens her hand.",
+     "The star that guides him away.",
+     "From 'Stay' to 'Go'."
+    ]
+   },
+   {
+    "index": 8,
+    "label": "Conclusion",
+    "title": "The Poet",
+    "emotion": "Life → Revelation → Catharsis",
+    "narrationCap": "3:00",
+    "songIndex": "IX",
+    "beats": [
+     "Only the Storyteller.",
+     "Ulysses goes home; the olive tree; a leaf falls.",
+     "Three thousand years later, you know his name.",
+     "'I am Homer.'",
+     "Homer's revelation: Calypso is each one of us.",
+     "Gozo at dawn. 'I lived.'"
+    ]
+   }
+  ],
+  "songs": [
+   {
+    "index": "I",
+    "n": 1,
+    "title": "A Sky Full of Stars",
+    "chapter": "Preamble — The Last Ship",
+    "emotion": "Destiny",
+    "staging": "Aerial constellations. Nine nights. One star follows Ulysses and gradually descends.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "II",
+    "n": 2,
+    "title": "Brothers in Arms",
+    "chapter": "Canto I — The Stranger",
+    "emotion": "Loss",
+    "staging": "Dark straps. The drowned sailors disappear one by one.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "III",
+    "n": 3,
+    "title": "Caruso",
+    "chapter": "Canto II — The Awakening",
+    "emotion": "Healing → Love",
+    "staging": "Restrained staging. Singer and one subtle aerial duet.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "IV",
+    "n": 4,
+    "title": "La Isla Bonita",
+    "chapter": "Canto III — Paradise",
+    "emotion": "Joy",
+    "staging": "The major Gozo/Ogygia spectacle: aerial hoops, ribbons, dance, sea and fire.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "V",
+    "n": 5,
+    "title": "Nothing Else Matters",
+    "chapter": "Canto IV — Seven Years",
+    "emotion": "Time",
+    "staging": "Symphonic Mediterranean treatment. Two aerial straps performers move from independence toward dependency.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "VI",
+    "n": 6,
+    "title": "Forever and Ever",
+    "chapter": "Canto V — Forever",
+    "emotion": "Fear",
+    "staging": "The world ages around two unchanged figures. Eternity gradually becomes loneliness.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "VII",
+    "n": 7,
+    "title": "The Winner Takes It All",
+    "chapter": "Canto VI — The Other Woman",
+    "emotion": "Jealousy → Loss",
+    "staging": "Minimal beginning. Calypso alone. The emotional peak builds around her.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "VIII",
+    "n": 8,
+    "title": "I Will Survive",
+    "chapter": "Canto VII — The Open Hand",
+    "emotion": "Letting Go",
+    "staging": "Start as a lament, not disco. Gradually grow into strength. Calypso moves from the edge of the stage to its centre.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   },
+   {
+    "index": "IX",
+    "n": 9,
+    "title": "I Lived",
+    "chapter": "Conclusion — The Poet / Homer's Revelation",
+    "emotion": "Life → Revelation → Catharsis",
+    "staging": "Finale, full company, ~4:00. Michela begins alone; the whole journey returns across three screens; the aerial company rises, releases and flies; every singer returns for the climax. Calypso turns from the horizon and walks back toward Gozo. Sunrise.",
+    "status": "confirmed",
+    "origin": "gala-script",
+    "castStatus": "cast to be announced"
+   }
+  ],
+  "motifs": [
+   {
+    "id": "sun",
+    "name": "The Sun / Helios",
+    "meaning": "What must not be taken — Stewardship.",
+    "scriptRef": "The Sun fills the screens. The cattle of Helios."
+   },
+   {
+    "id": "star",
+    "name": "The star",
+    "meaning": "Guidance that comes and goes — Unity; 'not every star is our destination.'",
+    "scriptRef": "One star grows brighter."
+   },
+   {
+    "id": "veil",
+    "name": "The veil (kalyptein)",
+    "meaning": "Time made unnoticed; concealment.",
+    "scriptRef": "The veil appears / crosses the screens / tears."
+   },
+   {
+    "id": "ogygia",
+    "name": "Ogygia = Gozo",
+    "meaning": "The place itself — Ramla, limestone, the cave.",
+    "scriptRef": "Gozo emerges across the screens."
+   },
+   {
+    "id": "wreckage",
+    "name": "The wreckage → the raft",
+    "meaning": "Build from what broke us — resilience (MED READY).",
+    "scriptRef": "The wreckage returns."
+   },
+   {
+    "id": "net",
+    "name": "The net",
+    "meaning": "Holding too tightly; she cuts it.",
+    "scriptRef": "The net appears. Calypso cuts the net."
+   },
+   {
+    "id": "open-hand",
+    "name": "The open hand",
+    "meaning": "Letting go; leaving more than we take — Net Positive.",
+    "scriptRef": "She opens her hand. The image of an open hand becomes the Mediterranean horizon."
+   },
+   {
+    "id": "olive",
+    "name": "The olive tree / falling leaf",
+    "meaning": "Mortality; what remains because we lived.",
+    "scriptRef": "A single olive tree appears on the centre screen. A leaf falls."
+   },
+   {
+    "id": "sunrise",
+    "name": "Sunrise",
+    "meaning": "The story ends where SUN begins.",
+    "scriptRef": "The Mediterranean sunrise spreads across all three screens."
+   }
+  ],
+  "gozoLines": [
+   "Red earth at Ramla.",
+   "Honey-coloured limestone.",
+   "Caves watching the horizon.",
+   "Ancient stone carrying memories older than kingdoms.",
+   "The heart of the Mediterranean.",
+   "Its eye upon the sea.",
+   "Its soul carved in stone.",
+   "A diamond set in blue."
+  ],
+  "status": "confirmed",
+  "origin": "gala-script",
+  "licensingNote": "Song titles and singer names only. Never reproduce lyrics on the site."
+ },
+ "storySpine": {
+  "note": "Editor proposal: how the site's scroll-film borrows the gala's beats. The programme facts stay literal; the myth carries the transitions.",
+  "status": "tbc",
+  "origin": "editor",
+  "chapters": [
+   {
+    "n": 0,
+    "site": "Hero",
+    "myth": "Darkness → the Sun (Helios)",
+    "line": "Mediterranean SUN",
+    "content": [
+     "event.heroCopy"
+    ]
+   },
+   {
+    "n": 1,
+    "site": "Why now",
+    "myth": "The ship breaks apart; the gods are silent; sailors read the heavens",
+    "line": "Where do we go from here?",
+    "content": [
+     "whyNow"
+    ]
+   },
+   {
+    "n": 2,
+    "site": "Why SUN — the three questions",
+    "myth": "One star grows brighter",
+    "line": "It asks three questions.",
+    "content": [
+     "theme.questions"
+    ]
+   },
+   {
+    "n": 3,
+    "site": "S — Stewardship",
+    "myth": "Ogygia = Gozo: Ramla, limestone, the cave",
+    "line": "Do not touch what belongs to the Sun.",
+    "content": [
+     "theme.pillars[0]"
+    ]
+   },
+   {
+    "n": 4,
+    "site": "U — Unity",
+    "myth": "A hand when we needed one; one wave, one breath, one morning",
+    "line": "Achieve together what we cannot achieve alone.",
+    "content": [
+     "theme.pillars[1]"
+    ]
+   },
+   {
+    "n": 5,
+    "site": "N — Net Positive",
+    "myth": "Seven years; what remains because we lived",
+    "line": "Leave more than we take.",
+    "content": [
+     "theme.pillars[2]"
+    ]
+   },
+   {
+    "n": 6,
+    "site": "Three days. One ecosystem.",
+    "myth": "Sunrise → sunset → seasons (three dawns)",
+    "line": "Three days. One ecosystem.",
+    "content": [
+     "programme"
+    ]
+   },
+   {
+    "n": 7,
+    "site": "11 for 11",
+    "myth": "A sky full of stars — eleven constellations",
+    "line": "11th edition. 11 think tanks. One Mediterranean.",
+    "content": [
+     "thinkTanks"
+    ]
+   },
+   {
+    "n": 8,
+    "site": "Four specialist events",
+    "myth": "The wreckage → the raft (MED READY); the olive tree; the welcome (coffee)",
+    "line": "Build from it.",
+    "content": [
+     "specialistEvents"
+    ]
+   },
+   {
+    "n": 9,
+    "site": "Calypso's Odyssey",
+    "myth": "The net. The open hand.",
+    "line": "Love is the hand that opens.",
+    "content": [
+     "gala"
+    ]
+   },
+   {
+    "n": 10,
+    "site": "Voices / who comes",
+    "myth": "Homer removes his cloak — this is your story",
+    "line": "One Mediterranean conversation.",
+    "content": [
+     "audiences",
+     "pastSpeakers"
+    ]
+   },
+   {
+    "n": 11,
+    "site": "Register",
+    "myth": "Sunrise over Gozo — I lived",
+    "line": "Be there.",
+    "content": [
+     "registration",
+     "participation",
+     "hotels"
+    ]
+   }
+  ]
+ },
+ "audiences": {
+  "lead": "MTF's flagship annual gathering connects:",
+  "items": [
+   "Political Leaders",
+   "Policymakers",
+   "Hoteliers",
+   "Restaurateurs",
+   "Tourism Operators",
+   "Investors",
+   "Architects",
+   "Technology Leaders",
+   "Academics",
+   "Destination Managers",
+   "Hospitality Professionals",
+   "Students"
+  ],
+  "deckLine": "Political Leaders • Policymakers • Hoteliers • Restaurateurs • Tourism Operators • Investors • Architects • Technology Leaders • Academics • Destination Managers • Hospitality Professionals • Students",
+  "closing": [
+   "Different sectors. Different generations. Different countries.",
+   "ONE MEDITERRANEAN CONVERSATION."
+  ],
+  "foundationConstituencies": [
+   "the public sector",
+   "the private sector",
+   "academia",
+   "the next generation"
+  ],
+  "status": "confirmed",
+  "origin": "deck"
+ },
+ "participation": {
+  "heading": "Participate",
+  "status": "confirmed",
+  "origin": "deck",
+  "packages": [
+   {
+    "id": "mtf11-associate",
+    "name": "MTF11 Associate",
+    "deckTitle": "MTF11 ASSOCIATE",
+    "includes": [
+     {
+      "text": "Mediterranean Knowledge & Policy Forum – Speaker",
+      "deckText": "MEDITERRANEAN KNOWLEDGE & POLICY FORUM – SPEAKER",
+      "date": "2026-11-25"
+     },
+     {
+      "text": "26th BRAIN Session",
+      "deckText": "26th BRAIN Session",
+      "date": "2026-11-26"
+     },
+     {
+      "text": "27th Conference",
+      "deckText": "27TH Conference",
+      "date": "2026-11-27"
+     },
+     {
+      "text": "Hosting of Clients",
+      "deckText": "Hosting of Clients",
+      "date": null
+     }
+    ],
+    "price": {
+     "value": null,
+     "status": "tbc"
+    },
+    "cta": {
+     "text": "Become an Associate",
+     "href": "mailto:forum@medtourismfoundation.com",
+     "status": "tbc",
+     "origin": "editor"
+    },
+    "status": "confirmed",
+    "origin": "deck"
+   }
+  ],
+  "otherTiers": {
+   "value": null,
+   "note": "Sponsor / partner / exhibitor tiers not in the deck.",
+   "status": "tbc"
+  },
+  "precedent2025": {
+   "associatesHeading": "OUR ASSOCIATES",
+   "airlinesHeading": "Official Airlines of the Mediterranean Tourism Forum 2025",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  }
+ },
+ "registration": {
+  "heading": "Register",
+  "deckCta": "REGISTER NOW",
+  "publicUrl": {
+   "value": "https://mtf.global/register",
+   "note": "The live page's REGISTER NOW button points to http://MTF.GLOBAL/REGISTER",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "openingDate": {
+   "value": null,
+   "status": "tbc"
+  },
+  "tracks": [
+   {
+    "id": "malta-based",
+    "label": "Malta-Based Delegates",
+    "cta": "Register Here",
+    "currentUrl": "https://cwk.shq.mybluehost.me/malta-based-registration-2/",
+    "proposedPath": "/register/malta",
+    "status": "carried-from-2025",
+    "origin": "current-site",
+    "note": "2026 form tbc; link placeholder points to the live 2025 form."
+   },
+   {
+    "id": "international",
+    "label": "International Delegates",
+    "cta": "Register Here",
+    "currentUrl": "https://cwk.shq.mybluehost.me/register/",
+    "proposedPath": "/register/international",
+    "status": "carried-from-2025",
+    "origin": "current-site",
+    "note": "2026 form tbc; link placeholder points to the live 2025 form."
+   }
+  ],
+  "registrationsOpenPage": {
+   "currentUrl": "https://cwk.shq.mybluehost.me/registrationsopen/",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "watchLastYear": {
+   "label": "Last Year's Forum",
+   "cta": "WATCH Here",
+   "currentUrl": "https://cwk.shq.mybluehost.me/what-happened-last-year/",
+   "proposedPath": "/mtf10",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "closingCta2025": {
+   "text": "Don't just witness the future of tourism — be part of it.",
+   "status": "carried-from-2025",
+   "origin": "current-site"
+  },
+  "fees": {
+   "value": null,
+   "status": "tbc"
+  }
+ },
+ "hotels": {
+  "heading": "Book Your Hotel in Malta with Us",
+  "benefit": "Enjoy special rates",
+  "cta": "Book Now",
+  "currentUrl": "https://cwk.shq.mybluehost.me/accommodation-book-now/",
+  "proposedPath": "/hotels",
+  "navLabel": "Hotels",
+  "status": "carried-from-2025",
+  "origin": "current-site",
+  "note": "2026 rates and partner hotels tbc."
+ },
+ "pastSpeakers": {
+  "heading": "Voices of MTF",
+  "subheading": "Speakers at the 10th edition, 2025",
+  "note": "MTF11 (2026) speakers TBA. Show this list only as 'past speakers' / 'voices'. Image base: https://cwk.shq.mybluehost.me/wp-content/uploads/… (individual image URLs tbc).",
+  "status": "carried-from-2025",
+  "origin": "speakers-2025",
+  "mtf11Speakers": {
+   "value": [],
+   "status": "tbc"
+  },
+  "items": [
+   {
+    "name": "H.E. Myriam Spiteri Debono",
+    "role": "President of Malta",
+    "country": "Malta",
+    "tags": [
+     "head-of-state"
+    ]
+   },
+   {
+    "name": "Hon. Dr Ian Borg",
+    "role": "Deputy Prime Minister and Minister for Foreign Affairs and Tourism",
+    "country": "Malta",
+    "tags": [
+     "government"
+    ]
+   },
+   {
+    "name": "Tony Zahra",
+    "role": "President, Mediterranean Tourism Foundation",
+    "country": "Malta",
+    "tags": [
+     "mtf-leadership"
+    ]
+   },
+   {
+    "name": "Andrew Agius Muscat",
+    "role": "Secretary General, Mediterranean Tourism Foundation",
+    "country": "Malta",
+    "tags": [
+     "mtf-leadership"
+    ]
+   },
+   {
+    "name": "Rajan Datar",
+    "role": "Moderator, BBC Broadcaster and Journalist",
+    "country": "UK",
+    "tags": [
+     "moderator"
+    ]
+   },
+   {
+    "name": "Alex Connock",
+    "role": "AI expert, Senior Fellow in Management Practice, Saïd Business School, University of Oxford",
+    "country": "UK",
+    "tags": [
+     "ai",
+     "academia"
+    ]
+   },
+   {
+    "name": "Manfredi Lefebvre d'Ovidio",
+    "role": "Chairman, World Travel & Tourism Council (WTTC)",
+    "country": null,
+    "tags": [
+     "industry"
+    ]
+   },
+   {
+    "name": "Aradhana Khowala",
+    "role": "CEO and Founder, Aptamind Partners",
+    "country": "UK",
+    "tags": [
+     "industry"
+    ]
+   },
+   {
+    "name": "Vitomir Maričić",
+    "role": "Freediver & Multiple World Record Holder",
+    "country": "Croatia",
+    "tags": [
+     "sea"
+    ]
+   },
+   {
+    "name": "Ali Boltaç",
+    "role": "Mayor of Tarsus",
+    "country": "Türkiye",
+    "tags": [
+     "mayor"
+    ]
+   },
+   {
+    "name": "Carlo Micallef",
+    "role": "Chief Executive Officer, Malta Tourism Authority",
+    "country": "Malta",
+    "tags": [
+     "destination"
+    ]
+   },
+   {
+    "name": "Alper Utku",
+    "role": "President, Amsterdam Tech",
+    "country": "Türkiye",
+    "tags": [
+     "technology",
+     "academia"
+    ]
+   },
+   {
+    "name": "Sara Roversi",
+    "role": "Founder, Future Food Institute",
+    "country": "Italy",
+    "tags": [
+     "food"
+    ]
+   },
+   {
+    "name": "Anna Pollock",
+    "role": "Founder, Conscious Travel",
+    "country": "UK",
+    "tags": [
+     "sustainability"
+    ]
+   },
+   {
+    "name": "Dimitrios Buhalis",
+    "role": "Chair, MTF Research Forum; Professor, Bournemouth University",
+    "country": "UK",
+    "tags": [
+     "academia",
+     "knowledge-forum-chair"
+    ]
+   },
+   {
+    "name": "Glenn Mandziuk",
+    "role": "CEO, Sustainable Hospitality Alliance",
+    "country": "Canada",
+    "tags": [
+     "sustainability"
+    ]
+   },
+   {
+    "name": "Leslie Vella",
+    "role": "Deputy CEO, Malta Tourism Authority",
+    "country": "Malta",
+    "tags": [
+     "destination"
+    ]
+   },
+   {
+    "name": "Hamid Bentahar",
+    "role": "President, Moroccan Confederation of Tourism",
+    "country": "Morocco",
+    "tags": [
+     "industry"
+    ]
+   },
+   {
+    "name": "Mounir Fakhry Abdel Nour",
+    "role": "Former Minister of Tourism and Industry",
+    "country": "Egypt",
+    "tags": [
+     "government"
+    ]
+   },
+   {
+    "name": "Alessandro Mager",
+    "role": "Mayor of Sanremo",
+    "country": "Italy",
+    "tags": [
+     "mayor"
+    ]
+   },
+   {
+    "name": "David Curmi",
+    "role": "CEO, KM Malta Airlines",
+    "country": "Malta",
+    "tags": [
+     "aviation"
+    ]
+   },
+   {
+    "name": "Kenneth Farrugia",
+    "role": "CEO, Bank of Valletta plc",
+    "country": "Malta",
+    "tags": [
+     "finance"
+    ]
+   },
+   {
+    "name": "Karmenu Vella",
+    "role": "Former EU Commissioner for Environment, Maritime Affairs, and Fisheries",
+    "country": "Malta",
+    "tags": [
+     "government",
+     "sea"
+    ]
+   },
+   {
+    "name": "Kike Sarasola",
+    "role": "Founder and President, Room Mate Hotels",
+    "country": "Spain",
+    "tags": [
+     "hotels"
+    ]
+   },
+   {
+    "name": "Francisco Almeida",
+    "role": "VP Partner Services Southern Europe, Forbes Travel Guide",
+    "country": null,
+    "tags": [
+     "forbes"
+    ]
+   },
+   {
+    "name": "Hisham Zaazou",
+    "role": "Former Minister of Tourism",
+    "country": "Egypt",
+    "tags": [
+     "government"
+    ]
+   },
+   {
+    "name": "Angelo Gafà",
+    "role": "Commissioner of Police",
+    "country": "Malta",
+    "tags": [
+     "med-ready"
+    ]
+   },
+   {
+    "name": "Fr. Andrea Ciucci",
+    "role": "General Director, Pontifical Academy for Life; Secretary General, renAIssance Foundation",
+    "country": "Vatican",
+    "tags": [
+     "ai",
+     "ethics"
+    ]
+   },
+   {
+    "name": "Olaf McKay",
+    "role": "Mayor of Valletta",
+    "country": "Malta",
+    "tags": [
+     "mayor"
+    ]
+   },
+   {
+    "name": "Tijani Haddad",
+    "role": "MTF Deputy President; President of FIJET & Former Minister for Tourism",
+    "country": "Tunisia",
+    "tags": [
+     "mtf-leadership"
+    ]
+   },
+   {
+    "name": "Taleb Rifai",
+    "role": "MTF Senator; Former UNWTO Secretary General",
+    "country": "Jordan",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Bruno Santori",
+    "role": "MTF Senator, Orchestra Conductor",
+    "country": "Italy",
+    "tags": [
+     "senator",
+     "music"
+    ]
+   },
+   {
+    "name": "Majlind Lazimi",
+    "role": "MTF Senator & Managing Partner Horwath",
+    "country": "Albania",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Michael Haddad",
+    "role": "MTF Senator, Regional Goodwill Ambassador UNDP for Arab States",
+    "country": "Lebanon",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Alja Brglez",
+    "role": "MTF Senator; Historian and Anthropologist",
+    "country": "Slovenia",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Thanos Michaelides",
+    "role": "MTF Senator & CEO, Thanos Hotels; President, Cyprus Hotel Association",
+    "country": "Cyprus",
+    "tags": [
+     "senator",
+     "hotels"
+    ]
+   },
+   {
+    "name": "Hani Abu Dayyeh",
+    "role": "MTF Senator & Chairman, Bethlehem Development Foundation",
+    "country": "Palestine",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Omar Marini",
+    "role": "MTF Senator & Entrepreneur",
+    "country": "San Marino",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Riad Fechkeur",
+    "role": "MTF Senator & Entrepreneur",
+    "country": "Algeria",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Sanja Miovcic",
+    "role": "MTF Senator, President IFTDO",
+    "country": "Bosnia and Herzegovina",
+    "tags": [
+     "senator"
+    ]
+   },
+   {
+    "name": "Željko Neven Bremec",
+    "role": "MTF Senator & President, Association of Chefs from Mediterranean and European Regions",
+    "country": "Croatia",
+    "tags": [
+     "senator",
+     "food"
+    ]
+   },
+   {
+    "name": "Istvan Ujhelyi",
+    "role": "MTF Senator",
+    "country": "Hungary",
+    "tags": [
+     "senator"
+    ]
+   }
+  ]
+ },
+ "senators": {
+  "heading": "MTF Senators",
+  "status": "carried-from-2025",
+  "origin": "speakers-2025",
+  "note": "Senators as listed among MTF10 speakers. The full Senate roster for 2026 is tbc.",
+  "items": [
+   {
+    "name": "Taleb Rifai",
+    "role": "Former UNWTO Secretary General",
+    "country": "Jordan"
+   },
+   {
+    "name": "Bruno Santori",
+    "role": "Orchestra Conductor",
+    "country": "Italy"
+   },
+   {
+    "name": "Majlind Lazimi",
+    "role": "Managing Partner, Horwath",
+    "country": "Albania"
+   },
+   {
+    "name": "Michael Haddad",
+    "role": "Regional Goodwill Ambassador, UNDP for Arab States",
+    "country": "Lebanon"
+   },
+   {
+    "name": "Alja Brglez",
+    "role": "Historian and Anthropologist",
+    "country": "Slovenia"
+   },
+   {
+    "name": "Thanos Michaelides",
+    "role": "CEO, Thanos Hotels; President, Cyprus Hotel Association",
+    "country": "Cyprus"
+   },
+   {
+    "name": "Hani Abu Dayyeh",
+    "role": "Chairman, Bethlehem Development Foundation",
+    "country": "Palestine"
+   },
+   {
+    "name": "Omar Marini",
+    "role": "Entrepreneur",
+    "country": "San Marino"
+   },
+   {
+    "name": "Riad Fechkeur",
+    "role": "Entrepreneur",
+    "country": "Algeria"
+   },
+   {
+    "name": "Sanja Miovcic",
+    "role": "President, IFTDO",
+    "country": "Bosnia and Herzegovina"
+   },
+   {
+    "name": "Željko Neven Bremec",
+    "role": "President, Association of Chefs from Mediterranean and European Regions",
+    "country": "Croatia"
+   },
+   {
+    "name": "Istvan Ujhelyi",
+    "role": "MTF Senator",
+    "country": "Hungary"
+   }
+  ]
+ },
+ "partners": {
+  "heading": "Partners",
+  "items": [
+   {
+    "id": "forbes-travel-guide",
+    "name": "Forbes Travel Guide",
+    "tier": "Programme partner",
+    "context": "Forbes Travel Guide Plus Training (25 Nov) and Sessions (26 Nov)",
+    "logo": null,
+    "url": "https://www.forbestravelguide.com/",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "lavazza",
+    "name": "Lavazza",
+    "tier": "Powering The Coffee Experience",
+    "context": "The Coffee Experience — Powered by Lavazza (27 Nov)",
+    "logo": null,
+    "url": "https://www.lavazza.com/",
+    "status": "confirmed",
+    "origin": "deck"
+   },
+   {
+    "id": "official-airlines",
+    "name": null,
+    "tier": "Official Airlines",
+    "context": "2025 site carried an 'Official Airlines of the Mediterranean Tourism Forum 2025' strip; carriers not named in the page text.",
+    "logo": null,
+    "url": null,
+    "status": "tbc",
+    "origin": "current-site"
+   },
+   {
+    "id": "venue-partner",
+    "name": null,
+    "tier": "Venue partner",
+    "context": "MTF10 was hosted at Hilton Malta.",
+    "logo": null,
+    "url": null,
+    "status": "tbc",
+    "origin": "current-site"
+   },
+   {
+    "id": "associates",
+    "name": null,
+    "tier": "Associates",
+    "context": "2025 site heading 'OUR ASSOCIATES' (logo wall).",
+    "logo": null,
+    "url": null,
+    "status": "tbc",
+    "origin": "current-site"
+   },
+   {
+    "id": "research-forum",
+    "name": "Mediterranean Tourism Research",
+    "tier": "Knowledge & Policy Forum",
+    "context": "2025 forum programme & registration site",
+    "logo": null,
+    "url": "https://mediterraneantourismresearch.com/",
+    "status": "carried-from-2025",
+    "origin": "current-site"
+   },
+   {
+    "id": "star-journey",
+    "name": "STAR Journey",
+    "tier": "Forbes Travel Guide training programme (Malta)",
+    "context": "2025 'STAR Journey in Partnership with Forbes Travel Guide'",
+    "logo": null,
+    "url": "https://starjourney.mt/forbes-travel-guide-hospitality-training-program/",
+    "status": "carried-from-2025",
+    "origin": "current-site"
+   }
+  ],
+  "logoWallNote": "Logo files not supplied. Only the MTF logo exists (brief/refs/mtf-logo.png)."
+ },
+ "contact": {
+  "heading": "Contact Us",
+  "organisation": "Mediterranean Tourism Foundation",
+  "emails": [
+   {
+    "id": "forum",
+    "address": "forum@medtourismfoundation.com",
+    "use": "Forum enquiries (primary; 'Contact Now' on the live site)",
+    "status": "carried-from-2025",
+    "origin": "current-site"
+   },
+   {
+    "id": "info",
+    "address": "info@medtourismfoundation.com",
+    "use": "General",
+    "status": "carried-from-2025",
+    "origin": "speakers-2025"
+   }
+  ],
+  "phone": {
+   "value": null,
+   "status": "tbc"
+  },
+  "address": {
+   "value": null,
+   "city": "Malta",
+   "status": "tbc"
+  },
+  "socials": {
+   "brand": "The Mediterranean Observer",
+   "lead2025": "Follow Now to Stay Informed with the Final Preparations and Key Updates from the Mediterranean Tourism Forum 2025",
+   "items": [
+    {
+     "network": "Facebook",
+     "handle": "Mediterraean.Observer",
+     "url": "https://www.facebook.com/Mediterraean.Observer",
+     "status": "carried-from-2025",
+     "origin": "current-site",
+     "note": "Misspelling is in the real URL."
+    },
+    {
+     "network": "Instagram",
+     "handle": "@mediterranean.observer",
+     "url": "https://www.instagram.com/mediterranean.observer/",
+     "status": "carried-from-2025",
+     "origin": "current-site"
+    },
+    {
+     "network": "LinkedIn",
+     "handle": "mediterranean-observer",
+     "url": "https://www.linkedin.com/company/mediterranean-observer/",
+     "status": "carried-from-2025",
+     "origin": "current-site"
+    }
+   ]
+  },
+  "copyright": {
+   "value": "© 2026 Mediterranean Tourism Foundation",
+   "precedent2025": "Mediterranean Tourism Forum 2025 © Copyright 2025",
+   "status": "tbc",
+   "origin": "editor"
+  },
+  "logo": {
+   "file": "/Users/kusha1/Documents/mtfwebsite/brief/refs/mtf-logo.png",
+   "description": "Hand-drawn Mediterranean Sea outline in sky blue (#1a9ad6-ish) above 'Mediterranean' (blue, sans) / 'Tourism Foundation' (black, light sans).",
+   "status": "confirmed",
+   "origin": "client-brief"
+  }
+ },
+ "navigation": {
+  "status": "tbc",
+  "origin": "editor",
+  "precedent2025": [
+   "Home",
+   "About",
+   "Register Now",
+   "Hotels",
+   "Contact"
+  ],
+  "proposed": [
+   {
+    "index": "01",
+    "label": "The Sun",
+    "path": "#sun",
+    "content": "theme"
+   },
+   {
+    "index": "02",
+    "label": "Three Days",
+    "path": "#days",
+    "content": "programme"
+   },
+   {
+    "index": "03",
+    "label": "11 for 11",
+    "path": "#eleven",
+    "content": "thinkTanks"
+   },
+   {
+    "index": "04",
+    "label": "Calypso's Odyssey",
+    "path": "#odyssey",
+    "content": "gala"
+   },
+   {
+    "index": "05",
+    "label": "Register",
+    "path": "/register",
+    "content": "registration"
+   }
+  ],
+  "pillCta": {
+   "text": "REGISTER →",
+   "status": "tbc",
+   "origin": "editor"
+  },
+  "cornerLabel": {
+   "text": "MALTA · 25–27 NOV 2026",
+   "status": "confirmed",
+   "origin": "editor"
+  }
+ },
+ "seo": {
+  "siteName": "Mediterranean Tourism Forum",
+  "title": "Mediterranean Tourism Forum 2026 · MTF11 · Mediterranean SUN · Malta",
+  "titleShort": "MTF11 — Mediterranean SUN",
+  "description": "The 11th Mediterranean Tourism Forum · 25–27 November 2026 · Malta. Three days. 11 think tanks. Mediterranean SUN — Stewardship, Unity, Net Positive.",
+  "keywords": [
+   "Mediterranean Tourism Forum",
+   "MTF 2026",
+   "MTF11",
+   "Mediterranean SUN",
+   "Malta tourism conference",
+   "Mediterranean Tourism Foundation",
+   "MED READY",
+   "AI-powered hospitality",
+   "Calypso's Odyssey",
+   "tourism conference November 2026"
+  ],
+  "canonical": "https://mtf.global/",
+  "locale": "en_GB",
+  "og": {
+   "type": "website",
+   "url": "https://mtf.global/",
+   "title": "Mediterranean Tourism Forum 2026 — Mediterranean SUN",
+   "description": "MTF11. 25–27 November 2026, Malta. Stewardship · Unity · Net Positive. Three days. One ecosystem.",
+   "image": {
+    "path": "/og/mtf11-mediterranean-sun.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Mediterranean Tourism Forum 2026 — Mediterranean SUN — 25–27 November 2026, Malta",
+    "status": "tbc"
+   },
+   "siteName": "Mediterranean Tourism Forum"
+  },
+  "twitter": {
+   "card": "summary_large_image",
+   "site": null,
+   "status": "tbc"
+  },
+  "pages": [
+   {
+    "path": "/",
+    "title": "Mediterranean Tourism Forum 2026 · MTF11 · Mediterranean SUN · Malta"
+   },
+   {
+    "path": "/programme",
+    "title": "Programme — Three Days. One Ecosystem. — MTF11"
+   },
+   {
+    "path": "/11-for-11",
+    "title": "11 for 11 — MTF Brain Think Tanks — MTF11"
+   },
+   {
+    "path": "/specialist-events",
+    "title": "Beautiful Destinations · MED READY · AI-Powered Hospitality · The Coffee Experience — MTF11"
+   },
+   {
+    "path": "/calypsos-odyssey",
+    "title": "Calypso's Odyssey — The Greatest Journeys Are Not Always Across the Sea — MTF11 Gala"
+   },
+   {
+    "path": "/register",
+    "title": "Register — Mediterranean Tourism Forum 2026"
+   },
+   {
+    "path": "/hotels",
+    "title": "Book Your Hotel in Malta — Mediterranean Tourism Forum 2026"
+   }
+  ],
+  "jsonLd": {
+   "@context": "https://schema.org",
+   "@type": "Event",
+   "name": "Mediterranean Tourism Forum 2026 (MTF11) — Mediterranean SUN",
+   "startDate": "2026-11-25",
+   "endDate": "2026-11-27",
+   "eventStatus": "https://schema.org/EventScheduled",
+   "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+   "location": {
+    "@type": "Place",
+    "name": "Venue to be announced",
+    "address": {
+     "@type": "PostalAddress",
+     "addressCountry": "MT",
+     "addressLocality": "Malta"
+    }
+   },
+   "organizer": {
+    "@type": "Organization",
+    "name": "Mediterranean Tourism Foundation",
+    "url": "https://mtf.global/",
+    "email": "forum@medtourismfoundation.com"
+   },
+   "description": "The 11th Mediterranean Tourism Forum. Theme: Mediterranean SUN — Stewardship, Unity, Net Positive.",
+   "url": "https://mtf.global/",
+   "offers": {
+    "@type": "Offer",
+    "url": "https://mtf.global/register",
+    "availability": "https://schema.org/PreOrder"
+   }
+  },
+  "status": "tbc",
+  "origin": "editor",
+  "note": "Facts inside are confirmed; the phrasing is the editor's. Venue in jsonLd must be replaced when confirmed."
+ },
+ "voice": {
+  "summary": "The deck already speaks in the register pear.no is built for: one idea per line, declared not described, closed with a single capitalised line. The site's job is to keep that register and let the myth carry the transitions.",
+  "derivedFrom": [
+   "deck",
+   "gala-script",
+   "pear-no"
+  ],
+  "status": "confirmed",
+  "origin": "editor",
+  "rules": [
+   {
+    "n": 1,
+    "rule": "One idea per line.",
+    "why": "Every deck slide and every script beat is a single-clause line. pear.no sets copy the same way — short declaratives, one thought, then air.",
+    "do": "Tourism brings opportunity — but also responsibility.",
+    "dont": "Tourism brings tremendous opportunity to the region, but it also brings with it significant responsibilities that all of us must share."
+   },
+   {
+    "n": 2,
+    "rule": "Declare. Do not describe.",
+    "why": "The deck's headlines are statements, not summaries: LEAVE MORE THAN WE TAKE. / BEAUTY CREATES VALUE.",
+    "do": "Beauty creates value.",
+    "dont": "This session will explore how beauty can create value for destinations."
+   },
+   {
+    "n": 3,
+    "rule": "Every section ends on one capitalised line, like a slide.",
+    "why": "Each deck slide closes on a caps line (PROTECT WHAT MAKES THE MEDITERRANEAN SPECIAL.). Keep it — it is the brand's cadence. Body copy stays sentence case.",
+    "do": "…and greater resident pride.\n\nBEAUTY → QUALITY → INVESTMENT → VALUE",
+    "dont": "Ending a section on a paragraph or a CTA button."
+   },
+   {
+    "n": 4,
+    "rule": "Arrows mean progress. Bullets mean a set. Never mix them.",
+    "why": "The deck uses → for sequence (THINK → CHALLENGE → DESIGN → ACT) and • for lists (Protect • Respect • Preserve • Enhance).",
+    "do": "SHARE → PREPARE → STANDARDISE → CERTIFY → IMPROVE",
+    "dont": "Share, prepare, standardise, certify and improve."
+   },
+   {
+    "n": 5,
+    "rule": "Ask the real question, then answer it.",
+    "why": "Why SUN? asks three questions. Why now? retires one question and poses a better one. The site should think out loud the same way.",
+    "do": "The question is no longer: how many tourists can we attract?",
+    "dont": "Rhetorical questions with no answer, or questions used as headings for decoration."
+   },
+   {
+    "n": 6,
+    "rule": "Use the pivot: not X — Y.",
+    "why": "The deck's and the script's strongest lines turn on a contrast: 'not consume what makes them special'; 'AI should not simply automate… It should help us redesign'; 'Not every star is our destination.'",
+    "do": "AI in the back office. Humans at the front.",
+    "dont": "AI will improve both back-office and front-of-house operations."
+   },
+   {
+    "n": 7,
+    "rule": "Numbers are exact and unadorned.",
+    "why": "1,600+. 31+. 60 / 40. 11. The deck never rounds up with adjectives.",
+    "do": "1,600+ participants. 31+ countries.",
+    "dont": "Well over a thousand delegates from dozens of countries."
+   },
+   {
+    "n": 8,
+    "rule": "Concrete Mediterranean nouns over abstract ones.",
+    "why": "The script names the place: red earth at Ramla, honey-coloured limestone, thyme on the wind, olive leaves turning silver, salt, wine. The deck names sectors: marinas, ports, beaches, airports. Name the thing.",
+    "do": "Marinas. Refit. Crew. Gastronomy.",
+    "dont": "A holistic ecosystem of maritime lifestyle experiences."
+   },
+   {
+    "n": 9,
+    "rule": "We is the region. You appears only at the call to action — and at the revelation.",
+    "why": "The deck speaks as 'we' (what we protect, what we leave behind). The script withholds 'you' until Homer turns to the audience. Copy the discipline.",
+    "do": "Leave more than we take.",
+    "dont": "You'll discover how you can leave more than you take."
+   },
+   {
+    "n": 10,
+    "rule": "Myth is the spine, not the decoration.",
+    "why": "The gala's motifs — the Sun, the star, the veil, the net, the open hand — may carry section transitions and the story chapters. Programme facts (dates, titles, tracks) stay literal and unadorned. Never write a schedule in metaphor.",
+    "do": "Section transition: 'When they lost sight of earth, they read the heavens.' → WHY NOW?",
+    "dont": "'Set sail on Day 2 for a voyage through our think tanks…'"
+   },
+   {
+    "n": 11,
+    "rule": "British English and the deck's proper casing.",
+    "why": "The deck writes organisation, programme, personalisation, civilisation, standardise. Named things keep their caps: MED READY, 11 FOR 11, BRAIN, SUN, Türkiye, Forbes Travel Guide Plus.",
+    "do": "The Hospitality Careers Programme.",
+    "dont": "The Hospitality Careers Program."
+   },
+   {
+    "n": 12,
+    "rule": "No exclamation marks. No superlatives. No urgency except a date.",
+    "why": "pear.no: nothing bounces. The deck never says world-class, unmissable, or exciting. The only permitted pressure is '25–27 November 2026'.",
+    "do": "25–27 November 2026. Malta. Register.",
+    "dont": "Don't miss the most exciting tourism event of the year!"
+   }
+  ],
+  "microcopy": {
+   "eyebrowStyle": "9–12px mono, uppercase, letterspaced, optional translucent chip — e.g. 'DAY 02 — 26 NOVEMBER', '11 FOR 11 · REGIONAL ACTION', 'THE GALA'.",
+   "ctas": [
+    "Register",
+    "Become an Associate",
+    "Book your hotel",
+    "Watch MTF10",
+    "Read the programme"
+   ],
+   "eyebrows": [
+    "MEDITERRANEAN TOURISM FORUM · 11TH EDITION",
+    "WHY NOW?",
+    "S | STEWARDSHIP",
+    "U | UNITY",
+    "N | NET POSITIVE",
+    "THREE DAYS. ONE ECOSYSTEM.",
+    "11 FOR 11",
+    "FOUR SPECIALIST EVENTS",
+    "CALYPSO'S ODYSSEY",
+    "VOICES OF MTF",
+    "REGISTER"
+   ],
+   "footerTagline": "Think together. Learn together. Act together.",
+   "footerClosing": "LEAVE MORE THAN WE TAKE.",
+   "status": "tbc",
+   "origin": "editor"
+  }
+ }
+}

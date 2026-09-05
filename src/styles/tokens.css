@@ -1,0 +1,59 @@
+/* MTF11 — Design tokens. SOURCE OF TRUTH: design/DESIGN-BIBLE.md §2–§5. Do not add hex literals elsewhere. */
+:root{
+  /* colour — stage & sea */
+  --press:#090D16; --abyss:#06192B; --sea:#0E3D57; --sea-light:#2B8FA3; --lagoon:#2B8FA3; --sky:#0F5A80; --black:#000000;
+  /* colour — stone & paper */
+  --paper:#F3EEE3; --paper-soft:#E8DCC2; --sand:#E8DCC2; --stone:#D6C39C; --cream:#FFF7E1; --star:#FFF9EA; --ink:#1B1A17; --ink-soft:#3B3934;
+  /* colour — earth, gold, olive, flame */
+  --ramla:#B44A2D; --terra:#8C3A2B;
+  --gold-leaf:#F1C86A; --gold:#D9A441; --gold-bright:#F1C86A; --gold-deep:#A67C2E;
+  --olive:#6F7A5C; --olive-silver:#A9B39C; --flame:#FF7A1A; --flame-hot:#FFD166;
+  /* semantic */
+  --bg:var(--press); --fg:var(--cream);
+  --fg-muted:color-mix(in oklab, var(--paper) 75%, transparent);
+  --fg-faint:color-mix(in oklab, var(--paper) 55%, transparent);
+  --accent:var(--gold);
+  --rule:color-mix(in oklab, var(--star) 22%, transparent);
+  --rule-strong:color-mix(in oklab, var(--star) 40%, transparent);
+  --rule-paper:color-mix(in oklab, var(--ink) 14%, transparent);
+  --cross:color-mix(in oklab, var(--star) 53%, transparent);
+  --chip:color-mix(in oklab, var(--star) 14%, transparent);
+  --chip-paper:color-mix(in oklab, var(--ink) 10%, transparent);
+  --veil:color-mix(in oklab, var(--sea) 58%, transparent);
+  --grain:.06;
+  /* live (written by the world) */
+  --sky-now:#0E3D57; --warmth-now:.35; --horizon-now:62%; --veil-now:0; --tear-now:0;
+  /* type families */
+  --font-display:"Fraunces","Fraunces Fallback","Source Serif 4","Iowan Old Style",Georgia,serif;
+  --font-serif:var(--font-display);
+  --font-sans:"Instrument Sans","Instrument Sans Fallback","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  /* type scale */
+  --fs-sun:clamp(6.5rem,26vw,24rem); --fs-display:clamp(3rem,8.5vw,7.5rem); --fs-h1:clamp(2.25rem,5vw,4.5rem);
+  --fs-h2:clamp(1.75rem,3.2vw,3rem); --fs-h3:clamp(1.25rem,1.9vw,1.75rem); --fs-story:clamp(1.25rem,1.9vw,1.75rem);
+  --fs-stat:clamp(3.5rem,8vw,8rem); --fs-lead:clamp(1.125rem,1.4vw,1.375rem); --fs-body:clamp(.9375rem,1.05vw,1.0625rem);
+  --fs-small:clamp(.8125rem,.95vw,.875rem); --fs-fine:.75rem; --fs-label:clamp(.5625rem,.66vw,.6875rem); --fs-index:.5625rem;
+  --lh-display:.96; --lh-tight:1.02; --lh-h2:1.08; --lh-h3:1.18; --lh-story:1.22; --lh-lead:1.4; --lh-body:1.55;
+  --ls-display:-.028em; --ls-h1:-.022em; --ls-h2:-.018em; --ls-label:.2em; --ls-index:.24em;
+  --measure:52ch; --measure-paper:56ch; --measure-lead:30em; --measure-title:11em; --measure-hero:8em; --measure-story:24em;
+  /* layout */
+  --gutter:clamp(1.5rem,5vw,5rem); --gx-2:calc(6% + clamp(1.25rem,2.4vw,2.75rem)); --rail-x:max(1.25rem,2.65vw); --rail-top:24%;
+  --gap:clamp(1.5rem,2.6vw,3rem); --gap-y:clamp(2.25rem,6vh,4rem); --container:92rem; --radius:4px; --radius-pill:999px;
+  --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-6:1.5rem; --space-8:2rem; --space-12:3rem; --space-16:4rem;
+  /* motion */
+  --ease:cubic-bezier(.22,1,.36,1); --ease-press:var(--ease); --ease-out:cubic-bezier(.16,1,.30,1); --ease-tide:var(--ease-out);
+  --ease-in-out:cubic-bezier(.65,0,.35,1); --ease-veil:var(--ease-in-out); --ease-set:cubic-bezier(.33,0,.20,1);
+  --dur-1:.12s; --dur-2:.26s; --dur-3:.42s; --dur-4:.64s; --dur-5:.82s; --dur-6:1.15s; --dur-7:1.4s; --dur-8:2.2s;
+  --dur-fast:var(--dur-2); --dur:var(--dur-4); --dur-slow:var(--dur-6);
+  --loop-rim:7.5s; --loop-rim2:11s; --loop-shine:7s; --loop-glow:4.6s; --loop-twinkle:9s; --stagger:60ms; --stagger-cell:8ms; --lerp:.085;
+  /* z */
+  --z-gl:0; --z-app:2; --z-veil:40; --z-header:50; --z-nav:60; --z-preloader:100;
+}
+.theme-paper,[data-theme="paper"]{
+  --bg:var(--paper); --fg:var(--ink);
+  --fg-muted:color-mix(in oklab, var(--ink) 80%, transparent); --fg-faint:var(--ink-soft);
+  --rule:var(--rule-paper); --rule-strong:color-mix(in oklab, var(--ink) 30%, transparent);
+  --chip:var(--chip-paper); --cross:color-mix(in oklab, var(--ink) 53%, transparent);
+  --accent:var(--terra); --grain:.03;
+}
+@property --ra{syntax:"<angle>";inherits:false;initial-value:0deg}

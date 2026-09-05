@@ -1,0 +1,64 @@
+/* ── The veil — DESIGN-BIBLE §7.6 (owner: ui/veil) ─────────────────────────────────────────────────
+   #veil is fixed · inset 0 · z 40 · pointer-events none (base.css). Everything here lives inside it.
+   Position and tear are written by veil.ts from --veil-now / --tear-now; this file owns the material. */
+
+#veil { overflow: clip; }
+
+/* the cloth — translated across the stage by veil.ts: translateX((.5 − fract(veil)) × 200vw) */
+.veil__cloth { position: absolute; inset: 0; visibility: hidden; will-change: transform; }
+.veil__cloth.is-on { visibility: visible; }
+.veil__body { position: absolute; inset: 0; }
+
+/* ── desktop: the SVG cloth ── */
+.veil__svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.veil__a { fill: var(--sand); fill-opacity: .22; }
+.veil__b { fill: var(--sand); fill-opacity: .14; mix-blend-mode: screen; }
+.veil__grid { fill: none; stroke: var(--gold); stroke-opacity: .18; stroke-width: 1; }
+.veil__slash {
+  fill: none; stroke: var(--cream); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+}
+/* whole cloth ↔ the two halves of Fontana's cut — the halves exist only while the cloth is ON STAGE and torn
+   (a bare `.is-torn .veil__halves { visible }` would out-rank the parked cloth's `visibility: hidden`) */
+.veil__halves { visibility: hidden; }
+.veil__cloth.is-on.is-torn .veil__halves { visibility: visible; }
+.is-torn .veil__whole { visibility: hidden; }
+
+/* ── the line the cloth carries: Storyteller voice, SOFT-axis breath 12 → 60 → 12 with blur 6 → 0 ── */
+.veil__text {
+  position: absolute; left: 7%; right: 7%; top: 38%; margin: 0; max-width: var(--measure-story);
+  font-family: var(--font-display); font-style: italic; font-weight: 300; font-optical-sizing: auto;
+  font-size: var(--fs-story); line-height: var(--lh-story); letter-spacing: -.006em;
+  font-variation-settings: "WONK" 1, "SOFT" 12;
+  color: var(--cream); text-wrap: pretty; opacity: 0;
+}
+.veil__line { display: block; }
+.veil__text.is-shown { opacity: 1; animation: veil-breath 1.2s var(--ease-veil) both; }
+@keyframes veil-breath {
+  0%   { font-variation-settings: "WONK" 1, "SOFT" 12; filter: blur(6px); opacity: 0; }
+  50%  { font-variation-settings: "WONK" 1, "SOFT" 60; filter: blur(2px); opacity: 1; }
+  100% { font-variation-settings: "WONK" 1, "SOFT" 12; filter: blur(0);   opacity: 1; }
+}
+
+/* ── mobile (< 820 px) and html.no-gl: the Riley moiré — two line layers at 2°, one drifting, no filters ── */
+.veil__cloth--moire .veil__whole, .veil__cloth--moire .veil__halves, .veil__cloth--moire .veil__half { position: absolute; inset: 0; }
+.veil__cloth--moire .veil__half { transform-origin: 50% 0; }
+.veil__sheet { position: absolute; inset: 0; overflow: clip; background: color-mix(in oklab, var(--sand) 12%, transparent); }
+.veil__moire { position: absolute; inset: -12%; display: block; }
+.veil__moire--a { background: repeating-linear-gradient(90deg, var(--sand) 0 1px, transparent 1px 6px); opacity: .18; }
+.veil__moire--b {
+  background: repeating-linear-gradient(90deg, var(--gold) 0 1px, transparent 1px 6px); opacity: .18;
+  transform: rotate(2deg); animation: veil-moire 9s var(--ease-veil) infinite alternate;
+}
+@keyframes veil-moire { from { transform: rotate(2deg) translateX(-14px); } to { transform: rotate(2deg) translateX(14px); } }
+.veil__cut { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ── reduced motion: opacity crossfades only — no slide, no breath, no drift ── */
+html.reduced-motion .veil__cloth { visibility: visible; opacity: 0; transform: none !important; transition: opacity .3s linear; }
+html.reduced-motion .veil__cloth.is-on { opacity: 1; }
+html.reduced-motion .veil__text.is-shown { animation: none; transition: opacity .3s linear; }
+html.reduced-motion .veil__whole, html.reduced-motion .veil__halves { visibility: visible; transition: opacity .3s linear; }
+html.reduced-motion .veil__halves { opacity: 0; }
+html.reduced-motion .is-torn .veil__halves { opacity: 1; }
+html.reduced-motion .is-torn .veil__whole { opacity: 0; }
+html.reduced-motion .veil__moire--b { animation: none; }
