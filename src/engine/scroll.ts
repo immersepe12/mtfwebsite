@@ -21,9 +21,9 @@ export class ScrollEngine {
   constructor() {
     const reduced = prefersReducedMotion()
     this.lenis = new Lenis({
-      lerp: reduced ? 1 : 0.085,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.4,
+      lerp: reduced ? 1 : 0.062,   // a longer glide: the world keeps moving after the wheel stops
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.15,
       smoothWheel: !reduced,
       syncTouch: false,
       autoRaf: false,

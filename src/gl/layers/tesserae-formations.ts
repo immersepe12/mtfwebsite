@@ -8,6 +8,18 @@
  * Everything here runs ONCE at init (synchronously — the SVGs are parsed and drawn with Path2D on an
  * offscreen canvas, no <img> round-trip) and allocates nothing afterwards.
  *
+ * THE LATTICE. A tessera is small: the pitch of every formation is chosen so a tile lands at roughly
+ * 6–9 CSS px at that formation's viewing distance (island ≈ 9 units, hand ≈ 5, hero disc ≈ 8) — the
+ * field must read as cut stone, never as a pixel grid. `fitCells` then walks the pitch up until the
+ * formation fits the instance budget, so the picture is never truncated. Each instance's quad is one
+ * pitch × BED (a 6% overlap) so the dark grout bed under the tiles is continuous — no sea shows
+ * between neighbours, and the slab reads as a laid floor rather than confetti. Cell jitter is a few
+ * per cent of the pitch (not a fifth of it) for the same reason; the *visible* irregularity — ±12%
+ * tile size, ±7° rotation, ±7° seat — is carved per-tile inside that quad by the shader.
+ *
+ * TONE. Tints are clustered by a value noise rather than picked per tile, so the mosaic has fields of
+ * stone and fields of gold the way a Ravenna pavement does, instead of salt-and-pepper.
+ *
  * Formation indices are STORY ORDER (mood.tessForm):
  *   0 hero sun disc · 1 the Mediterranean · 2 the fist · 3 the open hand · 4 the sunrise path · 5 the dawn disc
  *
@@ -48,6 +60,8 @@ export const DISC_RADIUS = 2.2
 export const DAWN_RADIUS = 1.2
 /** The Mediterranean slab's tilt about its own x-axis (far edge lifted toward the camera's eye) — §8.5 `aUp` for formation 1. */
 export const ISLAND_TILT = (25 * Math.PI) / 180
+/** The tile quad is one pitch × BED — the small overlap that keeps the grout bed continuous under the field. */
+export const BED = 1.06
 
 /** World anchors chapters may want (palm centre for the star, Malta for a label, disc centres). */
 export interface FormationAnchors {
@@ -71,7 +85,7 @@ export interface FormationData {
   scatter: Float32Array
   /** Float32Array(N*2): the tile's UV on the disc (formations 0 and 5) for the write masks */
   discUV: Float32Array
-  /** per-formation tile edge (world units) */
+  /** per-formation quad edge (world units) = the cell pitch × BED */
   scale: number[]
   /** per-formation 1 = lies flat on the sea, 0 = billboard toward the camera */
   flat: number[]
@@ -90,6 +104,16 @@ function mulberry32(a: number) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
+}
+
+/** Smooth value noise — clusters the tints into fields of stone and fields of gold (andamento, not confetti). */
+function vnoise(x: number, y: number): number {
+  const xi = Math.floor(x), yi = Math.floor(y)
+  const xf = x - xi, yf = y - yi
+  const h = (i: number, j: number) => { const n = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return n - Math.floor(n) }
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf)
+  const a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1)
+  return (a * (1 - u) + b * u) * (1 - v) + (c * (1 - u) + d * u) * v
 }
 
 interface Cell { x: number; y: number; z: number; group: number; tint: number; k: number }
@@ -177,9 +201,10 @@ type Placement = 'billboard' | 'flat'
 /**
  * Cells from a silhouette. `size` = world width of the viewBox; the silhouette is centred on the viewBox centre.
  * Billboard: viewBox x→+x, y→−y (up). Flat: viewBox x→+x, y→+z toward the camera (top of the drawing is far away).
+ * Jitter is a few per cent of the pitch — enough to break the grid, small enough that the grout bed stays sealed.
  */
 function silhouetteCells(svg: string, size: number, pitch: number, placement: Placement, rnd: () => number): Cell[] {
-  const cols = Math.max(8, Math.min(220, Math.round(size / pitch)))
+  const cols = Math.max(8, Math.min(320, Math.round(size / pitch)))
   const r = rasterise(svg, cols, cols)
   const cells: Cell[] = []
   if (!r) return cells
@@ -187,13 +212,13 @@ function silhouetteCells(svg: string, size: number, pitch: number, placement: Pl
   for (let ry = 0; ry < rows; ry++) for (let cx = 0; cx < cols; cx++) {
     const i = ry * cols + cx
     if (r.alpha[i] < 128) continue
-    const jx = (rnd() - 0.5) * 0.18 * pitch, jy = (rnd() - 0.5) * 0.18 * pitch
+    const jx = (rnd() - 0.5) * 0.05 * pitch, jy = (rnd() - 0.5) * 0.05 * pitch
     const lx = ((cx + 0.5) / cols) * size - size / 2 + jx
     const ly = h / 2 - ((ry + 0.5) / rows) * h + jy      // up
-    const jz = (rnd() - 0.5) * 0.03
+    const jz = (rnd() - 0.5) * 0.30 * pitch              // tiles are not perfectly co-planar (they are set by hand)
     cells.push(placement === 'billboard'
       ? { x: lx, y: ly, z: jz, group: r.group[i], tint: 0, k: rnd() }
-      : { x: lx, y: jz * 0.4, z: -ly, group: r.group[i], tint: 0, k: rnd() })
+      : { x: lx, y: jz * 0.7, z: -ly, group: r.group[i], tint: 0, k: rnd() })
   }
   return cells
 }
@@ -207,8 +232,8 @@ function discCells(R: number, pitch: number, rnd: () => number): Cell[] {
     const n = Math.max(6, Math.floor((2 * Math.PI * r) / pitch))
     for (let k = 0; k < n; k++) {
       const a = (k / n) * Math.PI * 2 + ring * 0.11
-      const rr = r + (rnd() - 0.5) * 0.12 * pitch
-      cells.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr, z: (rnd() - 0.5) * 0.03, group: 0, tint: 0, k: rnd() })
+      const rr = r + (rnd() - 0.5) * 0.06 * pitch
+      cells.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr, z: (rnd() - 0.5) * 0.3 * pitch, group: 0, tint: 0, k: rnd() })
     }
   }
   return cells
@@ -223,56 +248,134 @@ function pathCells(len: number, w0: number, w1: number, pitch: number, rnd: () =
     const w = w0 + (w1 - w0) * t
     const n = Math.max(2, Math.floor(w / pitch))
     for (let cx = 0; cx < n; cx++) {
-      const x = ((cx + 0.5) / n) * w - w / 2 + (rnd() - 0.5) * 0.2 * pitch
+      const x = ((cx + 0.5) / n) * w - w / 2 + (rnd() - 0.5) * 0.06 * pitch
       // a soft ragged edge so the lane reads as light on water, not a runway
       if (Math.abs(x) / (w / 2) > 0.82 && rnd() < 0.45) continue
-      cells.push({ x, y: 0.04, z: t * len + (rnd() - 0.5) * 0.2 * pitch, group: 0, tint: 0, k: rnd() })
+      cells.push({ x, y: 0.04, z: t * len + (rnd() - 0.5) * 0.06 * pitch, group: 0, tint: 0, k: rnd() })
     }
   }
   return cells
+}
+
+/** Walks the pitch up until the formation fits the instance budget — a formation is never truncated. */
+function fitCells(budget: number, pitch0: number, make: (pitch: number) => Cell[]): { cells: Cell[]; pitch: number } {
+  let pitch = pitch0
+  let cells = make(pitch)
+  for (let k = 0; k < 6 && cells.length > budget; k++) {
+    pitch *= Math.max(1.04, Math.sqrt(cells.length / (budget * 0.92)))
+    cells = make(pitch)
+  }
+  if (cells.length > budget) cells = cells.slice(0, budget)
+  return { cells, pitch }
 }
 
 // ── tint rules (§8.5 table) ──────────────────────────────────────────────────────────────────────
 const rampHand = (d: number, k: number): number => {
   const t = Math.max(0, Math.min(1, d + (k - 0.5) * 0.14))
   if (k > 0.92) return TINT.GOLD_LEAF                    // 8% pure gold-leaf glints
-  if (t < 0.22) return TINT.GOLD_LEAF
-  if (t < 0.45) return TINT.GOLD
-  if (t < 0.66) return TINT.TERRA
-  if (t < 0.86) return TINT.SEA
-  return TINT.ABYSS
+  if (t < 0.26) return TINT.GOLD_LEAF
+  if (t < 0.52) return TINT.GOLD
+  if (t < 0.74) return TINT.GOLD_DEEP
+  if (t < 0.90) return TINT.TERRA
+  return TINT.STONE
+  // The hand is seen against the night: an outer ring of sea/abyss tesserae simply disappears and the fingers
+  // read as holes. The ramp still cools outward (leaf → gold → deep → terra → stone) but every stop stays lit.
 }
 
 function tintDisc(c: Cell, R: number, gold: 'hero' | 'dawn') {
   const rr = Math.hypot(c.x, c.y) / R
-  const k = c.k
-  if (gold === 'dawn') return k < 0.6 ? TINT.GOLD : k < 0.9 ? TINT.GOLD_LEAF : TINT.GOLD_DEEP
+  // a soft field so the gold clusters in patches the way beaten leaf does
+  const f = vnoise(c.x * 2.6 + 11, c.y * 2.6 + 5)
+  const k = Math.max(0, Math.min(0.999, c.k * 0.55 + f * 0.45))
+  if (gold === 'dawn') return k < 0.58 ? TINT.GOLD : k < 0.88 ? TINT.GOLD_LEAF : TINT.GOLD_DEEP
   // 70% gold-leaf/gold by luminance ramp (bright centre), 30% gold-deep/stone by hash
   if (k < 0.3) return k < 0.16 ? TINT.GOLD_DEEP : TINT.STONE
   return rr < 0.42 ? TINT.GOLD_LEAF : rr < 0.8 ? TINT.GOLD : (k < 0.6 ? TINT.GOLD : TINT.GOLD_DEEP)
 }
 
 function tintIsland(c: Cell) {
-  const k = c.k
-  if (k < 0.07) return TINT.INK          // press-ink grout by jitter
-  if (k < 0.16) return TINT.SEA
-  if (k < 0.48) return TINT.GOLD_DEEP
+  const f = vnoise(c.x * 1.7 + 3.2, c.z * 1.7 - 1.4)
+  const g = vnoise(c.x * 5.1 - 7.0, c.z * 5.1 + 2.0)
+  const k = Math.max(0, Math.min(0.999, c.k * 0.34 + f * 0.44 + g * 0.22))
+  if (k < 0.06) return TINT.INK           // press-ink, the darkest cut — reads as grout by jitter
+  if (k < 0.13) return TINT.SEA
+  if (k < 0.19) return TINT.TERRA         // a few warm stones through the limestone
+  if (k < 0.47) return TINT.GOLD_DEEP
   return TINT.STONE
 }
 
 function tintPath(c: Cell, len: number) {
   const t = c.z / len                     // 0 at the sun
-  const k = c.k
+  const f = vnoise(c.x * 3.0 + 21, c.z * 3.0)
+  const k = Math.max(0, Math.min(0.999, c.k * 0.5 + f * 0.5))
   if (k < 0.12) return TINT.GOLD_DEEP
   return k < 0.45 + (1 - t) * 0.3 ? TINT.GOLD_LEAF : TINT.GOLD
+}
+
+// ── the hand: two states of every finger, paired tile for tile ───────────────────────────────────
+const centroidOf = (cells: Cell[]): Cell => {
+  if (!cells.length) return { x: 0, y: 0, z: 0, group: 0, tint: 0, k: 0 }
+  let x = 0, y = 0, z = 0; for (const c of cells) { x += c.x; y += c.y; z += c.z }
+  return { x: x / cells.length, y: y / cells.length, z: z / cells.length, group: 0, tint: 0, k: 0 }
+}
+
+/**
+ * Pair the two states of each finger by nearest position inside the finger's own bounding box, so a tile of
+ * the folded finger becomes the tile at the same relative place on the open finger (the finger unfolds, it
+ * does not dissolve). The larger state drives; cells of the smaller state are reused where counts differ.
+ */
+function handSlots(fist: Cell[], open: Cell[], pFist: number, pOpen: number): [Cell[], Cell[]] {
+  const byGroup = (cells: Cell[]) => { const g: Cell[][] = [[], [], [], [], [], []]; for (const c of cells) g[Math.min(5, c.group)].push(c); return g }
+  const norm = (cells: Cell[]) => {
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity
+    for (const c of cells) { x0 = Math.min(x0, c.x); x1 = Math.max(x1, c.x); y0 = Math.min(y0, c.y); y1 = Math.max(y1, c.y) }
+    const w = Math.max(1e-4, x1 - x0), h = Math.max(1e-4, y1 - y0)
+    return cells.map(c => [(c.x - x0) / w, (c.y - y0) / h] as [number, number])
+  }
+  // a deterministic sub-pitch offset for a reused cell
+  const jit = (n: number) => { const v = Math.sin(n * 12.9898) * 43758.5453; return v - Math.floor(v) - 0.5 }
+  const pair = (a: Cell[], b: Cell[], pa: number, pb: number): [Cell[], Cell[]] => {
+    if (!a.length || !b.length) return [a, b]
+    const aBig = a.length >= b.length
+    const big = aBig ? a : b, small = aBig ? b : a
+    const ps = aBig ? pb : pa
+    const nb = norm(big), ns = norm(small)
+    const matched: Cell[] = new Array(big.length)
+    const reuse = new Uint16Array(small.length)
+    for (let i = 0; i < big.length; i++) {
+      let best = 0, bd = Infinity
+      const u = nb[i][0], v = nb[i][1]
+      for (let j = 0; j < small.length; j++) { const du = ns[j][0] - u, dv = ns[j][1] - v; const d = du * du + dv * dv; if (d < bd) { bd = d; best = j } }
+      // A reused cell is NOT stacked on its twin — that leaves the sparser state full of holes. It is set a
+      // sub-pitch away (and a hair behind, so the two never z-fight), so the finger stays a solid mosaic
+      // whichever of the two states rasterised to fewer stones.
+      const r = reuse[best]
+      const c = small[best]
+      matched[i] = r
+        ? { ...c, x: c.x + jit(best * 2.7 + r * 7.1) * 0.9 * ps, y: c.y + jit(best * 3.3 + r * 11.7 + 5) * 0.9 * ps, z: c.z - r * 0.004 }
+        : c
+      reuse[best]++
+    }
+    return aBig ? [big, matched] : [matched, big]
+  }
+  const fistG = byGroup(fist), openG = byGroup(open)
+  const outF: Cell[] = [], outO: Cell[] = []
+  for (let g = 0; g < 6; g++) {
+    const a0 = fistG[g].sort((p, q) => q.y - p.y || p.x - q.x), b0 = openG[g].sort((p, q) => q.y - p.y || p.x - q.x)
+    const [a, b] = pair(a0, b0, pFist, pOpen)
+    const n = Math.max(a.length, b.length), ca = centroidOf(a0), cb = centroidOf(b0)
+    for (let j = 0; j < n; j++) {
+      outF.push(j < a.length ? a[j] : { ...ca, group: g })
+      outO.push(j < b.length ? b[j] : { ...cb, group: g })
+    }
+  }
+  return [outF, outO]
 }
 
 // ── the builder ─────────────────────────────────────────────────────────────────────────────────
 export function buildFormations(N: number, mobile: boolean): FormationData {
   const rnd = mulberry32(0x5eed)
-  const px = mobile ? 1.7 : 1               // mobile: fewer, larger tiles (§6.11 "pitch ×1.6")
-  const T = 0.85                            // tile face / pitch → 15% grout (carved in the fragment shader)
-  void T
+  const budget = Math.floor(N * 0.96)
 
   // ---- placements (world) -------------------------------------------------------------------
   const HERO: [number, number, number] = [0, 0.9, -4]
@@ -282,23 +385,30 @@ export function buildFormations(N: number, mobile: boolean): FormationData {
   const islandSize = 7
   const PATH_LEN = 5, PATH_W0 = 1.6, PATH_W1 = 3.2
 
-  const pitch = [0.06 * px * 1.15, 0.088 * px, 0.032 * px, 0.032 * px, 0.07 * px, (0.06 * px * 1.15) * (DAWN_RADIUS / DISC_RADIUS)]
-  if (mobile) { pitch[0] = 0.11; pitch[5] = 0.11 * (DAWN_RADIUS / DISC_RADIUS) }
+  // Target pitches: a tessera of ~6–9 CSS px at that formation's viewing distance on a 1440 × 900 stage
+  // (fov 42 → 1172/d px per world unit; island d ≈ 9, hand d ≈ 5, hero disc d ≈ 8, path d ≈ 15).
+  // Mobile starts coarser and `fitCells` takes the rest of the slack out of the budget.
+  const m = mobile ? 1.45 : 1
+  const P_DISC = 0.052 * m, P_ISLAND = 0.056 * m, P_HAND = 0.029 * m, P_PATH = 0.070 * m
 
   // ---- cells per formation ------------------------------------------------------------------
-  const disc = discCells(DISC_RADIUS, pitch[0], rnd)
+  const discFit = fitCells(budget, P_DISC, p => discCells(DISC_RADIUS, p, rnd))
+  const disc = discFit.cells
   for (const c of disc) c.tint = tintDisc(c, DISC_RADIUS, 'hero')
   const dawn: Cell[] = disc.map(c => ({ x: (c.x * DAWN_RADIUS) / DISC_RADIUS, y: (c.y * DAWN_RADIUS) / DISC_RADIUS, z: 0, group: 0, tint: tintDisc(c, DISC_RADIUS, 'dawn'), k: c.k }))
 
-  let island = silhouetteCells(mediterraneanSvg, islandSize, pitch[1], 'flat', rnd)
-  if (island.length === 0) island = discCells(2.4, pitch[1], rnd).map(c => ({ ...c, z: c.y, y: 0 }))   // stub-safe fallback
+  const islandFit = fitCells(budget, P_ISLAND, p => {
+    const c = silhouetteCells(mediterraneanSvg, islandSize, p, 'flat', rnd)
+    return c.length ? c : discCells(2.4, p, rnd).map(q => ({ ...q, z: q.y, y: 0 }))   // stub-safe fallback
+  })
+  const island = islandFit.cells
   for (const c of island) c.tint = tintIsland(c)
   // Malta: the inside cell nearest the outline's centre-bottom (viewBox ≈ 560, 610 → local x +.42, z +.77)
   {
     const mx = (560 / 1000 - 0.5) * islandSize, mz = (610 / 1000 - 0.5) * islandSize
     let best = 0, bd = Infinity
     island.forEach((c, i) => { const d = Math.hypot(c.x - mx, c.z - mz); if (d < bd) { bd = d; best = i } })
-    const m = island[best]; island.splice(best, 1); island.unshift(m); m.tint = TINT.GOLD_LEAF; m.group = 8
+    const mc = island[best]; island.splice(best, 1); island.unshift(mc); mc.tint = TINT.GOLD_LEAF; mc.group = 8
   }
   // sort the rest far → near so morphs flow across the water (Malta stays at 0)
   const isl0 = island.shift()!
@@ -318,72 +428,53 @@ export function buildFormations(N: number, mobile: boolean): FormationData {
     islandLift = Number.isFinite(minY) ? Math.max(0, -minY) : 0
   }
 
-  let fist = silhouetteCells(fistSvg, handSize, pitch[2], 'billboard', rnd)
-  let open = silhouetteCells(openSvg, handSize, pitch[3], 'billboard', rnd)
-  if (fist.length === 0) fist = discCells(0.6, pitch[2], rnd)
-  if (open.length === 0) open = discCells(0.9, pitch[3], rnd)
+  // the two hands share slots per finger group so the 2→3 morph unfolds finger by finger
   const palmLocal = { x: 0, y: -(540 / 1000 - 0.5) * handSize }   // viewBox (500,540) → local
   const maxD = (340 / 1000) * handSize
-  for (const c of fist) c.tint = rampHand(Math.hypot(c.x - palmLocal.x, c.y - palmLocal.y) / maxD, c.k)
-  for (const c of open) c.tint = rampHand(Math.hypot(c.x - palmLocal.x, c.y - palmLocal.y) / maxD, c.k)
+  // The two states must be EQUALLY dense: `handSlots` pairs them one slot per tile, so whichever silhouette
+  // rasterises to fewer cells would be drawn with duplicated tiles — and a hand full of stacked duplicates is
+  // a hand full of holes. So the sparser state is re-cut at a finer pitch until the counts meet (each state
+  // keeps its own tile size, uScale[2] / uScale[3]).
+  const cut = (svg: string, p: number, fallbackR: number) => {
+    let c = silhouetteCells(svg, handSize, p, 'billboard', rnd)
+    if (c.length === 0) c = discCells(fallbackR, p, rnd)
+    return c
+  }
+  let pFist = P_HAND, pOpen = P_HAND
+  let slotsFist: Cell[] = [], slotsOpen: Cell[] = []
+  for (let k = 0; k < 7; k++) {
+    let fist = cut(fistSvg, pFist, 0.6)
+    let open = cut(openSvg, pOpen, 0.9)
+    if (fist.length > open.length * 1.05 && open.length > 0) {
+      pOpen *= Math.sqrt(open.length / fist.length); open = cut(openSvg, pOpen, 0.9)
+    } else if (open.length > fist.length * 1.05 && fist.length > 0) {
+      pFist *= Math.sqrt(fist.length / open.length); fist = cut(fistSvg, pFist, 0.6)
+    }
+    // tint the real cells BEFORE slotting: the centroid fillers handSlots invents keep tint 0 (invisible)
+    for (const c of fist) c.tint = rampHand(Math.hypot(c.x - palmLocal.x, c.y - palmLocal.y) / maxD, c.k)
+    for (const c of open) c.tint = rampHand(Math.hypot(c.x - palmLocal.x, c.y - palmLocal.y) / maxD, c.k)
+    const [sf, so] = handSlots(fist, open, pFist, pOpen)
+    slotsFist = sf; slotsOpen = so
+    if (sf.length <= budget) break
+    const grow = Math.max(1.04, Math.sqrt(sf.length / (budget * 0.9)))
+    pFist *= grow; pOpen *= grow
+  }
+  if (slotsFist.length > budget) { slotsFist = slotsFist.slice(0, budget); slotsOpen = slotsOpen.slice(0, budget) }
 
-  const path = pathCells(PATH_LEN, PATH_W0, PATH_W1, pitch[4], rnd)
+  const pathFit = fitCells(budget, P_PATH, p => pathCells(PATH_LEN, PATH_W0, PATH_W1, p, rnd))
+  const path = pathFit.cells
   for (const c of path) c.tint = tintPath(c, PATH_LEN)
-
-  // ---- instance slots -------------------------------------------------------------------------
-  // The fist and the open hand share slots per finger group so the 2→3 morph unfolds finger by finger.
-  const byGroup = (cells: Cell[]) => { const g: Cell[][] = [[], [], [], [], [], []]; for (const c of cells) g[Math.min(5, c.group)].push(c); return g }
-  const fistG = byGroup(fist), openG = byGroup(open)
-  const centroid = (cells: Cell[]): Cell => {
-    if (!cells.length) return { x: 0, y: 0, z: 0, group: 0, tint: 0, k: 0 }
-    let x = 0, y = 0, z = 0; for (const c of cells) { x += c.x; y += c.y; z += c.z }
-    return { x: x / cells.length, y: y / cells.length, z: z / cells.length, group: 0, tint: 0, k: 0 }
-  }
-  // Pair the two states of each finger by nearest position inside the finger's own bounding box, so a tile of
-  // the folded finger becomes the tile at the same relative place on the open finger (the finger unfolds, it
-  // does not dissolve). The larger state drives; cells of the smaller state are reused where counts differ.
-  const norm = (cells: Cell[]) => {
-    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity
-    for (const c of cells) { x0 = Math.min(x0, c.x); x1 = Math.max(x1, c.x); y0 = Math.min(y0, c.y); y1 = Math.max(y1, c.y) }
-    const w = Math.max(1e-4, x1 - x0), h = Math.max(1e-4, y1 - y0)
-    return cells.map(c => [(c.x - x0) / w, (c.y - y0) / h] as [number, number])
-  }
-  const pair = (a: Cell[], b: Cell[]): [Cell[], Cell[]] => {
-    if (!a.length || !b.length) return [a, b]
-    const aBig = a.length >= b.length
-    const big = aBig ? a : b, small = aBig ? b : a
-    const nb = norm(big), ns = norm(small)
-    const matched: Cell[] = new Array(big.length)
-    const reuse = new Uint16Array(small.length)
-    for (let i = 0; i < big.length; i++) {
-      let best = 0, bd = Infinity
-      const u = nb[i][0], v = nb[i][1]
-      for (let j = 0; j < small.length; j++) { const du = ns[j][0] - u, dv = ns[j][1] - v; const d = du * du + dv * dv; if (d < bd) { bd = d; best = j } }
-      // a reused cell is stacked a hair behind its twin so the two never z-fight
-      matched[i] = reuse[best] ? { ...small[best], z: small[best].z - reuse[best] * 0.012 } : small[best]
-      reuse[best]++
-    }
-    return aBig ? [big, matched] : [matched, big]
-  }
-  const handSlotsFist: Cell[] = [], handSlotsOpen: Cell[] = []
-  for (let g = 0; g < 6; g++) {
-    const a0 = fistG[g].sort((p, q) => q.y - p.y || p.x - q.x), b0 = openG[g].sort((p, q) => q.y - p.y || p.x - q.x)
-    const [a, b] = pair(a0, b0)
-    const n = Math.max(a.length, b.length), ca = centroid(a0), cb = centroid(b0)
-    for (let j = 0; j < n; j++) {
-      handSlotsFist.push(j < a.length ? a[j] : { ...ca, group: g })
-      handSlotsOpen.push(j < b.length ? b[j] : { ...cb, group: g })
-    }
-  }
-  // path far → near; disc centre → rim (as generated). Cap everything to N.
   path.sort((a, b) => a.z - b.z || a.x - b.x)
 
+  const pitch = [discFit.pitch, islandFit.pitch, pFist, pOpen, pathFit.pitch, discFit.pitch * (DAWN_RADIUS / DISC_RADIUS)]
+
+  // ---- instance slots -------------------------------------------------------------------------
   const targets = Array.from({ length: FORMATION_COUNT }, () => new Float32Array(N * 3))
   const meta = new Float32Array(N * 4)
   const scatter = new Float32Array(N * 3)
   const discUV = new Float32Array(N * 2)
-  const lists: Cell[][] = [disc, island, handSlotsFist, handSlotsOpen, path, dawn]
-  const cents = lists.map(centroid)
+  const lists: Cell[][] = [disc, island, slotsFist, slotsOpen, path, dawn]
+  const cents = lists.map(centroidOf)
   const used = lists.map(l => Math.min(N, l.length))
   const tintOf = new Array<number>(FORMATION_COUNT)
 
@@ -394,7 +485,7 @@ export function buildFormations(N: number, mobile: boolean): FormationData {
       t[i * 3] = c.x; t[i * 3 + 1] = c.y; t[i * 3 + 2] = c.z
       tintOf[f] = i < lists[f].length ? c.tint : TINT.NONE
     }
-    const openCell = i < handSlotsOpen.length ? handSlotsOpen[i] : null
+    const openCell = i < slotsOpen.length ? slotsOpen[i] : null
     let group = openCell ? openCell.group : 0
     if (i === 0) group += 8                       // the Malta tile (formation 1) — instance 0 is a palm cell for the hand, so no clash
     meta[i * 4] = rnd()
@@ -421,7 +512,7 @@ export function buildFormations(N: number, mobile: boolean): FormationData {
   const malta = targets[1]
   return {
     count: N, targets, meta, scatter, discUV,
-    scale: pitch.slice(),                 // the quad is one full pitch; the shader carves the face (T) and the grout
+    scale: pitch.map(p => p * BED),       // the quad is one pitch plus the bed overlap; the shader carves the tessera and its grout
     flat: [0, 1, 0, 0, 1, 0],
     tilt: [0, ISLAND_TILT, 0, 0, 0, 0],
     used,

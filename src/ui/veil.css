@@ -11,9 +11,9 @@
 
 /* ── desktop: the SVG cloth ── */
 .veil__svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
-.veil__a { fill: var(--sand); fill-opacity: .22; }
-.veil__b { fill: var(--sand); fill-opacity: .14; mix-blend-mode: screen; }
-.veil__grid { fill: none; stroke: var(--gold); stroke-opacity: .18; stroke-width: 1; }
+.veil__a { fill: var(--sand); fill-opacity: .12; }
+.veil__b { fill: var(--sand); fill-opacity: .07; mix-blend-mode: screen; }
+.veil__grid { fill: none; stroke: var(--gold); stroke-opacity: .06; stroke-width: .6; }
 .veil__slash {
   fill: none; stroke: var(--cream); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 1; stroke-dashoffset: 1;
@@ -45,9 +45,9 @@
 .veil__cloth--moire .veil__half { transform-origin: 50% 0; }
 .veil__sheet { position: absolute; inset: 0; overflow: clip; background: color-mix(in oklab, var(--sand) 12%, transparent); }
 .veil__moire { position: absolute; inset: -12%; display: block; }
-.veil__moire--a { background: repeating-linear-gradient(90deg, var(--sand) 0 1px, transparent 1px 6px); opacity: .18; }
+.veil__moire--a { background: repeating-linear-gradient(90deg, var(--sand) 0 1px, transparent 1px 6px); opacity: .10; }
 .veil__moire--b {
-  background: repeating-linear-gradient(90deg, var(--gold) 0 1px, transparent 1px 6px); opacity: .18;
+  background: repeating-linear-gradient(90deg, var(--gold) 0 1px, transparent 1px 6px); opacity: .09;
   transform: rotate(2deg); animation: veil-moire 9s var(--ease-veil) infinite alternate;
 }
 @keyframes veil-moire { from { transform: rotate(2deg) translateX(-14px); } to { transform: rotate(2deg) translateX(14px); } }
@@ -62,3 +62,16 @@ html.reduced-motion .veil__halves { opacity: 0; }
 html.reduced-motion .is-torn .veil__halves { opacity: 1; }
 html.reduced-motion .is-torn .veil__whole { opacity: 0; }
 html.reduced-motion .veil__moire--b { animation: none; }
+
+/* ── silk, not paper ────────────────────────────────────────────────────────────────────────
+   A veil has no cut edge: it thins to nothing at its leading and trailing hems, and it is sheer
+   enough that the world keeps its colour through it. Without this the cloth reads as a large flat
+   sheet sliding across the picture (client review, 2026-09-05). */
+.veil__cloth {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+  filter: blur(.4px) saturate(1.04);
+}
+/* the hem is a fall of cloth, not a skyline: soften it so the scallops never read as mountains */
+.veil__cloth svg { opacity: .92; }
+.veil__a, .veil__b { filter: blur(1.6px); }

@@ -14,9 +14,10 @@ import './style.css'
  * the four programme columns draw themselves rule → label → list in the lower half; at the end the
  * branch goes to cream thread and three of Ch 11's net lines are drawn in the frame — "Then came the net."
  *
- * Beats (p): branch visible from 0 · leaf A falls .03–.30 · head .06–.14 · storyteller ×7 .14–.28 ·
- *            columns .32/.42/.52/.62 (+.08 each) · leaf B falls .36–.64 · exit .85–.90 ·
- *            thread .80–.88 · net lines .88–1 · "Then came the net." .89–.99
+ * Beats (p, re-spaced for the longer film — one substantive beat per ≥ 3.4 % of p, ≈ 190 px of scroll):
+ *            branch from 0 · head .06/.10/.135 · storyteller ×7 .18 + i·.036 (→ .396) ·
+ *            leaf A falls .05–.60 · columns .43/.52/.61/.70 (+.08 each) · leaf B falls .40–.72 ·
+ *            thread .80–.88 · exit .845–.895 · net lines .88/.91/.95 · "Then came the net." .875–.955
  */
 
 gsap.registerPlugin(SplitText)
@@ -168,7 +169,7 @@ export const remains: Chapter = {
     pin.innerHTML = `
       <div class="pin__layer shadow">${branchHTML()}${leafHTML('fall--a')}${leafHTML('fall--b')}<svg class="lying" viewBox="0 0 70 18" width="70" height="18" aria-hidden="true"><g fill="currentColor">${leaf()}</g></svg></div>
       <div class="pin__frame">${frameHTML(content)}</div>
-      <div class="pin__layer fx"><svg class="net3" aria-hidden="true" width="100%" height="100%" fill="none" stroke-width=".75" style="stroke:var(--cream);stroke-opacity:.55">
+      <div class="pin__layer fx"><svg class="net3" aria-hidden="true" width="100%" height="100%" fill="none" stroke-width=".75" style="stroke:var(--cream);stroke-opacity:.34">
         <line class="t t0" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/><line class="t t1" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/><line class="t t2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
         <circle class="knot" r="1.5" opacity="0" style="fill:var(--cream);stroke:none"/></svg></div>`
 
@@ -193,6 +194,7 @@ export const remains: Chapter = {
       gsap.set(col.querySelectorAll('.card__rule--l, .card__rule--r'), { scaleY: 0 })
       gsap.set(col.querySelectorAll('.card__corner, .col__t'), { opacity: 0 })
       gsap.set(col.querySelector('.col__body'), { opacity: 0, y: 10 })
+      gsap.set(col, { opacity: 0 })   // the scrim + lift belong to the card, so the card itself must not exist before its beat
     })
 
     /* the branch is visible from p 0 (it slid up under Ch 09's last line); the fallen leaf lies on the water */
@@ -244,50 +246,54 @@ export const remains: Chapter = {
     window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { layNet(); layPaths() }) }, { passive: true })
 
     /* head: rule → eyebrow → headline lines (masked) */
-    tl.to(eyeRule, { scaleX: 1, duration: .04 }, .06)
-    tl.to(eyeT, { opacity: 1, duration: .02 }, .08)
+    tl.to(eyeRule, { scaleX: 1, duration: .045 }, .06)
+    tl.to(eyeT, { opacity: 1, duration: .025 }, .10)
     SplitText.create(hl, {
       type: 'lines', mask: 'lines', linesClass: 'line', autoSplit: true,
       onSplit: self => {
-        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .012, ease: 'none', immediateRender: true })
-        tl.add(tw, .10)
-        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .10)), true, true)
+        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .06, stagger: .016, ease: 'none', immediateRender: true })
+        tl.add(tw, .135)
+        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .135)), true, true)
         return tw
       },
     })
     hl.classList.add('is-split')
 
     /* storyteller: seven lines land whole (4 px rise) and stack; older lines fall to faint; max six visible */
+    const lineAt = (i: number) => (mobile ? .15 + i * .030 : .18 + i * .036)
     lines.forEach((l, i) => {
-      const at = .14 + i * .022
-      tl.to(l, { opacity: 1, y: 0, duration: .02 }, at)
-      if (i > 0) tl.to(lines[i - 1], { opacity: .55, duration: .02 }, at)
-      if (i === 6) tl.to(lines[0], { opacity: 0, height: 0, marginBottom: 0, duration: .02 }, at)
+      const at = lineAt(i)
+      tl.to(l, { opacity: 1, y: 0, duration: .022 }, at)
+      if (i > 0) tl.to(lines[i - 1], { opacity: .55, duration: .022 }, at)
+      /* max six rendered rows: the long opening line collapses as the fifth short line lands (§5.4.4) */
+      if (i === 4) tl.to(lines[0], { opacity: 0, height: 0, marginBottom: 0, duration: .022 }, at)
     })
-    if (mobile) tl.to(stack, { opacity: 0, y: -8, duration: .03 }, .30)   // the lower slot needs the room on portrait
+    /* portrait: the head and the stack clear the frame before the columns take the whole lower band */
+    if (mobile) tl.to([head, stack], { opacity: 0, y: -8, duration: .03 }, .345)
 
     /* leaf A detaches at once and drifts down to the B2B → row; leaf B follows to the Knowledge → row */
-    if (leafA) tl.to(leafA, { opacity: 0, duration: .01 }, .03)
-    tl.to(fallA, { offsetDistance: '100%', duration: .27 }, .03)
-    if (leafB) tl.to(leafB, { opacity: 0, duration: .01 }, .36)
-    tl.to(fallB, { opacity: 1, duration: .01 }, .36)
-    tl.to(fallB, { offsetDistance: '100%', duration: .28 }, .36)
+    if (leafA) tl.to(leafA, { opacity: 0, duration: .01 }, .05)
+    tl.to(fallA, { offsetDistance: '100%', duration: .55 }, .05)
+    if (leafB) tl.to(leafB, { opacity: 0, duration: .01 }, .40)
+    tl.to(fallB, { opacity: 1, duration: .01 }, .40)
+    tl.to(fallB, { offsetDistance: '100%', duration: .32 }, .40)
 
     /* the four columns: corner marks → rules draw outward → label → the list settles · 8% of p each */
-    const colAt = (i: number) => (mobile ? .32 + i * .13 : .32 + i * .10)
+    const colAt = (i: number) => (mobile ? .38 + i * .115 : .43 + i * .09)
     cols.forEach((col, i) => {
       const at = colAt(i)
       const rT = col.querySelector('.card__rule--t'), rB = col.querySelector('.card__rule--b'), rL = col.querySelector('.card__rule--l'), rR = col.querySelector('.card__rule--r')
+      tl.to(col, { opacity: 1, duration: .015 }, at)
       tl.to(col.querySelectorAll('.card__corner'), { opacity: 1, duration: .01 }, at)
       tl.to([rT, rL], { scaleX: 1, scaleY: 1, duration: .04 }, at + .005)
       tl.to([rB, rR], { scaleX: 1, scaleY: 1, duration: .04 }, at + .015)
       tl.to(col.querySelector('.col__t'), { opacity: 1, duration: .02 }, at + .04)
       tl.to(col.querySelector('.col__body'), { opacity: 1, y: 0, duration: .03 }, at + .05)
-      if (mobile && i < 3) tl.to(col, { opacity: 0, y: -8, duration: .03 }, colAt(i + 1) - .035)   // portrait: one column at a time
+      if (mobile && i < 3) tl.to(col, { opacity: 0, y: -8, duration: .03 }, colAt(i + 1) - .02)   // portrait: one column at a time (a 2 %-of-p cut, not a dead stage)
     })
     /* the fallen leaves become the arrows: each fades as its → row lands */
-    tl.to(fallA, { opacity: 0, duration: .02 }, colAt(2) + .06)
-    tl.to(fallB, { opacity: 0, duration: .02 }, colAt(3) + .06)
+    tl.to(fallA, { opacity: 0, duration: .02 }, colAt(2) + .07)
+    tl.to(fallB, { opacity: 0, duration: .02 }, colAt(3) + .07)
 
     /* exit · .85–.90 */
     tl.to(cols, { opacity: 0, y: -8, duration: .04 }, .845)
@@ -300,8 +306,8 @@ export const remains: Chapter = {
     tl.fromTo(netLines[1], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .05 }, .91)
     tl.to(knot, { opacity: .7, duration: .015 }, .935)
     tl.fromTo(netLines[2], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .05 }, .95)
-    tl.to(netLine, { opacity: 1, y: 0, duration: .025 }, .89)
-    tl.to(netLine, { opacity: 0, y: -8, duration: .025 }, .965)
+    tl.to(netLine, { opacity: 1, y: 0, duration: .025 }, .875)
+    tl.to(netLine, { opacity: 0, y: -8, duration: .025 }, .93)
 
     /* tessera glint on the framed columns: one delegated listener sets --mx/--my (§7.11) */
     q('.cols').addEventListener('pointermove', e => {

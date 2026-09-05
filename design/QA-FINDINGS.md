@@ -41,3 +41,13 @@ Applied by the lead after the agents ran out of credits: ch/12 + ch/13 star anch
 - Ch 05: the tilted island runs off the right edge at 1440×900 — consider camX or the anchor.
 - Ch 03: verify the GL/DOM constellation coincidence at portrait after the shared fit.
 - Real-device iOS check (sticky pins, 100dvh, the bottom pill), Lighthouse, and the two solar times (16:56 / 06:51) against a calculator for Valletta.
+
+## Round 2 — the client's own review (2026-09-05 evening)
+Verbatim: "things are happening too fast on the scroll… it looks like a glitch"; "this thing is just circling in small circles very very fast"; "a lot of other things are looking very basic pixel kind of things… it has to look like premium 3D design"; "no overlap"; "there's one big large sheet kind of a thing that comes across".
+
+Lead fixes applied:
+- **Pacing (the main one).** Measured: every timeline beat was firing in 72–225 px of scroll (Unity 72, Sunrise 75, Remains 90) — a wheel notch is ~100 px and a flick 800–1500 px, so a flick ran a dozen beats and the film strobed. Added `src/engine/pacing.ts`: a per-chapter multiplier applied in `createFilm`, tuned from each chapter's beat count. Now 174–375 px per beat, page 49k → 66k px. Also Lenis lerp .085 → .062, wheelMultiplier 1 → .85, film scrub .6 → 1.15, World damping 4.5 → 3.1. Verified with `scripts/wheel.mjs` (real wheel events, not jumps) and `scripts/pace.mjs` (per-step mood deltas).
+- **The circling sun (Ch 07).** It was 5.75 day/night cycles on a small circle of radius 4 at z −6 — a lamp on a string, and `sunVisible` snapped 0/1 at the horizon. Now 2.5 unhurried passes on a far, wide arc (z −55, radius 26, height 9) that dissolves through the horizon, with the chapter's scroll raised 1.5×.
+- **The "big large sheet" (the veil).** It was a hard-edged, 22%-opaque sand panel with a gold net and a scalloped hem that read as a mountain range. Now sheer (12%/7%), the grid at 6% and finer, both hems feathered to nothing with a mask gradient, and the cloth softly blurred — silk, not paper.
+- **Card and tile surfaces** in components.css: a light-catching top edge, a subtle vertical gradient and a soft drop shadow so panels read as stone plates rather than flat grey boxes.
+Delegated to the premium-pass workflow: the tessera material and scale (the "pixel rug"), the mosaic post-process, sun/sky quality and banding, sea detail and contact, and an overlap/legibility/beat-spacing sweep across all 14 chapters.

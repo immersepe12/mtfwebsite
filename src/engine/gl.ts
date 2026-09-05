@@ -32,7 +32,7 @@ export class World {
   layers: Layer[] = []
   mood: Mood = copyMood(DEFAULT_MOOD, { ...DEFAULT_MOOD })
   target: Mood = copyMood(DEFAULT_MOOD, { ...DEFAULT_MOOD })
-  damping = 4.5
+  damping = 3.1   // how fast the world follows the blended chapter mood; lower = gentler camera and colour
   shared: Shared
   effects: { bloom: BloomEffect; noise: NoiseEffect; vignette: VignetteEffect; mosaic: MosaicEffect; aberration: ChromaticAberrationEffect }
   /** Sun position in NDC (-1..1), updated every frame; layers may read it (sky halo, sea specular, lens). */

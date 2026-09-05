@@ -100,9 +100,13 @@ void main(){
   vec3 coolW  = vec3(0.748, 0.848, 1.000);
 
   // ── the disc ─────────────────────────────────────────────────────────────
+  // The star's edge is a hairline. The SUN's edge is eaten by air: a photographed sun has no rim —
+  // its light simply keeps falling outward — so in sun mode the body is feathered over 11 % of the
+  // radius and the corona picks the level up exactly where the body leaves off (no circular seam).
   float aa = fwidth(rd);
   float hard = 1.0 - smoothstep(discR - aa, discR + aa, rd);
-  float soft = 1.0 - smoothstep(discR * 0.955, discR * 1.015, rd);
+  float feather = max(aa, discR * 0.11);
+  float soft = 1.0 - smoothstep(discR - feather, discR + feather, rd);
   float disc = mix(hard, soft, sunW);
   float x = clamp(rd / discR, 0.0, 1.0);
   float mu = sqrt(max(0.0, 1.0 - x * x));
@@ -116,26 +120,32 @@ void main(){
   body = mix(body, limbCol, smoothstep(0.78, 1.0, x));
   float gran = fbm(q * 2.8 + vec2(t * 0.05, -t * 0.03) + uSeed) - 0.5;
   body *= 1.0 + gran * 0.25 * hotW;
+  // Exposure: the layer is ADDITIVE over a sky that is already bright by day, so only the HEART may
+  // exceed 1 (it clips white, as a photographed sun does). Everything from ~half the radius outward
+  // stays under 1 and therefore keeps its hue: gold, then amber at the limb. Over-driving the whole
+  // body is what turned the sun into a flat grey-white sticker with a circular edge.
   float heart = exp(-x * x * 6.0);
-  float sunInt = 1.05 + 1.05 * heart;                    // HDR ≥ 1.6 only in the heart — the body stays gold
+  float sunInt = 0.60 + 1.30 * heart;                    // HDR ≥ 1.6 only in the heart — the body stays gold
   vec3 sunCol = body * sunInt;
 
   vec3 starCol = mix(starC, coolW, 0.25) * 2.4;          // the star's core is white-hot (bloom takes it)
   vec3 col = mix(starCol, sunCol, sunW) * disc * limb;
 
-  // gold-leaf rim on the limb — the mosaic sun's edge
-  float rim = exp(-pow((rd - discR) * 16.0, 2.0)) * 0.22 * sunW;
+  // gold-leaf warmth on the limb — wide and low, a graded edge rather than a drawn ring
+  float rim = exp(-pow((rd - discR) * 7.0, 2.0)) * 0.11 * sunW;
   col += leaf * rim;
 
   // ── corona (sun): streaks streaming outward in gold-leaf, flame further out ──
   float a01 = ang / 6.2831853 + 0.5;
   float streak = pfbm(vec2(a01 * 14.0, rd * 2.0 - t * 0.15 + uSeed), 14.0);
   streak = smoothstep(0.30, 0.90, streak);
-  float outside = smoothstep(discR * 0.94, discR * 1.05, rd);
+  // the corona begins UNDER the body's feather and leaves off at the limb's own level, so the eye
+  // reads one continuous fall of light from the heart outward — never a disc pasted on a glow.
+  float outside = smoothstep(discR * 0.80, discR * 1.06, rd);
   float breathe = 0.96 + 0.04 * sin(t * 2.1 + rd * 9.0);
   float d = max(rd - discR, 0.0);
-  float cor = exp(-d * 1.9) * (0.12 + 1.4 * streak * (0.5 + 0.5 * hotW)) * outside * breathe;
-  float corSoft = exp(-d * 1.2) * 0.16 * outside;
+  float cor = exp(-d * 2.2) * (0.10 + 0.62 * streak * (0.5 + 0.5 * hotW)) * outside * breathe;
+  float corSoft = exp(-d * 1.00) * 0.26 * outside;
   vec3 corCol = mix(leaf, mix(flame, gold, uWarmth * 0.5), smoothstep(1.0, 1.7, rd));
   col += corCol * (cor * 0.9 + corSoft) * uGlow * sunW;
 

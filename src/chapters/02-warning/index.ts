@@ -10,7 +10,7 @@ import './style.css'
 /**
  * Chapter 02 — THE WARNING · Canto I · Stewardship · 17:40 · DESIGN-BIBLE §6.2
  * The cattle of Helios walk the horizon; Zeus answers; the whole frame becomes tesserae and falls into the sea.
- * Beats (p): head .06–.16 · storyteller ×6 .13–.33 · SHATTER .35–.47 · Forum .46–.77 · exit .78–.84 · Ulysses alone .80–.90 · S fills .92
+ * Beats (p): head .06–.18 · storyteller ×6 .165–.33 · SHATTER .35–.47 · Forum .505–.765 · exit .80–.86 · Ulysses alone .786–.90 · S fills .92
  */
 
 gsap.registerPlugin(SplitText)
@@ -88,11 +88,13 @@ function frameHTML(c: any): string {
   const chips = (s.domains as string[]).map(d => `<li class="chip">${esc(d)}</li>`).join('')
   const verbs = (s.verbs as string[]).map(v => `<li>${esc(v)}</li>`).join('')
   return `
-    <div class="head">
-      <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
-      <h2 class="h1 hl">${esc(HEADLINE)}</h2>
+    <div class="col">
+      <div class="head">
+        <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
+        <h2 class="h1 hl">${esc(HEADLINE)}</h2>
+      </div>
+      <div class="stack" aria-label="The Storyteller">${story(STORY, 's--w')}${story(SHATTER, 's--x')}${story(ALONE, 's--a')}</div>
     </div>
-    <div class="stack" aria-label="The Storyteller">${story(STORY, 's--w')}${story(SHATTER, 's--x')}${story(ALONE, 's--a')}</div>
     <div class="forum">
       <span class="forum__rule" aria-hidden="true"></span>
       <p class="label forum__label">${esc(s.letter)} · ${esc(String(s.name).toUpperCase())}</p>
@@ -130,7 +132,7 @@ export const warning: Chapter = {
     const q = <T extends Element = HTMLElement>(sel: string) => pin.querySelector(sel) as T
     const qa = (sel: string) => Array.from(pin.querySelectorAll<HTMLElement>(sel))
     const shadow = q('.shadow'), frame = q('.pin__frame'), fx = q('.fx')
-    const eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl'), head = q('.head')
+    const col = q('.col'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl'), head = q('.head')
     const sW = qa('.s--w'), sX = qa('.s--x'), sA = qa('.s--a')
     const forum = q('.forum'), fRule = q('.forum__rule'), fLabel = q('.forum__label')
     const fBlocks = [...qa('.forum__lines > .f'), q('.domains'), q('.verbs'), q('.close')]
@@ -139,25 +141,30 @@ export const warning: Chapter = {
     boltSvg = q<SVGElement>('.glyph--bolt')
     flashEl = q('.flash')
 
-    /* initial states (the seam rule: nothing visible before p .06) */
+    /* initial states — the seam rule: the frame is empty for p < .06 and again from p > .90 */
     gsap.set([eyeT, ...sW, ...sX, ...sA, fLabel, ...fBlocks, signoff], { opacity: 0 })
     gsap.set([...sW, ...sX, ...sA], { y: 4 })
     gsap.set(fBlocks, { y: 10 })
     gsap.set(eyeRule, { scaleX: 0, transformOrigin: 'left center' })
     gsap.set(fRule, { scaleX: 0, transformOrigin: 'left center' })
     gsap.set([shadow, frame], { '--go': 0 })
-    gsap.set(fx, { opacity: 0 })
+    gsap.set([col, forum], { '--scrim': 0 })
+    gsap.set([shadow, fx], { opacity: 0 })
 
-    /* head sequence: rule → eyebrow → headline lines (masked, SplitText) */
+    /* the frieze rises out of the seam before any type does */
+    tl.to(shadow, { opacity: 1, duration: .05 }, .015)
+
+    /* head · rule → eyebrow → headline lines (masked, SplitText). The scrim comes with the rule. */
+    tl.to(col, { '--scrim': 1, duration: .07 }, .05)
     tl.to(eyeRule, { scaleX: 1, duration: .04 }, .06)
-    tl.to(eyeT, { opacity: 1, duration: .02 }, .08)
+    tl.to(eyeT, { opacity: 1, duration: .025 }, .10)
     SplitText.create(hl, {
       type: 'lines', mask: 'lines', linesClass: 'line', autoSplit: true,
       onSplit: self => {
-        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .012, ease: 'none', immediateRender: true })
-        tl.add(tw, .10)
+        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .014, ease: 'none', immediateRender: true })
+        tl.add(tw, .13)
         // a re-split (fonts loaded / resize) lands mid-scroll: render the new tween at the current playhead
-        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .10)), true, true)
+        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .13)), true, true)
         return tw
       },
     })
@@ -168,7 +175,8 @@ export const warning: Chapter = {
       tl.to(line, { opacity: 1, y: 0, duration: .025 }, at)
       if (prev) tl.to(prev, { opacity: .55, duration: .02 }, at)
     }
-    sW.forEach((l, i) => land(l, .13 + i * .04, sW[i - 1]))
+    /* six beats, one every 3.3% of p — ~130 px of scroll each at the film's tuned length */
+    sW.forEach((l, i) => land(l, .165 + i * .033, sW[i - 1]))
 
     /* THE SHATTER · p .35–.47: type dissolves in sympathy with the mosaic pass, frieze never returns */
     land(sX[0], .35, sW[5])
@@ -180,23 +188,31 @@ export const warning: Chapter = {
     tl.to(shadow, { opacity: 0, duration: .005 }, .41)
     tl.to(frame, { '--go': 0, duration: .06 }, .41)
     tl.call(() => { const on = tl.time() >= .35 && tl.time() < .47; frame.classList.toggle('is-go', on) }, [], .47)
-    land(sX[1], .44, sX[0])
-    land(sX[2], .48, sX[1])
+    /* the two lines after the wreck land clear of the dissolve, not inside it */
+    land(sX[1], .425, sX[0])
+    land(sX[2], .462, sX[1])
 
-    /* Forum lands over the settling water: rule → label → lines → chips → verbs → closing → sign-off */
-    tl.to(fRule, { scaleX: 1, duration: .04 }, .46)
-    tl.to(fLabel, { opacity: 1, duration: .02 }, .50)
-    fBlocks.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .03 }, .53 + i * .04))
-    tl.to(signoff, { opacity: 1, duration: .03 }, .77)
+    /* Forum lands over the settling water: scrim → rule → label → lines → chips → verbs → closing → sign-off.
+       ~3.5% of p per block so the right column reads one thought at a time. */
+    tl.to(forum, { '--scrim': 1, duration: .07 }, .498)
+    tl.to(fRule, { scaleX: 1, duration: .035 }, .505)
+    tl.to(fLabel, { opacity: 1, duration: .025 }, .538)
+    fBlocks.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .03 }, .568 + i * .034))
+    tl.to(signoff, { opacity: 1, duration: .03 }, .765)
 
-    /* exit · .78–.84 */
-    tl.to([forum, signoff], { opacity: 0, y: -8, duration: .04 }, .78)
-    tl.to(sX, { opacity: 0, height: 0, marginBottom: 0, duration: .02 }, .78)
-    tl.to(head, { opacity: 0, y: -8, duration: .04 }, .80)
-
-    /* transition → 03 · Ulysses alone (faint), gone by .90 */
-    ;[.80, .82, .84, .86, .87].forEach((at, i) => land(sA[i], at))
-    tl.to(sA, { opacity: 0, y: -8, duration: .015 }, .885)
+    /* transition → 03 · Ulysses alone (faint) begins as the Forum lets go, in the left column the
+       shatter lines have just vacated. The last two lines are one sentence and land as one beat. */
+    tl.to(sX, { opacity: 0, y: -8, duration: .016 }, .762)
+    tl.set(sX, { height: 0, marginBottom: 0 }, .779)
+    land(sA[0], .786)
+    tl.to([forum, signoff], { opacity: 0, y: -8, duration: .045 }, .802)
+    land(sA[1], .814)
+    tl.to(head, { opacity: 0, y: -8, duration: .045 }, .820)
+    land(sA[2], .844)
+    land(sA[3], .872)
+    land(sA[4], .882)
+    tl.to(sA, { opacity: 0, y: -8, duration: .012 }, .888)
+    tl.to(col, { '--scrim': 0, duration: .012 }, .888)
   },
 
   onProgress(p) {

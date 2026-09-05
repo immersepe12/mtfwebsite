@@ -1,4 +1,5 @@
 import { gsap, ScrollTrigger } from './scroll'
+import { filmLength } from './pacing'
 import type { ChapterCtx } from './chapter'
 
 /**
@@ -12,7 +13,8 @@ import type { ChapterCtx } from './chapter'
  */
 export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: number | boolean; snap?: boolean; onUpdate?: (p: number) => void } = {}) {
   const { el } = ctx
-  const length = opts.length ?? 3
+  // the chapter declares the length its composition wants; src/engine/pacing.ts sets the film's global rhythm
+  const length = filmLength(el.dataset.chapter, opts.length ?? 3)
   el.classList.add('chapter--film')
   el.style.setProperty('--film-len', String(length))
   const pin = document.createElement('div')
@@ -23,7 +25,7 @@ export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: num
   tl.to({}, { duration: 1 }, 0)
   const st = ScrollTrigger.create({
     trigger: el, start: 'top top', end: 'bottom bottom',
-    scrub: opts.scrub ?? 0.6,
+    scrub: opts.scrub ?? 1.15,   // a longer scrub resolves a flick of the wheel into a glide instead of a jump
     animation: tl,
     onUpdate: s => opts.onUpdate?.(s.progress),
   })

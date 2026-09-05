@@ -7,36 +7,42 @@
 #ch-ogygia .isle__rise{width:100%;height:100%;will-change:transform}
 #ch-ogygia .ripples{position:absolute;left:calc(var(--cx) - var(--iw)*.25);top:calc(var(--cy) - var(--iw)*.04375);width:calc(var(--iw)*.5);height:calc(var(--iw)*.15)}
 #ch-ogygia .plate{position:absolute;left:calc(var(--cx) - var(--iw)*.54);top:calc(var(--cy) - var(--iw)*.34);width:calc(var(--iw)*1.16);height:calc(var(--iw)*.46)}
-#ch-ogygia .head{position:absolute;left:7%;top:15%;width:44%;display:flex;flex-direction:column;gap:1rem}
+/* ── the upper band. Everything the chapter prints lives above the mosaic floor (top < 48vh). ── */
+#ch-ogygia .head{position:absolute;left:7%;top:12%;width:44%;display:flex;flex-direction:column;gap:1rem}
 #ch-ogygia .eye{flex-direction:column;align-items:flex-start;gap:.9rem}
-#ch-ogygia .eye__rule,#ch-ogygia .forum__rule{display:block;width:11em;height:1px;background:var(--rule)}
+#ch-ogygia .eye__rule,#ch-ogygia .forum__rule,#ch-ogygia .stat__rule{display:block;width:11em;height:1px;background:var(--rule)}
 #ch-ogygia .coords{margin:-.4rem 0 0;color:var(--fg-faint)}
 #ch-ogygia .hl{max-width:var(--measure-title);margin-top:.3rem}
-#ch-ogygia .stack{position:absolute;left:7%;top:38%;width:44%}
-#ch-ogygia .stack .s{margin:0 0 .35em;padding-right:.15em}
-#ch-ogygia .forum{position:absolute;right:7%;top:22%;width:min(38%,34rem)}
+#ch-ogygia .stack{position:absolute;left:7%;top:33%;width:42%}
+#ch-ogygia .stack .s{margin:0 0 .28em;padding-right:.15em}
+#ch-ogygia .forum{position:absolute;right:7%;top:13%;width:min(38%,34rem)}
 #ch-ogygia .forum__label{display:block;margin:1rem 0 0}
-#ch-ogygia .mv{position:absolute;left:0;right:0;top:3.4rem;display:flex;flex-direction:column;align-items:flex-start;gap:.9rem;margin:0;padding:0;list-style:none}
+#ch-ogygia .mv{position:absolute;left:0;right:0;top:3.4rem;display:flex;flex-direction:column;align-items:flex-start;gap:.85rem;margin:0;padding:0}
 #ch-ogygia .mv p{margin:0}
 #ch-ogygia .body{font-size:var(--fs-body);line-height:var(--lh-body);color:var(--fg-muted)}
 #ch-ogygia .mission{max-width:14em}
 #ch-ogygia .tagline{color:var(--gold-leaf)}
-#ch-ogygia .stats{gap:1.4rem}
-#ch-ogygia .stat{gap:.4rem}
-#ch-ogygia .stat__n{font-size:clamp(3rem,6.6vw,6.6rem)}
-#ch-ogygia .one{max-width:12em}
+#ch-ogygia .one{max-width:13em}
 #ch-ogygia .date{font-size:var(--fs-fine);padding:.6em 1em .55em;white-space:normal}
 #ch-ogygia .cta{margin-top:.4rem}
+/* the stat trio is the one block the right column cannot hold: it opens into a full-width band
+   across the sky, clear of the mosaic floor and of the WHO IS MTF? label above it. */
+#ch-ogygia .statband{position:absolute;left:7%;right:7%;top:21%;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin:0;padding:0;list-style:none}
+#ch-ogygia .statband .stat{gap:.45rem;align-items:flex-start}
+#ch-ogygia .stat__rule{width:100%;max-width:11em;margin-bottom:.5rem}
+#ch-ogygia .stat__n{font-size:clamp(3rem,6.2vw,6.2rem)}
+#ch-ogygia .stat__l{max-width:20em}
 @media (max-width:820px){
 #ch-ogygia .pin{--iw:min(calc(var(--ppu)*3.6),40vw)}
-#ch-ogygia .head{top:12%;width:86%;gap:.8rem}
-#ch-ogygia .stack{top:32%;width:86%}
-#ch-ogygia .forum{left:7%;right:7%;top:22%;width:auto}
+#ch-ogygia .head{top:11%;width:86%;gap:.8rem}
+#ch-ogygia .stack{top:30%;width:86%}
+#ch-ogygia .forum{left:7%;right:7%;top:10%;width:auto}
 #ch-ogygia .mv{gap:.6rem}
 #ch-ogygia .body{font-size:var(--fs-small)}
 #ch-ogygia .mission,#ch-ogygia .one{font-size:var(--fs-h3);line-height:var(--lh-h3)}
-#ch-ogygia .stats{gap:.9rem}
+#ch-ogygia .statband{top:16%;grid-template-columns:1fr;gap:1.05rem}
+#ch-ogygia .stat__rule{margin-bottom:.35rem}
 #ch-ogygia .stat__n{font-size:var(--fs-h1)}
 #ch-ogygia .plate{display:none}
 }
-#ch-ogygia.chapter--static :is(.head,.stack,.forum,.mv){position:static;width:auto;max-width:var(--measure);margin:0 0 var(--gap-y)}
+#ch-ogygia.chapter--static :is(.head,.stack,.forum,.mv,.statband){position:static;width:auto;max-width:var(--measure);margin:0 0 var(--gap-y);grid-template-columns:1fr}

@@ -2,22 +2,29 @@
 #ch-register .pin{--sky-top-static:color-mix(in oklab,var(--abyss) 85%,var(--sea));--sky-bottom-static:color-mix(in oklab,var(--sea) 85%,var(--paper))}
 #ch-register [hidden]{display:none!important}
 #ch-register ul{list-style:none;margin:0;padding:0}
-/* the raft: ink planks on the water at horizon scale; --launch sends it toward the star */
-#ch-register .raft__glyph{--launch:0;--sail-lit:0;--sail-launch:0;--sail-fill:color-mix(in oklab,var(--sand),var(--gold-leaf) calc(max(var(--sail-lit),var(--sail-launch))*100%));position:absolute;left:50%;top:calc(var(--horizon-now,58%) + 5vh);width:clamp(9rem,22vmin,15rem);aspect-ratio:1;transform:translate(-50%,-66%) translateY(calc(var(--launch)*3vh)) scale(calc(1 - var(--launch)*.55))}
-#ch-register .raft__glyph svg{display:block;width:100%;height:100%;overflow:visible}
-/* placement (pear.no vocabulary) */
+/* the raft: ink planks on the water at horizon scale, set off the star's axis so the bearing stays clear ahead */
+#ch-register .raft__glyph{color:color-mix(in oklab,var(--press) 88%,var(--sea));filter:drop-shadow(0 0 9px color-mix(in oklab,var(--sail-base) 30%,transparent));--launch:0;--sail-lit:0;--sail-launch:0;--sail-base:color-mix(in oklab,var(--sand) 54%,var(--sea));--sail-fill:color-mix(in oklab,var(--sail-base),var(--gold-leaf) calc(max(var(--sail-lit),var(--sail-launch))*100%));position:absolute;left:50%;top:calc(var(--horizon-now,58%) + 9vh);width:clamp(7rem,15vmin,10rem);aspect-ratio:1;transform:translate(-50%,-66%) translate(calc(var(--launch)*4vw),calc(var(--launch)*-2.4vh)) scale(calc(1 - var(--launch)*.5))}
+#ch-register .raft__glyph svg{display:block;width:100%;height:100%;overflow:visible;position:relative;z-index:1}
+/* the waterline: a soft ellipse of darker sea under the hull so the raft sits IN the water */
+#ch-register .raft__glyph::after{content:'';position:absolute;left:50%;top:66%;width:32%;height:20%;transform:translateX(-50%);border-radius:46% 46% 50% 50%/22% 22% 78% 78%;background:linear-gradient(180deg,color-mix(in oklab,var(--abyss) 66%,transparent),transparent 76%);filter:blur(3px);opacity:calc(.9 - var(--launch)*.9)}
+/* placement (pear.no vocabulary): story left · deck right · the manifest takes the story's ground when it leaves */
 #ch-register .pin__frame>*{position:absolute}
-#ch-register .raft__eyebrow{left:7%;top:15%;flex-wrap:wrap}
-#ch-register .raft__h2{left:7%;top:19%;max-width:var(--measure-title);color:var(--cream)}
-#ch-register .raft__stack,#ch-register .raft__signoff{left:7%;top:31%;width:min(40%,34rem);display:flex;flex-direction:column;gap:.3rem}
+#ch-register .raft__scrim{inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(6,25,43,.56),rgba(6,25,43,.10) 30%,rgba(6,25,43,0) 47%,rgba(6,25,43,.30) 74%,rgba(6,25,43,.64))}
+#ch-register .raft__eyebrow{left:7%;top:13.5%;flex-wrap:wrap;max-width:min(60%,46rem)}
+#ch-register .raft__h2{left:7%;top:17.5%;max-width:var(--measure-title);color:var(--cream)}
+#ch-register .raft__stack{left:7%;top:30%;width:min(40%,34rem);display:flex;flex-direction:column;gap:.55rem;pointer-events:none}
 #ch-register .raft__stack .s{max-width:none;color:var(--cream);font-size:clamp(1.125rem,1.6vw,1.5rem)}
-#ch-register .raft__deck{right:7%;top:14%;width:min(38%,34rem);display:flex;flex-direction:column;gap:6px}
-#ch-register .raft__manifest{left:7%;bottom:5%;width:min(52%,48rem);display:grid;grid-template-columns:1fr 1fr 1.7fr;gap:var(--gap)}
+#ch-register .raft__signoff{left:7%;bottom:13%;width:min(40%,34rem);color:var(--cream);font-size:clamp(1.125rem,1.6vw,1.5rem)}
+#ch-register .raft__deck{right:7%;top:13%;width:min(38%,34rem);display:flex;flex-direction:column;gap:6px}
+/* the manifest keeps entirely clear of the centre band where the bearing star burns: two columns, the Fleet across */
+#ch-register .raft__manifest{left:7%;top:30%;width:min(36%,34rem);display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--gap-y) * 1.5) var(--gap);align-items:start}
+#ch-register .raft__block:nth-child(3){grid-column:1/-1}
+#ch-register .raft__block:nth-child(3) .raft__body{flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:.6rem 1.75rem}
 /* film: every beat starts hidden; the timeline reveals it */
-#ch-register.chapter--film :is(.raft__eyebrow,.raft__h2,.raft__stack .s,.raft__signoff,.raft__head,.raft__seg,.raft__plank,.raft__submit,.raft__honesty,.raft__body,.orbit){opacity:0}
+#ch-register.chapter--film :is(.raft__scrim,.raft__eyebrow,.raft__h2,.raft__stack .s,.raft__signoff,.raft__head,.raft__seg,.raft__plank,.raft__submit,.raft__honesty,.raft__body,.orbit){opacity:0}
 #ch-register .raft__rule{display:block;height:1px;background:var(--rule);transform-origin:left center}
 #ch-register.chapter--film .raft__rule{transform:scaleX(0)}
-#ch-register .raft__head{display:block;margin:.55rem 0 .35rem;color:var(--fg-muted)}
+#ch-register .raft__head{display:block;margin:.55rem 0 .4rem;color:var(--fg-muted);line-height:1.45}
 /* the segmented control: two links as one pill with a hairline divider */
 #ch-register .raft__seg{display:flex;box-shadow:inset 0 0 0 1px var(--rule-strong);border-radius:var(--radius-pill);overflow:hidden}
 #ch-register .raft__track{flex:1;display:flex;justify-content:space-between;align-items:center;gap:.5em;padding:1em 1.1em .95em;font:500 var(--fs-index)/1 var(--font-mono);letter-spacing:var(--ls-index);white-space:nowrap;text-transform:uppercase;color:var(--cream);text-decoration:none;transition:background-color .42s linear}
@@ -25,44 +32,69 @@
 #ch-register .raft__track:hover,#ch-register .raft__track:focus-visible{background:var(--chip)}
 #ch-register .raft__track-c{color:var(--gold-leaf);white-space:nowrap}
 #ch-register .raft__track-c .btn__arrow{margin-left:.5em}
-/* the planks (fields) — 6 px of grout between them */
+/* the planks (fields) — 6 px of grout between them; a lit top edge so each row reads as sawn wood, not a box */
 #ch-register .raft__form{display:flex;flex-direction:column;gap:6px}
 #ch-register .raft__plank{gap:.25rem}
+#ch-register .field__input{background:linear-gradient(180deg,color-mix(in oklab,var(--paper) 8%,transparent),color-mix(in oklab,var(--abyss) 26%,transparent))}
 #ch-register .field__label{display:block}
 #ch-register .raft__typed{color:var(--gold-leaf)}
 #ch-register .raft__role{position:relative}
-#ch-register .raft__submit{display:flex;align-items:center;gap:1rem;padding-top:.35rem}
+/* the gold pill is an emblema: its two orbits are given their own air so they never cross the copy */
+#ch-register .raft__submit{display:flex;align-items:center;gap:1rem;padding:3.4rem 0 3.6rem}
 #ch-register .raft__btn{isolation:auto;overflow:visible}
-#ch-register .raft__honesty{color:var(--fg-faint);max-width:var(--measure)}
+#ch-register .raft__btn .orbit{width:126%;height:150%}
+#ch-register .raft__btn .orbit--2{width:100%;height:192%}
+#ch-register .raft__honesty{color:var(--fg-muted);max-width:var(--measure)}
 #ch-register .raft__thanks{color:var(--cream)}
 /* the manifest */
-#ch-register .raft__body{display:flex;flex-direction:column;align-items:flex-start;gap:.45rem}
+#ch-register .raft__body{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem}
+#ch-register .raft__includes{display:flex;flex-direction:column;gap:.35rem}
 #ch-register .raft__includes li,#ch-register .raft__line{font:400 var(--fs-small)/1.4 var(--font-sans);color:var(--fg-muted)}
 #ch-register .raft__block .fine{color:var(--fg-faint)}
-#ch-register .raft__fleet{flex-direction:column;align-items:flex-start}
-#ch-register .raft__mark{text-decoration:none;white-space:normal;line-height:1.3;font-size:var(--fs-index)}
-#ch-register .raft__tba{display:flex;align-items:center;flex-wrap:wrap;gap:.35rem .8rem}
-#ch-register .raft__sub{color:var(--fg-faint);max-width:22em}
+#ch-register .raft__fleet{flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:2px;flex:1 1 100%}
+#ch-register .raft__mark{text-decoration:none;white-space:normal;line-height:1.35;font-size:var(--fs-index);padding:.5em .85em}
+#ch-register .raft__tba{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;margin-top:.2rem;flex:0 1 auto}
+#ch-register .raft__tba .chip{margin-top:auto}
+#ch-register .raft__sub{color:var(--fg-faint);line-height:1.5;max-width:22em}
 /* reduced motion: the same DOM as a flowing stack */
+#ch-register.chapter--static .raft__scrim{display:none}
 #ch-register.chapter--static .pin__layer.shadow{position:relative;inset:auto;height:clamp(9rem,22vmin,15rem);margin:0 var(--gutter)}
 #ch-register.chapter--static .raft__glyph{left:var(--gx-2);transform:none;top:0}
 #ch-register.chapter--static .pin__frame{display:flex;flex-direction:column;gap:var(--gap-y)}
 #ch-register.chapter--static .pin__frame>*{position:relative;inset:auto;width:auto;max-width:var(--measure)}
+#ch-register.chapter--static .raft__submit{padding:1.4rem 0 1.6rem}
 #ch-register.chapter--static .raft__deck,#ch-register.chapter--static .raft__manifest{max-width:34rem}
+/* narrow desktop / tablet: the segmented control stacks and the manifest folds to two columns */
+@media (min-width:821px) and (max-width:1240px){
+  #ch-register .raft__seg{flex-direction:column}
+  #ch-register .raft__track+.raft__track{border-left:0;border-top:1px solid var(--rule-strong)}
+  #ch-register .raft__track{flex:0 0 auto}
+  /* both columns hold off the centre band so the raft and its bearing star always have clear water */
+  #ch-register .raft__deck{width:min(36%,30rem)}
+  #ch-register .raft__manifest{width:min(34%,28rem);column-gap:calc(var(--gap) * .8)}
+  #ch-register .raft__submit{padding:2.8rem 0 3rem}
+}
 @media (max-width:820px){
-  /* the raft stays ON the water at every size: its waterline is the world's horizon, never the sky */
-  #ch-register .raft__glyph{left:auto;right:var(--gutter);top:calc(var(--horizon-now,62%) + 1vh);width:5.5rem;transform:translate(0,-64%) translateY(calc(var(--launch)*3vh)) scale(calc(1 - var(--launch)*.5))}
+  /* portrait: the deck fills the water, so the raft is an emblem in the headline band (bible §6.13 Mobile:
+     "the raft glyph sits above the form") — it never sits behind a field row. */
+  #ch-register .raft__glyph{left:auto;right:var(--gutter);top:17.5%;width:4.25rem;transform:translate(calc(var(--launch)*-6vw),calc(var(--launch)*-2vh)) scale(calc(1 - var(--launch)*.5))}
+  #ch-register .raft__glyph::after{opacity:calc(.55 - var(--launch)*.55)}
   #ch-register .pin__frame>*{left:max(3.5rem,7%)}
-  #ch-register .raft__eyebrow{top:7%;right:var(--gutter)}
+  #ch-register .raft__scrim{left:0}
+  #ch-register .raft__eyebrow{top:11%;right:var(--gutter);max-width:none}
   #ch-register .raft__eyebrow .chip{white-space:normal;line-height:1.4}
-  #ch-register .raft__h2{top:14.5%;font-size:var(--fs-h2)}
-  #ch-register .raft__stack,#ch-register .raft__signoff{top:24%;width:auto;right:var(--gutter)}
+  #ch-register .raft__h2{top:18.5%;font-size:var(--fs-h2)}
+  #ch-register .raft__stack{top:27%;width:auto;right:var(--gutter)}
   #ch-register .raft__stack .s{font-size:var(--fs-lead)}
-  #ch-register .raft__deck{left:0;right:0;top:28.5%;bottom:3%;width:auto;padding:0 var(--gutter) 1rem max(3.5rem,7%);gap:4px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+  #ch-register .raft__signoff{top:27%;bottom:auto;width:auto;right:var(--gutter);font-size:var(--fs-lead)}
+  /* the deck is an overflowing column: its rows must never be shrunk to fit (that collapsed the pill) */
+  #ch-register .raft__deck>*{flex:0 0 auto}
+  #ch-register .raft__deck{left:0;right:0;top:30%;bottom:8.5%;width:auto;padding:0 var(--gutter) 1rem max(3.5rem,7%);gap:4px;overflow-y:auto;overscroll-behavior-y:auto;scrollbar-width:none}
   #ch-register .raft__seg{flex-direction:column}
   #ch-register .raft__track+.raft__track{border-left:0;border-top:1px solid var(--rule-strong)}
   #ch-register .raft__track{padding:.7em 1.1em .65em}
-  #ch-register .raft__form{gap:4px}
+  #ch-register .raft__track{flex:0 0 auto;padding:.7em 1.1em .65em}
   #ch-register .field__input{height:2.5rem}
-  #ch-register .raft__manifest{position:static;width:auto;grid-template-columns:1fr;gap:.25rem;margin-top:.5rem}
+  #ch-register .raft__submit{padding:2.4rem 0 2.6rem}
+  #ch-register .raft__manifest{position:static;top:auto;width:auto;grid-template-columns:1fr;gap:.25rem;margin-top:.75rem}
 }

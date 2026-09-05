@@ -13,10 +13,19 @@ import './style.css'
  * baseline is glued to the world's sea horizon; the fixed WebGL sun sits on that line, so sinking the sun
  * through `mood` drains the light out of the letters from the top down. Everything else is type on the plate.
  *
- * Beats (p): head reveals on `mtf:ready` (time-based, the only wght tween) · .12 rule + sub-line · .20/.30/.40
- * the three question cards · .30/.40/.50 the Forum lines · .56 WATCH MTF10 · .45→.64 the tiles scatter and
- * .6→.75 the sun sinks (mood) · .62 ember hairline · .82 storyteller stitch · .86→.90 exit · the plate stays
- * until p 1 (black on black).
+ * Beats (desktop p, one substantive beat every ~6 %, no gap over 8 %): head reveals on `mtf:ready`
+ * (time-based, the only wght tween) · .10 Forum rule · .16 sub-line · .22/.34/.46 the question cards
+ * INTERLEAVED with .28/.40/.52 the Forum lines · .58 WATCH MTF10 · .64 ember glint · .72 ember opens to the
+ * full rim · .79 storyteller stitch · .85→.90 exit · the plate stays until p 1 (black on black).
+ * Portrait runs the same beats as a sequence in one band (Forum out .43 → cards .47/.54/.61 → the mono link
+ * out .77 → stitch .81 in the slot it vacates) so nothing is ever stacked. Mood: .45→.64 the tiles scatter,
+ * .6→.75 the sun sinks.
+ *
+ * Placement invariants (QA round 2 — "no overlap, anywhere"): the head is hung off the word's cap top but
+ * clamped so it can never cross the fixed header (`--head-min`, and the plate is sized against the HIGHEST
+ * baseline the chapter reaches so the clamp never has to bite); every block of copy sits on the opaque plate,
+ * never inside a letter aperture; the two lower columns are equal width with a clear alley between them; the
+ * stitch is a bottom-left sign-off (§4.2) well clear of the letters and of the corner marks.
  */
 
 type Key = [number, number][]
@@ -163,14 +172,22 @@ export const hero: Chapter = {
 
     // ── the plate: size the word so its cap height = --fs-sun (bounded by the room above the horizon) ──
     const mood0: Mood = { ...DEFAULT_MOOD, ...moodAt(0) }
+    const mood1: Mood = { ...DEFAULT_MOOD, ...moodAt(1) }
+    const HEAD_MIN = mobile ? 84 : 92   // the fixed header ends at 75 px; this is the floor the head may never cross
     let capPx = 0, baseStable = 0, lastY = -1
     const fit = (useWorld = false) => {
       const w = shared.vw || pin.clientWidth, h = shared.vh || pin.clientHeight
       svg.setAttribute('viewBox', `0 0 ${w} ${h}`)
       for (const r of rects) { r.setAttribute('width', String(w)); r.setAttribute('height', String(h)) }
       baseStable = (horizonPct(useWorld && world ? world.mood : mood0) / 100) * h
+      // The word rides the horizon, so size it against the HIGHEST baseline the chapter ever reaches and
+      // reserve the head's measured height above it — the head can then never slide under the header.
+      const headH = Math.round(head.offsetHeight) || h * .16
+      pin.style.setProperty('--head-h', `${headH}px`)
+      const baseMin = Math.min(baseStable, (horizonPct(mood1) / 100) * h)
+      const capTopMin = Math.max(h * .2, HEAD_MIN + headH + 10)
       const fsSun = probe.offsetHeight || h * .3
-      const cap = Math.min(fsSun, Math.max(h * .18, baseStable - h * .26))
+      const cap = Math.min(fsSun, Math.max(h * .16, baseMin - capTopMin))
       const fs = Math.min(cap / capRatio, (w * .9) / wRatio)
       capPx = fs * capRatio
       word.setAttribute('font-size', fs.toFixed(1))
@@ -201,34 +218,49 @@ export const hero: Chapter = {
     gsap.set([...qa('.card__rule--l'), ...qa('.card__rule--r')], { scaleY: 0 })
     gsap.set([sub, ...lines, ...qa('.hero__glyph'), ...qa('.hero__qtext'), ...qa('.card__corner'), watch, stitch, ember], { opacity: 0 })
 
-    // ── the scrubbed film (positions are fractions of the chapter; the scrub is the easing) ──
-    const D = .06
-    tl.fromTo(rule2, { scaleX: 0, transformOrigin: 'left center' }, { scaleX: 1, duration: .05 }, .12)
-      .fromTo(sub, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .05 }, .17)
-    // portrait: the lower band is a sequence, not a stack — the Forum column (.20→.56) gives way to the questions
-    const cardAt = (i: number) => (mobile ? .57 : .20) + i * .09
-    const lineAt = (i: number) => (mobile ? .20 : .30) + i * .10
+    // ── the scrubbed film ──────────────────────────────────────────────────────────────────────
+    // One substantive beat every ~6 % of p (≈ 180 px of scroll at the film's pacing), no gap over 8 %:
+    // the Forum column and the question cards INTERLEAVE rather than running as two clumped stacks.
+    const D = .05
+    const cardAt = (i: number) => (mobile ? [.47, .54, .61] : [.22, .34, .46])[i]
+    const lineAt = (i: number) => (mobile ? [.22, .29, .36] : [.28, .40, .52])[i]
+    const T = mobile
+      ? { rule: .09, sub: .15, forumOut: .43, watch: .67, ember: .73, emberWide: .77, watchOut: .77, stitch: .81, exit: .86 }
+      : { rule: .10, sub: .16, forumOut: -1, watch: .58, ember: .64, emberWide: .72, watchOut: -1, stitch: .79, exit: .85 }
+
+    tl.fromTo(rule2, { scaleX: 0, transformOrigin: 'left center' }, { scaleX: 1, duration: .05 }, T.rule)
+      .fromTo(sub, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: D }, T.sub)
     cards.forEach((card, i) => {
       const at = cardAt(i)
       const rules = Array.from(card.querySelectorAll<HTMLElement>('.card__rule'))
       const corners = Array.from(card.querySelectorAll<HTMLElement>('.card__corner'))
       const glyph = card.querySelector<HTMLElement>('.hero__glyph')!, text = card.querySelector<HTMLElement>('.hero__qtext')!
-      tl.fromTo(corners, { opacity: 0 }, { opacity: 1, duration: .01 }, at)
-        .fromTo(rules[0], { scaleX: 0 }, { scaleX: 1, duration: .04 }, at)
-        .fromTo(rules[2], { scaleX: 0 }, { scaleX: 1, duration: .04 }, at + .005)
-        .fromTo(rules[3], { scaleY: 0 }, { scaleY: 1, duration: .03 }, at + .01)
-        .fromTo(rules[1], { scaleY: 0 }, { scaleY: 1, duration: .03 }, at + .015)
-        .fromTo(glyph, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .03 }, at + .035)
-        .fromTo(text, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .03 }, at + .05)
+      // rule → glyph → label (§5.4-3) but compressed into ~3 % of p: a card is never left standing as an
+      // empty box while the scrub rests on it (QA round 2 — the "ghost tile" fault).
+      tl.fromTo(corners, { opacity: 0 }, { opacity: 1, duration: .008 }, at)
+        .fromTo(rules[0], { scaleX: 0 }, { scaleX: 1, duration: .022 }, at)
+        .fromTo(rules[2], { scaleX: 0 }, { scaleX: 1, duration: .022 }, at + .004)
+        .fromTo(rules[3], { scaleY: 0 }, { scaleY: 1, duration: .018 }, at + .008)
+        .fromTo(rules[1], { scaleY: 0 }, { scaleY: 1, duration: .018 }, at + .011)
+        .fromTo(glyph, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .018 }, at + .008)
+        .fromTo(text, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .018 }, at + .014)
     })
     lines.forEach((line, i) => tl.fromTo(line, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: D }, lineAt(i)))
-    tl.fromTo(watch, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: D }, mobile ? .78 : .56)
-    if (mobile) tl.to([rule2, sub, ...lines], { opacity: 0, y: -8, duration: .05 }, .51)
-    tl.fromTo(ember, { opacity: 0 }, { opacity: .85, duration: .12 }, .62)
-      .to(ember, { opacity: 0, duration: .05 }, .91)
-    tl.fromTo(stitch, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .04 }, .82)
-    // exit: everything out by .90; the plate stays (black on black hands over to Ch 02)
-    tl.to([head, rule2, sub, ...lines, ...cards, watch, stitch], { opacity: 0, y: -8, duration: .04 }, .86)
+    tl.fromTo(watch, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: D }, T.watch)
+    // portrait is a sequence in one band: the Forum column leaves before the cards arrive, and the mono link
+    // leaves before the stitch takes the slot below the cards. Nothing is ever stacked on anything else.
+    if (mobile) {
+      tl.to([rule2, sub, ...lines], { opacity: 0, y: -8, duration: .04 }, T.forumOut)
+        .to(watch, { opacity: 0, y: -8, duration: .04 }, T.watchOut)
+    }
+    // the ember on the baseline: a glint first, then the full rim as the last light goes
+    gsap.set(ember, { xPercent: -50, y: -1, scaleX: .18, transformOrigin: '50% 50%' })
+    tl.fromTo(ember, { opacity: 0 }, { opacity: .85, duration: .06 }, T.ember)
+      .to(ember, { scaleX: 1, duration: .06 }, T.emberWide)
+    tl.fromTo(stitch, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .04 }, T.stitch)
+    // exit: the frame is empty by .90; the plate stays (black on black hands over to Ch 02)
+    tl.to([head, rule2, sub, ...lines, ...cards, watch, stitch], { opacity: 0, y: -8, duration: .05 }, T.exit)
+      .to(ember, { opacity: 0, duration: .05 }, T.exit)
 
     // ── card glint (one delegated listener; the card carries --mx/--my) ──
     const list = q('.hero__cards')

@@ -9,12 +9,16 @@ import './style.css'
  * Chapter 12 — I AM HOMER · Canto XI · Voices · 06:20 · DESIGN-BIBLE §6.12
  *
  * Pure black (Ad Reinhardt). The Storyteller gives his name; the site gives its names.
- * p 0–.20 the emblema settles (the only centred headline) · .20–.28 "I am Homer." · .28–.62 THE HOLD (scroll
- * distance in which nothing happens) · .62 one white star (the world's billboard) and the chrome returns
- * (html.is-black removed) · .62–.70 the two revelation lines · .70–.90 the Forum stage: lead, eight TBA orb
- * rims lit one at a time as the star's light reaches them, the 10th-edition frieze (curated order, one row in
- * the film, ALL VOICES expands it in place), the Senate strip, the links · .88–.93 the closing couplet ·
- * p 1 the black lifts and the pre-dawn sea returns (mood).
+ * p 0–.20 the emblema settles (the only centred headline) · .158 "I am Homer." · .21–.42 THE HOLD (1.2 vh of
+ * scroll in which nothing happens; .8 vh on portrait) · .42 one white star (the world's billboard) and the
+ * chrome returns (html.is-black removed) · .432/.488 the two revelation lines · .54–.81 the Forum stage, one
+ * block per beat, each ~6 % of p apart: the lead + its links (left column), the eight TBA orb rims (right
+ * column), the 10th-edition frieze (full width, ALL VOICES expands it in place), the Senate strip (bottom) ·
+ * .818 the stage clears · .84–.90 the closing couplet at the sign-off position · p 1 the black lifts and the
+ * pre-dawn sea returns (mood).
+ *
+ * Film length 5.7 vh desktop / 3.8 vh portrait (was 3.5/2.5): at 3.5 vh the bible's 1.2 vh hold ate 34 % of
+ * the timeline and the eleven remaining beats clumped into the last 28 %. See README + the final report.
  */
 
 type KF = [number, number][]
@@ -91,6 +95,7 @@ function tbaHTML(i: number, v?: Voice): string {
 
 /* ── module state read by mood(p) (mood has no ctx) ── */
 let reduced = false
+let portrait = false
 let blackOn: boolean | null = null
 
 export const homer: Chapter = {
@@ -101,6 +106,7 @@ export const homer: Chapter = {
   mount(ctx) {
     const { el, shared, content } = ctx
     reduced = shared.reduced
+    portrait = shared.mobile
     const ps = (content?.pastSpeakers ?? {}) as Record<string, unknown>
     const heading = str(ps.heading, 'Voices of MTF')
     const mtf11 = (ps.mtf11Speakers ?? {}) as { value?: unknown; status?: string }
@@ -154,7 +160,7 @@ export const homer: Chapter = {
       return
     }
 
-    const { pin, tl } = createFilm(ctx, { length: shared.mobile ? 2.5 : 3.5 })
+    const { pin, tl } = createFilm(ctx, { length: shared.mobile ? 3.8 : 5.7 })
     pin.innerHTML = `<div class="pin__layer shadow" aria-hidden="true"></div>${frame}<div class="pin__layer fx" aria-hidden="true"></div>`
     pin.style.setProperty('--sky-top-static', 'var(--abyss)')
     pin.style.setProperty('--sky-bottom-static', 'color-mix(in oklab, var(--abyss) 70%, var(--sea))')
@@ -176,46 +182,55 @@ export const homer: Chapter = {
     const draw = (t: HTMLElement, at: number, dur = D) => tl.fromTo(t, { scaleX: 0 }, { scaleX: 1, duration: dur }, at)
     const light = (t: HTMLElement, at: number, dur = 0.03) => tl.fromTo(t, { '--lit': 0 }, { '--lit': 1, duration: dur }, at)
 
-    /* p 0–.20: black; the emblema settles (eyebrow dim, then the headline) */
-    show(eyebrow, 0.06, 0.05, 0)
-    show(h2, 0.10, 0.08, 6)
-    /* .20–.28: I am Homer. — the headline recedes to the faint register */
-    show(name, 0.20, 0.06, 4)
-    tl.to(h2, { color: 'var(--fg-faint)', duration: 0.06 }, 0.20)
-    /* .28–.62: THE HOLD — nothing. */
-    /* .62–.70: the star (mood) · the two revelation lines; older lines fade */
-    show(stack[0]!, 0.64, 0.04, 4)
-    tl.to(name, { color: 'var(--fg-muted)', duration: 0.04 }, 0.64)
-    show(stack[1]!, 0.68, 0.04, 4)
-    tl.to(stack[0]!, { color: 'var(--fg-faint)', duration: 0.04 }, 0.68)
-    /* .70–.74: the emblema gives way to the Forum stage */
-    hide(emblema, 0.71, 0.04)
-    show(lead, 0.72, 0.05)
-    draw(ruleA, 0.74)
-    show(headA, 0.76, 0.03, 0)
-    show(orbEls, 0.76, 0.03, 6)
-    orbEls.forEach((o, i) => light(o, 0.775 + i * 0.015))
-    /* the frieze: rule → label → cards, then the star's light reaches the cards one by one */
-    draw(ruleB, 0.78)
-    show(headB, 0.80, 0.03, 0)
-    show(cards, 0.805, 0.04, 8)
-    cards.forEach((c, i) => light(c, 0.815 + Math.min(i, 12) * 0.006))
-    show(links, 0.82, 0.04)
-    draw(ruleS, 0.835)
-    show(headS, 0.85, 0.03, 0)
-    show(senate, 0.855, 0.04, 6)
-    /* .875–.895: exit; .88–.93: the closing couplet at the sign-off position */
-    hide([lead, blockA, links, blockB, blockS], 0.875, 0.025)
-    show(closeLines[0]!, 0.885, 0.02, 4)
-    show(closeLines[1]!, 0.90, 0.02, 4)
-    tl.to(closeLines[0]!, { color: 'var(--fg-faint)', duration: 0.02 }, 0.90)
-    hide(closeLines, 0.925, 0.015)
+    /* THE BEAT MAP — one substantive beat per ~5–6 % of p (≈ 280 px of scroll at 900 px), the hold exempt.
+       Sub-parts of one block (rule → label → content → the star's light) belong to that block's beat and are
+       staged inside its window; no two blocks are ever mid-reveal together. Frame empty p < .048 and p > .90. */
+
+    /* p 0–.20 · the emblema settles, centred — the only centred headline in the film */
+    show(eyebrow, 0.048, 0.032, 0)
+    show(h2, 0.100, 0.055, 6)
+    /* .158 · I am Homer. — the headline recedes to the faint register */
+    show(name, 0.158, 0.045, 4)
+    tl.to(h2, { color: 'var(--fg-faint)', duration: 0.045 }, 0.158)
+
+    /* .210–.420 · THE HOLD — 1.2 vh of scroll in which nothing happens (desktop; .8 vh on portrait) */
+
+    /* .420–.460 · one star (mood); .432 / .488 the two revelation lines, older lines fading back */
+    show(stack[0]!, 0.432, 0.040, 4)
+    tl.to(name, { color: 'var(--fg-muted)', duration: 0.04 }, 0.432)
+    show(stack[1]!, 0.488, 0.040, 4)
+    tl.to(stack[0]!, { color: 'var(--fg-faint)', duration: 0.04 }, 0.488)
+
+    /* .540 · the emblema gives way to the Forum stage (left column: the lead, then its links) */
+    hide(emblema, 0.540, 0.036)
+    show(lead, 0.580, 0.042)
+    show(links, 0.612, 0.028)
+    /* .640 · sub-block A, right column: rule → label → the eight orb rims, lit one at a time */
+    draw(ruleA, 0.640, 0.026)
+    show(headA, 0.663, 0.020, 0)
+    show(orbEls, 0.678, 0.026, 6)
+    orbEls.forEach((o, i) => light(o, 0.682 + i * 0.002))
+    /* .700 · sub-block B, the frieze of the 10th edition: rule → label → cards → the star's light crosses them */
+    draw(ruleB, 0.700, 0.026)
+    show(headB, 0.723, 0.020, 0)
+    show(cards, 0.738, 0.030, 8)
+    cards.forEach((c, i) => light(c, 0.742 + Math.min(i, 9) * 0.002))
+    /* .760 · the Senate strip */
+    draw(ruleS, 0.760, 0.022)
+    show(headS, 0.780, 0.018, 0)
+    show(senate, 0.788, 0.020, 6)
+    /* .818 · the stage clears · .840–.878 the closing couplet at the sign-off position · out by .90 (seam) */
+    hide([lead, blockA, links, blockB, blockS], 0.818, 0.022)
+    show(closeLines[0]!, 0.840, 0.022, 4)
+    show(closeLines[1]!, 0.856, 0.022, 4)
+    tl.to(closeLines[0]!, { color: 'var(--fg-faint)', duration: 0.02 }, 0.860)
+    hide(closeLines, 0.884, 0.016)
   },
 
-  /** html.is-black belongs to the chapter until the star: black below p .62, chrome back from .62. */
+  /** html.is-black belongs to the chapter until the star: black below p .42, chrome back with the star. */
   onProgress(p) {
     if (reduced) return
-    const on = p < 0.62
+    const on = p < 0.42
     if (on !== blackOn) { blackOn = on; document.documentElement.classList.toggle('is-black', on) }
   },
   onLeave() {
@@ -226,27 +241,31 @@ export const homer: Chapter = {
     const q = reduced ? 1 : p
     const lift = kf(q, [[0.9, 0], [1, 1]])
     return {
-      camX: kf(q, [[0, 0.8], [0.62, 0.4], [0.9, 0], [1, 0]]),
-      camY: kf(q, [[0, 1.6], [0.62, 1.4], [0.9, 1.2], [1, 0.9]]),
-      camZ: kf(q, [[0, -4], [0.62, -6], [0.9, -8], [1, -10]]),
-      camTilt: kf(q, [[0, 0], [0.62, 0.02], [1, 0.02]]),
+      camX: kf(q, [[0, 0.8], [0.42, 0.4], [0.9, 0], [1, 0]]),
+      camY: kf(q, [[0, 1.6], [0.42, 1.4], [0.9, 1.2], [1, 0.9]]),
+      camZ: kf(q, [[0, -4], [0.42, -6], [0.9, -8], [1, -10]]),
+      camTilt: kf(q, [[0, 0], [0.42, 0.02], [1, 0.02]]),
       camYaw: TAU, fov: 34,
       skyTop: kfRGB(q, [[0.9, BLACK], [1, ABYSS]], skyTop),
       skyBottom: kfRGB(q, [[0.9, BLACK], [1, PREDAWN]], skyBottom),
       haze: 0.35 * lift,
-      sunX: kf(q, [[0, 0.4], [0.62, 0.4], [0.9, 0], [1, 0]]),
-      // p 1 hands the star to Ch 13 above the eye-level horizon (its camera sits at y .9): (0, 1.05, −22)
-      sunY: kf(q, [[0, 2.6], [0.62, 2.6], [0.9, 2.4], [1, 1.05]]),
+      sunX: kf(q, [[0, 0.4], [0.42, 0.4], [0.9, 0], [1, 0]]),
+      // p 1 hands the star to Ch 13 above the eye-level horizon (its camera sits at y .9): (0, 1.05, −22).
+      // Portrait rides the star ~.45 higher through the film: at 390 × 844 the 2.6 arc puts it exactly on the
+      // emblema's eyebrow and on the Forum lead — the type would be read through the glare.
+      sunY: portrait
+        ? kf(q, [[0, 3.0], [0.42, 3.0], [0.9, 2.85], [1, 1.05]])
+        : kf(q, [[0, 2.6], [0.42, 2.6], [0.9, 2.4], [1, 1.05]]),
       sunZ: kf(q, [[0, -14], [0.9, -14], [1, -22]]),
       sunRadius: 0.14,
-      sunGlow: kf(q, [[0, 0], [0.6, 0], [0.64, 0.45], [0.9, 0.45], [1, 1.0]]),   // the bible's 1.8 reads as a sun; a star lights the sky far less
+      sunGlow: kf(q, [[0, 0], [0.40, 0], [0.44, 0.45], [0.9, 0.45], [1, 1.0]]),   // the bible's 1.8 reads as a sun; a star lights the sky far less
       sunHeat: 0,
-      sunVisible: kf(q, [[0, 0], [0.6, 0], [0.64, 1], [1, 1]]),
+      sunVisible: kf(q, [[0, 0], [0.40, 0], [0.44, 1], [1, 1]]),
       seaOpacity: 0.6 * lift, seaColor: PREDAWN,
       stars: 0.3 * lift, constellation: 0,
       tess: kf(q, [[0, 0.6], [0.2, 0], [1, 0]]), tessForm: 3, tessSpread: kf(q, [[0, 1], [0.2, 4], [1, 4]]),   // spread ≥ 4 with tess 0 = the field is gone
       veil: 3, p1: 0, p3: 0, p4: 0,
-      bloom: kf(q, [[0, 0.7], [0.62, 0.85], [0.9, 0.85], [1, 0.8]]),
+      bloom: kf(q, [[0, 0.7], [0.42, 0.85], [0.9, 0.85], [1, 0.8]]),
       grain: kf(q, [[0.9, 0.04], [1, 0.06]]),
       vignette: 0.3 * lift,
       mosaic: 0, aberration: 0,
@@ -263,11 +282,11 @@ function wireFrieze(root: HTMLElement, isStatic: boolean) {
   const close = root.querySelector('.homer__close') as HTMLButtonElement | null
   if (!block || !grid || !all || !close) return
   const cards = Array.from(grid.children) as HTMLElement[]
-  const cell = 8 * 16, gap = 16
+  const cell = 7.5 * 16, gap = 16   /* must match .homer__frieze's minmax(7.5rem, 1fr) / 1rem column gap */
   /* collapsed: one complete row of the curated voices (2 on portrait) */
   const collapse = () => {
     const w = grid.clientWidth || root.clientWidth * 0.86
-    const cols = window.innerWidth < 820 ? 2 : Math.max(2, Math.floor((w + gap) / (cell + gap)))
+    const cols = window.innerWidth < 820 ? 3 : Math.max(2, Math.floor((w + gap) / (cell + gap)))
     cards.forEach((c, i) => { c.hidden = !isStatic && i >= cols })
   }
   const set = (open: boolean) => {

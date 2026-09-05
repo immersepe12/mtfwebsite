@@ -9,13 +9,15 @@ import './style.css'
  * Chapter 13 — THE RAFT · Coda · Register · Hotels · Partners · 06:40 · DESIGN-BIBLE §6.13
  *
  * The wreckage turned raft: build from it. The lowest, most human camera in the film sits on the water at
- * the first grey-blue of dawn; the star from Ch 12 is low ahead as a bearing. p 0–.25 the storyteller stack
- * while the five planks arc together on the horizon (§9.14 `assemble`) · .235 the headline lands as the raft
- * locks · .27–.60 the deck draws rule → label → segmented control → five planks (one per beat) → the gold
- * pill with its two orbits → the honesty line · .64–.82 the manifest (Associate, Stay, the Fleet) · .85–.90
- * the sail catches the first light; the storyteller exits; the sign-off · THE FORM STAYS LIVE UNTIL p 1
- * (the one exception to the seam rule — Ch 14 opens on the same form position). `html.is-register` hides
- * the header's REGISTER pill while the chapter is active.
+ * the first grey-blue of dawn; the star from Ch 12 is low ahead as a bearing, off the raft's mast axis so the
+ * sail never sits in its glare. Beats are ~.045 of p apart for the long film (engine/pacing.ts): p .04–.335 the
+ * scrim lifts, the eyebrow, then six storyteller lines while the five planks arc together (§9.14 `assemble`,
+ * p 0–.40) · .375 the headline lands as the raft locks · .415–.782 the deck draws rule → label → segmented
+ * control → five planks (one per beat) → the gold pill with its two orbits → the honesty line · .70 the
+ * storyteller clears the LEFT column · .812–.907 the manifest (Associate, Stay, the Fleet) takes that same
+ * ground — the two never share it · .898–.965 the eyebrow leaves, the sail catches the first light, the
+ * sign-off lands low left · THE FORM STAYS LIVE UNTIL p 1 (the one exception to the seam rule — Ch 14 opens on the
+ * same form position). `html.is-register` hides the header's REGISTER pill while the chapter is active.
  */
 
 interface Track { id?: string; label?: string; cta?: string; currentUrl?: string }
@@ -84,6 +86,7 @@ export const register: Chapter = {
 
     const frame = `
       <div class="pin__frame">
+        <div class="raft__scrim" aria-hidden="true"></div>
         <p class="eyebrow raft__eyebrow"><span class="index tnum">13 —</span><span class="chip">The application — ${esc(str(reg.heading, 'Register'))} for MTF11 · ${esc(dates)} · ${esc(city)}</span></p>
         <h2 class="h1 raft__h2">${HEADLINE}</h2>
         <div class="raft__stack">${LINES.map(l => `<p class="s">${esc(l)}</p>`).join('')}</div>
@@ -147,7 +150,7 @@ export const register: Chapter = {
 
     const q = <T extends HTMLElement = HTMLElement>(s: string) => pin.querySelector(s) as T
     const qa = <T extends HTMLElement = HTMLElement>(s: string) => Array.from(pin.querySelectorAll(s)) as T[]
-    const eyebrow = q('.raft__eyebrow'), h2 = q('.raft__h2'), stack = qa('.raft__stack .s'), signoff = q('.raft__signoff')
+    const scrim = q('.raft__scrim'), eyebrow = q('.raft__eyebrow'), h2 = q('.raft__h2'), stack = qa('.raft__stack .s'), signoff = q('.raft__signoff')
     const deckRule = q('.raft__deck > .raft__rule'), deckHead = q('.raft__deck > .raft__head'), segEl = q('.raft__seg')
     const planks = qa('.raft__plank'), submit = q('.raft__submit'), orbits = qa('.raft__btn .orbit'), honesty = q('.raft__honesty')
     const blocks = qa('.raft__block')
@@ -158,48 +161,58 @@ export const register: Chapter = {
     const draw = (t: HTMLElement, at: number, dur = D) => tl.fromTo(t, { scaleX: 0 }, { scaleX: 1, duration: dur }, at)
     const faint = (t: HTMLElement, at: number, dur = 0.03) => tl.to(t, { color: 'var(--fg-faint)', duration: dur }, at)
 
-    /* p 0–.25: the storyteller stack while the planks arc together (assemble runs in onProgress) */
-    show(eyebrow, 0.06, 0.04, 0)
+    /* BEAT SPACING (the film is long now — see engine/pacing.ts). Every substantive beat is .04–.045 of p from
+       its neighbour and no stretch of the chapter is idle for more than .07, except the deliberate hold from
+       the sign-off to p 1 in which the form simply stands there and can be filled in. */
+    /* p .04–.335: the scrim lifts, the eyebrow, then six storyteller lines while the planks arc together */
+    tl.fromTo(scrim, { opacity: 0 }, { opacity: 1, duration: 0.05 }, 0.04)
+    show(eyebrow, 0.07, 0.04, 0)
     stack.forEach((l, i) => {
-      const at = 0.08 + i * 0.026
-      show(l, at, 0.03, 4)
+      const at = 0.11 + i * 0.045
+      show(l, at, 0.035, 4)
       if (i > 0) faint(stack[i - 1]!, at)
     })
-    /* .235: the seventh line is the headline — it lands as the raft locks */
-    show(h2, 0.235, 0.05, 6)
-    /* mobile: the stack gives the screen to the deck (there is no room for both on portrait) */
-    if (shared.mobile) hide(stack, 0.26, 0.03)
+    /* .375: the seventh line is the headline — it lands as the raft locks (assemble runs to .40 in onProgress) */
+    show(h2, 0.375, 0.05, 6)
+    /* portrait: the stack gives the screen to the deck (there is no room for both on 390 px) and it is gone
+       before the deck's first hairline draws — the two never share a pixel */
+    if (shared.mobile) hide(stack, 0.378, 0.03)
 
-    /* .27–.60: the deck draws — rule → label → the segmented control → five planks, one per beat → the pill → honesty */
-    draw(deckRule, 0.27)
-    show(deckHead, 0.30, 0.03, 0)
-    show(segEl, 0.32, 0.04, 8)
-    planks.forEach((p, i) => show(p, 0.35 + i * 0.04, 0.035, 10))
-    show(submit, 0.55, 0.04, 8)
-    tl.fromTo(orbits, { opacity: 0 }, { opacity: 1, duration: 0.03 }, 0.58)
-    show(honesty, 0.60, 0.03, 0)
+    /* .415–.782: the deck draws — rule + label → the segmented control → five planks, one per beat → the pill → honesty */
+    draw(deckRule, 0.415, 0.045)
+    show(deckHead, 0.443, 0.03, 0)
+    show(segEl, 0.478, 0.04, 8)
+    planks.forEach((pl, i) => show(pl, 0.520 + i * 0.042, 0.033, 10))
+    show(submit, 0.722, 0.04, 8)
+    tl.fromTo(orbits, { opacity: 0 }, { opacity: 1, duration: 0.03 }, 0.746)
+    show(honesty, 0.782, 0.035, 0)
 
-    /* .64–.82: the manifest — Associate, Stay, the Fleet — each rule → label → content */
+    /* .70: the story has been told — the stack clears the left column so the manifest can take its ground.
+       The two never overlap in time: the stack is at opacity 0 by .735, the first manifest rule draws at .812. */
+    if (!shared.mobile) hide(stack, 0.700, 0.035)
+
+    /* .812–.907: the manifest — Associate and Stay share a row, the Fleet spans below; rule → label → content */
+    const MANIFEST_AT = [0.812, 0.836, 0.872]
     blocks.forEach((b, i) => {
-      const at = 0.64 + i * 0.07
+      const at = MANIFEST_AT[i] ?? (0.812 + i * 0.03)
       const rule = b.querySelector('.raft__rule') as HTMLElement, head = b.querySelector('.raft__head') as HTMLElement, body = b.querySelector('.raft__body') as HTMLElement
-      draw(rule, at, 0.04); show(head, at + 0.025, 0.025, 0); show(body, at + 0.04, 0.03, 8)
+      draw(rule, at, 0.035); show(head, at + 0.02, 0.025, 0); show(body, at + 0.035, 0.03, 8)
     })
 
-    /* .85–.90: the sail catches the first light; the storyteller exits; the sign-off takes its place */
-    if (glyphWrap) tl.fromTo(glyphWrap, { '--sail-lit': 0 }, { '--sail-lit': 1, duration: 0.05 }, 0.85)
-    hide(eyebrow, 0.86, 0.03)
-    if (!shared.mobile) hide(stack, 0.86, 0.03)
-    show(signoff, 0.90, 0.04, 4)
+    /* .898–.965: the eyebrow leaves; the sail catches the first light; the sign-off lands low left, then the
+       chapter simply holds — the form stands there, live, to p 1 (the documented seam exception) */
+    hide(eyebrow, 0.898, 0.03)
+    if (glyphWrap) tl.fromTo(glyphWrap, { '--sail-lit': 0 }, { '--sail-lit': 1, duration: 0.06 }, 0.905)
+    show(signoff, 0.920, 0.045, 4)
   },
 
   onEnter() { document.documentElement.classList.add('is-register') },
   onLeave() { document.documentElement.classList.remove('is-register') },
 
-  /** The planks assemble over p 0–.25 (quantised so the SVG is only rewritten when the value moves). */
+  /** The planks assemble over p 0–.40 (quantised so the SVG is only rewritten when the value moves). */
   onProgress(p) {
     if (reduced || !glyph) return
-    const q = Math.round(Math.min(1, Math.max(0, p / 0.25)) * 400) / 400
+    const q = Math.round(Math.min(1, Math.max(0, p / 0.40)) * 400) / 400
     if (q === lastQ) return
     lastQ = q
     assemble(glyph, q)
@@ -229,7 +242,8 @@ export const register: Chapter = {
       sunY: kf(q, [[0, 1.05], [1, 1.05]]),
       sunZ: kf(q, [[0, -22], [1, -22]]),
       sunRadius: kf(q, [[0.3, 0.14], [1, 0.16]]),
-      sunGlow: kf(q, [[0, 1.2], [0.3, 1.3], [1, 1.2]]),   // the bible's 1.6 reads as a sun; Ch 12 hands over a star at 1.0
+      // a bearing is a POINT, not a lamp: a tight glow keeps the star's glare off the Fleet column beside it
+      sunGlow: kf(q, [[0, 0.95], [0.3, 1.0], [1, 0.9]]),
       sunHeat: kf(q, [[0, 0], [0.3, 0.05], [1, 0.15]]),
       sunVisible: 1,
       seaAmp: kf(q, [[0, 0.1], [0.3, 0.12], [1, 0.12]]),

@@ -1,53 +1,105 @@
-/* Ch 07 — Seven Years, Eleven Editions · #ch-eleven only · pear.no placement vocabulary */
+/* Ch 07 — Seven Years, Eleven Editions · #ch-eleven only · pear.no placement vocabulary (§4.2)
+   Three regions that never touch: LEFT column = head + storyteller · RIGHT column = the Forum ·
+   LOWER BAND = the wall of eleven. The sun crosses the frame two and a half times, so a graded wash
+   (strength tied to --day, the same value that flickers the island) carries the contrast under noon. */
+
+/* ── the graded wash: an ND filter, not a box. Left and right columns get a soft edge-in gradient,
+      the lower band a rising floor; all three deepen as the sky turns to day. ── */
+#ch-eleven .wash{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;
+  background:
+    linear-gradient(97deg,color-mix(in oklab,var(--press) calc(30% + var(--day,0)*46%),transparent) 0%,color-mix(in oklab,var(--press) calc(15% + var(--day,0)*28%),transparent) 30%,transparent 56%),
+    linear-gradient(263deg,color-mix(in oklab,var(--press) calc(24% + var(--day,0)*40%),transparent) 0%,color-mix(in oklab,var(--press) calc(10% + var(--day,0)*22%),transparent) 26%,transparent 48%),
+    linear-gradient(0deg,color-mix(in oklab,var(--press) calc(50% + var(--day,0)*32%),transparent) 0%,color-mix(in oklab,var(--press) calc(20% + var(--day,0)*22%),transparent) 36%,transparent 60%)}
 #ch-eleven .isle{position:absolute;left:42%;width:13%;bottom:calc(100% - var(--horizon-now,62%));color:color-mix(in oklab,var(--sand) calc(var(--day,0)*100%),var(--press));opacity:0}
-#ch-eleven :is(.head,.stack,.forum,.sectors,.tiles,.stamp){position:absolute;left:7%}
+
+/* ── regions ── */
+#ch-eleven :is(.head,.stack,.forum,.sectors,.tiles,.stamp){position:absolute;left:7%;z-index:1}
 #ch-eleven :is(p,h2,ul){margin:0}
 #ch-eleven ul{list-style:none;padding:0}
-#ch-eleven .head{top:7.5%;max-width:46%}
-#ch-eleven .eye{margin-bottom:1rem}
+/* a whisper of the world's own dark behind every line of type — placement first, halo only as insurance */
+#ch-eleven :is(.hl,.s,.eye,.stamp,.sector__l,.sector__i,.forum__formula,.forum__who){text-shadow:0 1px 20px color-mix(in oklab,var(--press) calc(32% + var(--day,0)*42%),transparent)}
+
+#ch-eleven .head{top:9%;max-width:min(44%,40rem)}
+#ch-eleven .eye{margin-bottom:1.1rem}
 #ch-eleven .eye__rule{width:2.5em;height:1px;flex:none;background:var(--rule-strong);transform-origin:left}
 #ch-eleven .hl{--opsz:144}
 #ch-eleven .opsz{font-optical-sizing:none;font-variation-settings:"opsz" var(--opsz)}
-#ch-eleven .stamp{left:auto;right:7%;top:7.5%}
+#ch-eleven .stamp{left:auto;right:7%;top:9%;opacity:0}
 #ch-eleven .stamp__n{color:var(--gold-leaf)}
-#ch-eleven .stack{top:36%;width:48%}
-#ch-eleven .s{--old:0;max-height:3em;overflow:hidden;color:color-mix(in oklab,var(--cream) calc(100% - var(--old)*45%),transparent)}
-#ch-eleven .s--last{font-weight:400}
-#ch-eleven .forum{left:auto;right:7%;top:22%;width:min(38%,34rem);display:flex;flex-direction:column;gap:.55rem}
-#ch-eleven :is(.forum__rule,.card__rule,.sector__rule){display:block;height:1px;background:var(--rule);transform-origin:left}
+
+#ch-eleven .stack{top:38.5%;width:min(42%,38rem)}
+#ch-eleven .s{--old:0;max-height:2.9em;overflow:hidden;margin-bottom:.34em;color:color-mix(in oklab,var(--cream) calc(100% - var(--old)*42%),transparent)}
+#ch-eleven .s--last{font-weight:400;letter-spacing:.01em}
+
+#ch-eleven .forum{left:auto;right:7%;top:20%;width:min(33%,29rem);display:flex;flex-direction:column;gap:.55rem}
+#ch-eleven :is(.forum__rule,.card__rule,.sector__rule,.tile__top){transform-origin:left}
+#ch-eleven :is(.forum__rule,.card__rule,.sector__rule){display:block;height:1px;background:var(--rule)}
 #ch-eleven .forum__rule{max-width:11em}
 #ch-eleven :is(.forum__lab,.card__i,.card__close,.cta){color:var(--gold-leaf)}
 #ch-eleven .forum__proc{color:var(--gold)}
-#ch-eleven .cta{margin-top:.6rem;align-self:flex-start}
-#ch-eleven .sectors{right:7%;top:50.5%;display:grid;grid-template-columns:3fr 3fr 3fr 2fr;gap:6px}
-#ch-eleven .sector{display:grid;grid-template-columns:auto 1fr;gap:.4rem .9em;align-items:center}
-#ch-eleven .sector__rule{grid-column:1/-1}
-#ch-eleven .tiles{--age:0;right:7%;top:54%;bottom:5%;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:1fr;gap:6px}
-#ch-eleven .tile{--mx:50%;--my:50%;grid-column:span 2;aspect-ratio:auto;min-width:0;padding:.75rem .8rem;gap:.3rem;translate:0 var(--ty,0);background:color-mix(in oklab,var(--sand) calc(8% - var(--age)*5%),color-mix(in oklab,var(--abyss) 45%,transparent))}
+#ch-eleven .cta{margin-top:.7rem;align-self:flex-start}
+
+/* ── the four hairline sectors: a legend whose widths mirror the group sizes (3 · 3 · 3 · 2) ── */
+#ch-eleven .sectors{right:7%;top:54.5%;display:grid;grid-template-columns:3fr 3fr 3fr 2fr;gap:1px;align-items:end}
+#ch-eleven .sector{display:grid;grid-template-columns:auto 1fr;gap:.45rem .9em;align-items:center;padding-right:.9em}
+#ch-eleven .sector__rule{grid-column:1/-1;background:var(--rule-strong)}
+#ch-eleven .sector__l{color:var(--fg-muted)}
+
+/* ── the wall of eleven: ONE plate, hairline grout, 6 + 5 brickwork with the odd row offset half a cell.
+      Not eleven stickers on the sea — a wall the tesserae are set into. ── */
+#ch-eleven .tiles{--age:0;--dim:0;--plate:0;right:7%;top:58.5%;bottom:7%;display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:1fr;gap:1px;
+  opacity:calc(1 - var(--dim,0)*.26)}
+/* the plate: the wall arrives whole, then the eleven are set into it one at a time */
+#ch-eleven .tiles::before{content:"";position:absolute;inset:0;z-index:-1;opacity:var(--plate,0);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--press) 62%,transparent),color-mix(in oklab,var(--press) 84%,transparent));
+  box-shadow:0 34px 70px -46px rgba(0,0,0,.95)}
+#ch-eleven .tile{--mx:50%;--my:50%;--fill:0;grid-column:span 2;aspect-ratio:auto;min-width:0;padding:.72rem .8rem .78rem;gap:.34rem;border-radius:0;
+  translate:0 var(--ty,0);opacity:var(--plate,0);
+  background:linear-gradient(158deg,color-mix(in oklab,var(--sand) calc((2% + var(--fill,0)*12%) - var(--age,0)*6%),transparent) 0%,color-mix(in oklab,var(--abyss) calc((30% + var(--fill,0)*44%) + var(--age,0)*18%),transparent) 100%);
+  box-shadow:inset 0 1px 0 color-mix(in oklab,var(--star) calc((3% + var(--fill,0)*14%) - var(--age,0)*8%),transparent),inset 0 0 0 1px color-mix(in oklab,var(--star) calc((6% + var(--fill,0)*7%) - var(--age,0)*4%),transparent)}
+#ch-eleven :is(.tile__top,.tile__t,.tile__s){opacity:var(--fill,0)}
 #ch-eleven .tile:nth-child(7){grid-column:2/span 2}
-#ch-eleven .tile::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .26s linear;background:radial-gradient(circle at var(--mx) var(--my),color-mix(in oklab,var(--gold-leaf) 22%,transparent),transparent 40%)}
+#ch-eleven .tile::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .26s linear;background:radial-gradient(circle at var(--mx) var(--my),color-mix(in oklab,var(--gold-leaf) 20%,transparent),transparent 42%)}
 #ch-eleven .tile:is(:hover,[aria-expanded=true])::after{opacity:1}
-#ch-eleven .tile__n{font-size:var(--fs-h3)}
+#ch-eleven .tile:is(:hover,:focus-visible,[aria-expanded=true]){box-shadow:inset 0 1px 0 color-mix(in oklab,var(--star) 26%,transparent),inset 0 0 0 1px color-mix(in oklab,var(--gold-leaf) 40%,transparent),0 26px 50px -30px rgba(0,0,0,.95);z-index:2}
+#ch-eleven .tile__top{display:flex;align-items:baseline;justify-content:space-between;gap:.6em;padding-bottom:.34rem;border-bottom:1px solid color-mix(in oklab,var(--star) 12%,transparent)}
+#ch-eleven .tile__n{font-size:clamp(1.125rem,1.35vw,1.375rem);line-height:1;color:color-mix(in oklab,var(--gold-leaf) 58%,var(--fg-muted))}
 #ch-eleven :is(.tile__t,.tile__s){display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
-#ch-eleven .tile__t{font-size:clamp(1.125rem,1.25vw,1.25rem);line-height:1.15;-webkit-line-clamp:3}
-#ch-eleven .tile__s{font-size:var(--fs-fine);line-height:1.35;margin-top:auto;-webkit-line-clamp:2}
-#ch-eleven .tile__g{font-size:var(--fs-index);letter-spacing:.12em;padding:.4em .7em .35em;align-self:start;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg-muted)}
-#ch-eleven .tile__card{top:20%;z-index:2;padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.6rem;border-radius:var(--radius);box-shadow:inset 0 0 0 1px var(--rule-strong);background:color-mix(in oklab,var(--abyss) 88%,transparent)}
+#ch-eleven .tile__t{font-size:clamp(1rem,1.12vw,1.1875rem);line-height:1.16;-webkit-line-clamp:3}
+#ch-eleven .tile__s{font-size:var(--fs-fine);line-height:1.32;margin-top:auto;-webkit-line-clamp:2;color:var(--fg-muted)}
+#ch-eleven .tile__g{font-size:var(--fs-index);letter-spacing:.13em;padding:0;background:none;border:0;box-shadow:none;border-radius:0;flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:color-mix(in oklab,var(--paper) 36%,transparent)}
+
+/* ── the open card takes the Forum's column; the Forum steps aside completely (no ghost underneath) ── */
+#ch-eleven .tile__card{right:7%;top:17%;width:min(33%,29rem);max-height:66%;overflow:hidden;z-index:3;padding:1.35rem 1.45rem;display:flex;flex-direction:column;gap:.55rem;border-radius:var(--radius);box-shadow:inset 0 0 0 1px var(--rule-strong),0 40px 80px -50px rgba(0,0,0,.95);background:color-mix(in oklab,var(--press) 94%,transparent)}
+#ch-eleven .card__d{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden}
 #ch-eleven .card__close{line-height:1.5}
-#ch-eleven .has-card .forum{opacity:.12!important;transition:opacity .32s linear}
-#ch-eleven .tiles .tile__card{position:static;width:auto;grid-column:1/-1;transform:none;padding:1rem;display:none;opacity:1}
+#ch-eleven .has-card .forum{opacity:0!important;transition:opacity .28s linear;pointer-events:none}
+#ch-eleven .tiles .tile__card{position:static;width:auto;max-height:none;grid-column:1/-1;transform:none;padding:1rem;display:none;opacity:1}
 #ch-eleven .tiles .tile__card.is-open{display:flex}
+
+/* ── portrait: one column, one voice slot (the storyteller vacates it for the Forum and takes it back at .67).
+      The wall drops to two columns and clears the fixed REGISTER pill at the bottom of the viewport. ── */
 @media (max-width:820px){
-#ch-eleven .isle,#ch-eleven .stamp,#ch-eleven.chapter--film :is(.forum__who,.forum__out,.sectors,.tile__g,.tile__s){display:none}
-#ch-eleven .head{top:10%;max-width:86%}
-#ch-eleven .stack{top:29.5%;width:86%}
-#ch-eleven .forum{left:7%;right:auto;top:40%;width:86%;gap:.45rem}
-#ch-eleven .tiles{top:55%;bottom:5%;grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:4px;align-content:start;overflow-y:auto}
-#ch-eleven .tile:nth-child(n){grid-column:auto;padding:.5rem .6rem;gap:.2rem}
-#ch-eleven .tile__n{font-size:1.125rem}
-#ch-eleven .tile__t{-webkit-line-clamp:4}
+#ch-eleven .isle,#ch-eleven .stamp,#ch-eleven.chapter--film :is(.forum__who,.forum__out,.sectors,.tile__s,.tile__g){display:none}
+#ch-eleven .head{top:8%;max-width:88%}
+#ch-eleven .eye{margin-bottom:.8rem}
+#ch-eleven .stack{top:34%;width:88%}
+#ch-eleven .forum{left:7%;right:auto;top:34%;width:88%;gap:.45rem}
+#ch-eleven .cta{margin-top:.5rem}
+/* portrait has no room for eleven cards, so the wall becomes the ledger it always was: eleven hairline-ruled
+   rows, numeral and title on one line, stopping clear of the fixed REGISTER pill (bottom ~120px). */
+#ch-eleven .tiles{top:47%;bottom:16%;grid-template-columns:1fr;grid-auto-rows:minmax(0,1fr);gap:1px;opacity:calc(1 - var(--dim,0)*.34)}
+#ch-eleven .tile:nth-child(n){grid-column:auto;flex-direction:row;align-items:baseline;gap:.65em;padding:.2rem .55rem;overflow:hidden}
+#ch-eleven .tile__top{padding:0;border:0;flex:none}
+#ch-eleven .tile__n{font-size:.8125rem}
+#ch-eleven .tile__t{display:block;flex:1;min-width:0;font-size:.8125rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the card is a sheet over the wall, never an extra grid row that would push the wall off-screen */
+#ch-eleven .tile__card{right:7%;left:7%;width:auto;top:47%;bottom:16%;max-height:none;overflow-y:auto;padding:.9rem 1rem;gap:.45rem}
 }
 /* reduced motion: the same DOM as a flowing stack */
+#ch-eleven.chapter--static .wash{display:none}
 #ch-eleven.chapter--static .pin__frame>*{position:static;width:auto;max-width:none;margin-bottom:var(--gap-y)}
-#ch-eleven.chapter--static .tiles{grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));grid-auto-rows:auto;overflow:visible}
-#ch-eleven.chapter--static .tile:nth-child(n){grid-column:auto}
+#ch-eleven.chapter--static .tiles{grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));grid-auto-rows:auto;overflow:visible;opacity:1;background:none;box-shadow:none;gap:6px}
+#ch-eleven.chapter--static .tile:nth-child(n){grid-column:auto;--plate:1;--fill:1}
+#ch-eleven.chapter--static .tiles::before{display:none}
+#ch-eleven.chapter--static .tile__card{position:static;width:auto;max-height:none}

@@ -1,34 +1,43 @@
-/* Chapter 12 — I Am Homer · scoped under #ch-homer only · black; one centred emblema; the voices */
+/* Chapter 12 — I Am Homer · scoped under #ch-homer only · black; one centred emblema; the voices.
+   PLACEMENT CONTRACT (§4.2). The frame is divided into bands that never meet, and every band clears the fixed
+   chrome: the header (top ~72 px), the rail's vertical label (left ~68 px), the corner labels (bottom ~56 px)
+   and, under 600 px, the bottom-centre REGISTER pill (~120 px).
+     left column  7 %        the Forum lead, then its two links
+     right column 7 %        sub-block A — the eight TBA orb rims
+     full width   top 37 %   sub-block B — the frieze of the 10th edition (one row in the film)
+     full width   bottom 11 % the Senate strip
+     sign-off     left 7 %, bottom 16 %  the closing couplet (the stage is empty by then)
+   The emblema and the Forum stage never coexist: the emblema is out (opacity 0) before the lead arrives. */
 #ch-homer [hidden] { display: none !important; }
 
-/* the emblema — the only centred block in the film */
-#ch-homer .homer__emblema { position: absolute; left: 50%; top: 36%; width: min(86%, 46rem); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1.1rem; text-align: center; }
+/* ── the emblema — the only centred block in the film ── */
+#ch-homer .homer__emblema { position: absolute; left: 50%; top: 34%; width: min(86%, 46rem); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1.05rem; text-align: center; }
 #ch-homer .homer__eyebrow { opacity: 0; }
 #ch-homer .homer__h2 { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: var(--fs-h2); line-height: var(--lh-h2); letter-spacing: var(--ls-h2); color: var(--cream); max-width: 22em; text-wrap: balance; opacity: 0; }
-#ch-homer .homer__name { font-style: normal; font-variation-settings: normal; font-size: var(--fs-h1); line-height: var(--lh-tight); letter-spacing: var(--ls-h1); color: var(--cream); max-width: none; margin-top: .4rem; opacity: 0; }
-#ch-homer .homer__stack { display: flex; flex-direction: column; gap: .5rem; }
-#ch-homer .homer__stack .s { max-width: none; opacity: 0; }
+#ch-homer .homer__name { font-style: normal; font-variation-settings: normal; font-size: var(--fs-h1); line-height: var(--lh-tight); letter-spacing: var(--ls-h1); color: var(--cream); max-width: none; margin-top: .35rem; opacity: 0; }
+#ch-homer .homer__stack { display: flex; flex-direction: column; gap: .45rem; }
+#ch-homer .homer__stack .s { max-width: none; opacity: 0; text-wrap: balance; }
 
-/* the Forum stage */
-#ch-homer .homer__forum { position: absolute; inset: 0; padding: 0 var(--gutter); }
+/* ── the Forum stage ── */
+#ch-homer .homer__forum { position: absolute; inset: 0; }
 #ch-homer .homer__forum > * { position: absolute; }
 #ch-homer .homer__lead, #ch-homer .homer__links, #ch-homer .homer__head, #ch-homer .homer__orb, #ch-homer .homer__frieze > .voice, #ch-homer .homer__senate { opacity: 0; }
-#ch-homer .homer__lead { left: 7%; top: 24%; width: min(38%, 34rem); }
-#ch-homer .homer__block--a { right: 7%; top: 24%; width: min(38%, 34rem); }
-#ch-homer .homer__links { left: 7%; top: 43%; display: flex; gap: 2.2rem; }
-#ch-homer .homer__block--b { left: 7%; right: 7%; top: 50%; }
-#ch-homer .homer__block--s { left: 7%; right: 7%; bottom: 7%; }
-#ch-homer .homer__close-lines { position: absolute; left: 7%; bottom: 14%; display: flex; flex-direction: column; gap: .4rem; }
-#ch-homer .homer__close-lines .s { opacity: 0; }
+#ch-homer .homer__lead { left: 7%; top: 16%; width: min(36%, 30rem); }
+#ch-homer .homer__block--a { right: 7%; top: 16%; width: min(36%, 30rem); }
+#ch-homer .homer__links { left: 7%; top: 30%; display: flex; gap: 2.2rem; }
+#ch-homer .homer__block--b { left: 7%; right: 7%; top: 37%; }
+#ch-homer .homer__block--s { left: 7%; right: 7%; bottom: 11%; }
+#ch-homer .homer__close-lines { position: absolute; left: 7%; bottom: 16%; width: min(48%, 38rem); display: flex; flex-direction: column; gap: .4rem; }
+#ch-homer .homer__close-lines .s { max-width: none; opacity: 0; text-wrap: balance; }
 
 /* rule → label → content */
 #ch-homer .homer__rule { display: block; height: 1px; background: var(--rule); transform-origin: left center; transform: scaleX(0); }
-#ch-homer .homer__head { display: block; margin: .8rem 0 .9rem; color: var(--fg-muted); }
+#ch-homer .homer__head { display: block; margin: .75rem 0 .85rem; color: var(--fg-muted); }
 #ch-homer .homer__headrow { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 #ch-homer .homer__headrow .homer__head { margin-right: auto; }
 #ch-homer ul { list-style: none; margin: 0; padding: 0; }
 
-/* the eight orb rims */
+/* ── the eight orb rims ── */
 #ch-homer .homer__orbs { display: flex; gap: .55rem; }
 #ch-homer .homer__orb { width: 3.4rem; flex: 0 0 auto; gap: .3rem; }
 #ch-homer .homer__orb .voice__img { clip-path: none; border-radius: 50%; display: grid; place-items: center; }
@@ -36,23 +45,37 @@
 #ch-homer .homer__orb .voice__name { font-size: var(--fs-small); line-height: 1.2; text-align: center; }
 #ch-homer .homer__tba { color: var(--fg-faint); }
 
-/* the star's light — a rim that draws and a highlight that falls on the arch, both driven by --lit (0→1) */
+/* ── the star's light: a rim that draws and a highlight that falls on the arch, both driven by --lit (0→1) ── */
 #ch-homer .voice { --lit: 0; }
-#ch-homer .voice__img::before { opacity: calc(.15 + .6 * var(--lit)); mask: conic-gradient(from -90deg, var(--black) calc(var(--lit) * 360deg), transparent 0); }
-#ch-homer .voice__img::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70% 55% at 50% 0%, color-mix(in oklab, var(--gold-leaf) 26%, transparent), transparent 100%); opacity: var(--lit); }
+#ch-homer .voice__img::before { opacity: calc(.14 + .58 * var(--lit)); mask: conic-gradient(from -90deg, var(--black) calc(var(--lit) * 360deg), transparent 0); }
+#ch-homer .voice__img::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(76% 58% at 50% -4%, color-mix(in oklab, var(--gold-leaf) 24%, transparent), transparent 72%); opacity: var(--lit); }
 #ch-homer .voice__initials { display: none; }
 #ch-homer .voice--ink .voice__initials { display: grid; }
+/* the portraits sit on a warm ground under the luminosity blend (never a flat blue sticker) and their base
+   dissolves into the black instead of ending on a hard sticker edge */
+#ch-homer .voice:not(.voice--tba) .voice__img {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--gold-deep) 34%, var(--press)) 0%, color-mix(in oklab, var(--gold-deep) 12%, var(--black)) 58%, var(--black) 100%);
+}
+#ch-homer .voice:not(.voice--tba) .voice__img img {
+  filter: grayscale(1) contrast(1.05) brightness(.97);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 56%, rgba(0, 0, 0, .5) 84%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(180deg, #000 0 56%, rgba(0, 0, 0, .5) 84%, rgba(0, 0, 0, 0) 100%);
+}
 
-/* the frieze: one row in the film, brickwork on ≥ 820 px */
-#ch-homer .homer__frieze { grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 1.2rem 1rem; }
-#ch-homer .homer__frieze .voice { gap: .45rem; }
-#ch-homer .homer__frieze .voice__name { font-size: clamp(1rem, 1.2vw, 1.125rem); line-height: 1.15; }
-#ch-homer .homer__frieze .voice__title { font-size: var(--fs-fine); line-height: 1.35; }
+/* ── the frieze: one row inside the film, brickwork when it expands ── */
+#ch-homer .homer__frieze { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: 1.1rem 1rem; align-items: start; }
+#ch-homer .homer__frieze .voice { gap: .5rem; }
+#ch-homer .homer__frieze .voice__name { font-size: clamp(.95rem, 1.05vw, 1.06rem); line-height: 1.18; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+#ch-homer .homer__frieze .voice__title { font-size: var(--fs-fine); line-height: 1.3; }
 #ch-homer .homer__frieze .voice__initials { font-size: var(--fs-h2); }
 #ch-homer .voice__country { align-self: flex-start; font-size: var(--fs-index); padding: .4em .7em .35em; color: var(--fg-muted); }
+/* collapsed (the film row): every card the same height, so the block's foot is where the layout says it is */
+#ch-homer .homer__block--b:not(.is-open) .voice__name { min-height: 3.54em; }
+#ch-homer .homer__block--b:not(.is-open) .voice__title { min-height: 2.6em; }
+#ch-homer .homer__block--b:not(.is-open) .voice__country { display: none; }
 #ch-homer .homer__close { display: none; }
 /* ALL VOICES → the frieze expands in place: a black panel inside the frame, scrollable, brickwork */
-#ch-homer .homer__block--b.is-open { top: 9%; bottom: 6%; z-index: 6; background: var(--black); display: flex; flex-direction: column; opacity: 1 !important; transform: none !important; }
+#ch-homer .homer__block--b.is-open { top: 9%; bottom: 9%; z-index: 6; background: var(--black); display: flex; flex-direction: column; opacity: 1 !important; transform: none !important; }
 #ch-homer .homer__block--b.is-open .homer__close { display: inline-flex; }
 #ch-homer .homer__block--b.is-open .homer__frieze { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .25rem .5rem 1rem 0; scrollbar-width: thin; }
 #ch-homer .homer__block--b.is-open .voice { --lit: 1; }
@@ -60,41 +83,54 @@
 #ch-homer .homer__block--b.is-open .voice__title { font-size: var(--fs-small); }
 #ch-homer .homer__block--b.is-open .homer__frieze .voice:nth-child(2n) { transform: translateY(1.4rem); }
 
-/* the Senate strip */
-#ch-homer .homer__senate { display: flex; flex-wrap: wrap; gap: .5em 1.6em; font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; line-height: 1.2; color: var(--fg-muted); }
+/* ── the Senate strip (capped at three rows so the strip can never reach the corner labels) ── */
+#ch-homer .homer__senate { display: flex; flex-wrap: wrap; gap: .55em 1.6em; font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-label); letter-spacing: .12em; text-transform: uppercase; line-height: 1.25; color: var(--fg-muted); max-height: 4em; overflow: hidden; }
 #ch-homer .homer__scountry { color: var(--fg-faint); }
 
-/* mobile: a flowing stack under the star; cards two per row */
-@media (max-width: 820px) {
-  #ch-homer .homer__emblema { top: 30%; width: 90%; gap: .9rem; }
+/* ── portrait: a flowing stack under the star, clear of the rail, the corners and the REGISTER pill ── */
+@media (max-width: 819.98px) {
+  #ch-homer .homer__emblema { top: 32%; width: 88%; gap: .85rem; }
   #ch-homer .homer__eyebrow { flex-direction: column; gap: .6em; }
   #ch-homer .homer__eyebrow .chip { white-space: normal; text-align: center; line-height: 1.5; }
-  #ch-homer .homer__forum { top: 25%; bottom: 3%; display: flex; flex-direction: column; gap: .8rem; }
-  #ch-homer .homer__forum > * { position: static; }
-  #ch-homer .homer__lead { width: 100%; font-size: var(--fs-body); line-height: 1.45; }
-  #ch-homer .homer__block--a { width: 100%; }
-  #ch-homer .homer__orbs { gap: .3rem; }
-  #ch-homer .homer__orb { width: 2.3rem; }
-  #ch-homer .homer__head { margin: .6rem 0 .6rem; }
+  #ch-homer .homer__forum { inset: 23% 0 17%; padding-inline: max(var(--gutter), 2.25rem) var(--gutter); display: flex; flex-direction: column; gap: .65rem; }
+  #ch-homer .homer__forum > * { position: static; width: auto; }
+  #ch-homer .homer__lead { font-size: var(--fs-body); line-height: 1.45; }
+  #ch-homer .homer__orbs { gap: .26rem; }
+  #ch-homer .homer__orb { width: 2.2rem; }
+  #ch-homer .homer__head { margin: .55rem 0 .55rem; }
   #ch-homer .homer__links { gap: 1.4rem; }
-  #ch-homer .homer__frieze { grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+  /* the collapsed film row is a frieze of three; ALL VOICES opens the two-up brickwork the bible asks for */
+  #ch-homer .homer__frieze { grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+  #ch-homer .homer__frieze .voice__img { max-height: 6.5rem; }
+  #ch-homer .homer__frieze .voice__name { font-size: var(--fs-small); }
   #ch-homer .homer__frieze .voice__title { display: none; }
-  #ch-homer .homer__senate { flex-wrap: nowrap; gap: 1.2em; overflow-x: auto; white-space: nowrap; padding-bottom: .4em; scrollbar-width: none; letter-spacing: .08em; }
-  #ch-homer .homer__block--b.is-open { position: absolute; top: 7%; bottom: 4%; left: var(--gutter); right: var(--gutter); }
+  #ch-homer .homer__block--b.is-open .homer__frieze { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+  #ch-homer .homer__block--b.is-open .voice__name { font-size: var(--fs-h3); }
+  #ch-homer .homer__block--b:not(.is-open) .voice__name { min-height: 0; }
+  #ch-homer .homer__senate { flex-wrap: nowrap; max-height: none; gap: 1.2em; overflow-x: auto; white-space: nowrap; padding-bottom: .4em; scrollbar-width: none; letter-spacing: .08em; }
+  #ch-homer .homer__block--b.is-open { position: absolute; top: 7%; bottom: 7%; left: var(--gutter); right: var(--gutter); }
   #ch-homer .homer__block--b.is-open .voice__title { display: block; }
-  #ch-homer .homer__close-lines { bottom: 10%; right: 7%; }
+  #ch-homer .homer__block--b.is-open .voice__img { max-height: none; }
+  #ch-homer .homer__close-lines { left: 7%; right: 7%; width: auto; bottom: 18%; }
+}
+/* < 600 px the REGISTER pill docks bottom-centre: keep the whole frame above it */
+@media (max-width: 599.98px) {
+  #ch-homer .homer__forum { inset: 23% 0 20%; }
+  #ch-homer .homer__close-lines { bottom: 24%; }
+  #ch-homer .homer__emblema { top: 30%; }
 }
 
-/* reduced motion: the same DOM as a flowing stack, everything visible, the light already fallen */
+/* ── reduced motion: the same DOM as a flowing stack, everything visible, the light already fallen ── */
 #ch-homer.chapter--static .pin__frame { display: flex; flex-direction: column; gap: var(--gap-y); padding-top: 12vh; padding-bottom: 8vh; }
 #ch-homer.chapter--static .pin__frame *, #ch-homer.chapter--static .homer__rule { opacity: 1; transform: none; }
-#ch-homer.chapter--static .homer__emblema, #ch-homer.chapter--static .homer__forum, #ch-homer.chapter--static .homer__close-lines { position: static; width: auto; transform: none; padding: 0; }
+#ch-homer.chapter--static .homer__emblema, #ch-homer.chapter--static .homer__forum, #ch-homer.chapter--static .homer__close-lines { position: static; inset: auto; width: auto; transform: none; padding: 0; }
 #ch-homer.chapter--static .homer__emblema { max-width: 46rem; margin: 0 auto; }
 #ch-homer.chapter--static .homer__forum { display: flex; flex-direction: column; gap: var(--gap-y); }
 #ch-homer.chapter--static .homer__forum > * { position: static; width: auto; max-width: 100%; }
 #ch-homer.chapter--static .homer__block--b { order: 3; }
 #ch-homer.chapter--static .homer__links { order: 4; }
 #ch-homer.chapter--static .homer__block--s { order: 5; }
+#ch-homer.chapter--static .homer__senate { max-height: none; }
 #ch-homer.chapter--static .voice { --lit: 1; }
 #ch-homer.chapter--static .homer__block--b.is-open { background: none; display: block; }
 #ch-homer.chapter--static .homer__block--b.is-open .homer__frieze { overflow: visible; }

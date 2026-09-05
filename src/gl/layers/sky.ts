@@ -26,9 +26,18 @@ import type { Shared } from '../../engine/chapter'
  *   fbm haze (5 octaves, 3-D value noise on the view ray, sky-locked, slow drift; frozen under reduced motion);
  *   night nebula (2 octaves, ±.03 display, only when warmth < .3, never on pure black);
  *   sun-side scatter pow(max(dot(dir,sunDir),0),8) in --flame → --gold-leaf (flame at the horizon, gold above);
- *   horizon band, sun-side weighted; sun halo (HDR core ≈ 1.4 × sunGlow, wide lobe) gated to ≤ 12 % in star mode
- *   (sunHeat < .35) where only a tight ≈ 30 px glow remains around the point;
+ *   horizon band, sun-side weighted; a sun halo built as core + close lobe + faint aureole (see below),
+ *   gated to ≤ 12 % in star mode (sunHeat < .35) where only a tight ≈ 30 px glow remains around the point;
  *   the haze catches the light. Static-scene mode mirrors the World's (every other frame when idle).
+ *
+ * The halo stays CLOSE to the disc on purpose: its core e-folds in ≈ 1.7° and its atmospheric lobe is
+ * spent within ~6°, so the sky a few degrees off the sun is clean sky — chapters set type there (Ch 07's
+ * Forum column) and a wide glare used to swallow it. Only a ~2 % aureole reaches further, so the fall of
+ * light is graded rather than ending in a visible edge.
+ *
+ * The blit also carries an 8 × 8 ORDERED DITHER at full output resolution (± half an 8-bit step, scaled
+ * into linear space, drifting a few cells a second): wide flat fields — Ch 09's cold blue, Ch 06's paper
+ * day — quantise to visible rings without it.
  */
 
 const domeVert = /* glsl */ `
@@ -106,7 +115,7 @@ void main(){
   float d = dot(dir, uSunDir);
   float scatter = pow(max(d, 0.0), 8.0) * exp(-max(el, 0.0) * 9.0)
                 * warmGate * uSunVisible * heatGate * mix(1.0, 0.5, clamp(uSunDir.y * 2.5, 0.0, 1.0));
-  col += warmH * scatter * 0.35;
+  col += warmH * scatter * 0.26;
   // the haze catches the light
   col += warmH * max(n - 0.5, 0.0) * uHaze * scatter * 0.6;
 
@@ -119,9 +128,14 @@ void main(){
   // haloGate is 1 from sunHeat .6, so the dusk / day skies are untouched; starW mirrors the sun layer's morph.
   float haloGate = mix(0.12, 1.0, smoothstep(0.20, 0.60, uSunHeat));
   float starW = 1.0 - smoothstep(0.20, 0.55, uSunHeat);
-  col += mix(sunCol, HOT, 0.6) * 1.4 * exp(-th * 22.0) * glow * mix(0.35, 1.0, uSunHeat) * haloGate;        // HDR core (lum > .55 → Bloom)
-  col += sunCol * 0.25 * exp(-th * mix(14.0, 6.0, uSunHeat)) * glow * mix(0.08, 1.0, uSunHeat) * haloGate;  // the wide atmospheric glow
-  col += sunCol * 0.40 * exp(-th * 120.0) * glow * starW;                                                  // the star's own tight glow (≈ 30 px) — bloom still catches the point
+  // A halo must stay a halo. The core is hot but SMALL (e-fold ≈ 1.7°) and the atmospheric lobe is
+  // spent within ~6°, so the sky a few degrees off the sun is sky again — chapters set type there and
+  // the glare used to swallow it. A very faint aureole keeps the fall continuous instead of ending in
+  // a disc; the sun billboard, not the sky, owns the body of the light.
+  col += mix(sunCol, HOT, 0.6) * 0.80 * exp(-th * 34.0) * glow * mix(0.35, 1.0, uSunHeat) * haloGate;        // HDR core (lum > .55 → Bloom)
+  col += sunCol * 0.20 * exp(-th * mix(16.0, 11.0, uSunHeat)) * glow * mix(0.08, 1.0, uSunHeat) * haloGate;  // the atmospheric glow, close in
+  col += sunCol * 0.055 * exp(-th * 3.4) * glow * heatGate * warmGate * haloGate;                            // the aureole — graded, never a rim
+  col += sunCol * 0.40 * exp(-th * 120.0) * glow * starW;                                                    // the star's own tight glow (≈ 30 px) — bloom still catches the point
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -135,13 +149,28 @@ const blitFrag = /* glsl */ `
 varying vec2 vUv;
 uniform sampler2D uTex;
 uniform vec2 uTexel;
+uniform vec2 uDither;   // xy = the ordered pattern's slow drift (whole cells)
+
+// 8 × 8 ordered (Bayer) matrix, 64 levels, from three nested 2 × 2 matrices
+float bayer2(vec2 a){ a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }
+float bayer4(vec2 a){ return bayer2(a * 0.5) * 0.25 + bayer2(a); }
+float bayer8(vec2 a){ return bayer4(a * 0.5) * 0.25 + bayer2(a); }
+
 void main(){
   vec2 o = uTexel * 0.75;
   vec3 c = texture2D(uTex, vUv + vec2(-o.x, -o.y)).rgb
          + texture2D(uTex, vUv + vec2( o.x, -o.y)).rgb
          + texture2D(uTex, vUv + vec2(-o.x,  o.y)).rgb
          + texture2D(uTex, vUv + vec2( o.x,  o.y)).rgb;
-  gl_FragColor = vec4(c * 0.25, 1.0);
+  c *= 0.25;
+  // Ordered dither at the FULL output resolution: ± half an 8-bit display step, converted into linear
+  // space at this pixel's level (dL/dS ≈ 2.2·L^.545). A wide flat field — Ch 09's cold blue, Ch 06's
+  // paper day — quantises to visible rings without it. The pattern drifts a few whole cells a second
+  // so it never sets into a fixed weave; at ±1/255 the drift itself is invisible.
+  float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  float step8 = 2.2 * pow(max(lum, 2.0e-4), 0.545) / 255.0;
+  c += (bayer8(gl_FragCoord.xy + uDither) - 0.5) * step8;
+  gl_FragColor = vec4(max(c, 0.0), 1.0);
 }
 `
 
@@ -189,7 +218,10 @@ export class SkyLayer implements Layer {
 
     this.blit = new THREE.ShaderMaterial({
       vertexShader: blitVert, fragmentShader: blitFrag, depthWrite: false, depthTest: false,
-      uniforms: { uTex: { value: this.rt.texture }, uTexel: { value: new THREE.Vector2(1 / w, 1 / h) } },
+      uniforms: {
+        uTex: { value: this.rt.texture }, uTexel: { value: new THREE.Vector2(1 / w, 1 / h) },
+        uDither: { value: new THREE.Vector2(0, 0) },
+      },
     })
     this.blitMesh = new THREE.Mesh(this.quad, this.blit)
     this.blitMesh.frustumCulled = false
@@ -205,6 +237,10 @@ export class SkyLayer implements Layer {
   }
 
   update(m: Mood, s: Shared, ctx: LayerCtx) {
+    // the ordered dither drifts four whole cells a second (frozen under reduced motion)
+    const tick = s.reduced ? 0 : Math.floor(s.time * 4)
+    ;(this.blit.uniforms.uDither.value as THREE.Vector2).set(tick % 8, (tick * 5) % 8)
+
     const u = this.dome.uniforms
     ;(u.uTop.value as THREE.Vector3).set(m.skyTop[0], m.skyTop[1], m.skyTop[2])
     ;(u.uBottom.value as THREE.Vector3).set(m.skyBottom[0], m.skyBottom[1], m.skyBottom[2])

@@ -1,41 +1,55 @@
-/* Chapter 09 — Forever · scoped under #ch-forever only · pear.no placement vocabulary (§4.2) */
+/* Ch 09 Forever — scoped to #ch-forever · pear.no placement (§4.2) · left column, right Forum, counter on the sea */
 #ch-forever .pin{--sky-top-static:color-mix(in oklab,var(--gold-deep) 35%,var(--press));--sky-bottom-static:var(--gold-deep)}
-#ch-forever :is(.head,.stack,.forum,.subs,.leaf,.count){position:absolute;left:7%}
-#ch-forever .head{top:18%;max-width:44%}
-#ch-forever .eye{display:flex;gap:.9em;margin:0 0 1.2rem}
-#ch-forever .eye__rule{width:2.5em;height:1px;background:var(--rule-strong);transform-origin:left;flex:none}
-#ch-forever .hl{margin:0;max-width:var(--measure-title)}
-#ch-forever .stack{top:38%;width:min(44%,26em)}
-#ch-forever .s{margin:0 0 .12em}
+/* legibility plate (z2, behind the frame): feathered washes that appear only as the field warms to gold */
+#ch-forever .plate{position:absolute;inset:0;pointer-events:none}
+#ch-forever .wash{position:absolute;display:block;opacity:calc(var(--warmth-now,0) * .82)}
+#ch-forever .wash--l{inset:2% 48% -6% -16%;background:radial-gradient(76% 64% at 44% 52%,color-mix(in oklab,var(--press) 34%,transparent),color-mix(in oklab,var(--press) 17%,transparent) 48%,transparent 78%)}
+#ch-forever .wash--r{inset:0 -12% 4% 44%;background:radial-gradient(74% 62% at 62% 44%,color-mix(in oklab,var(--press) 46%,transparent),color-mix(in oklab,var(--press) 24%,transparent) 48%,transparent 80%)}
+/* left column — head + storyteller in ONE flow, so a line can never land on the headline */
+#ch-forever .col{position:absolute;left:7%;top:15%;width:min(46%,32rem)}
+#ch-forever .head{margin:0 0 clamp(2rem,4.6vh,3rem)}
+#ch-forever .eye{display:flex;gap:.9em;margin:0 0 1.15rem}
+#ch-forever .eye__rule{width:2.5em;height:1px;background:var(--rule-strong);transform-origin:left;flex:none;margin-top:.55em}
+#ch-forever .hl{margin:0;max-width:none}
+#ch-forever .stack{width:min(100%,25em)}
+#ch-forever .s{margin:0 0 .14em}
 #ch-forever .s--key{font-weight:400}
-#ch-forever .leaf{top:38%;margin:0}
-#ch-forever .count{right:7%;top:calc(var(--horizon-now,62%) + 5%);color:var(--fg-faint);font-size:var(--fs-h1);letter-spacing:.04em}
-#ch-forever .glyph--counter{display:flex;justify-content:space-between;width:100%;transition-duration:.6s}
-#ch-forever .glyph--counter .digit[data-i="3"],#ch-forever .glyph--counter .digit[data-i="6"]{margin-left:0}
-#ch-forever .forum{left:auto;right:7%;top:24%;width:min(38%,34rem);display:flex;flex-direction:column;gap:.55rem}
+/* the counter — the chapter's emblema, one long number lying on the sea band */
+#ch-forever .count{position:absolute;left:7%;right:7%;top:clamp(64%,calc(var(--horizon-now,58%) + 18%),77%);display:flex;justify-content:center;color:var(--fg-faint)}
+#ch-forever .glyph--counter{font-size:clamp(3rem,7vw,6.25rem);letter-spacing:.1em;transition-duration:.6s}
+/* the Forum — right column */
+#ch-forever .forum{position:absolute;right:7%;top:21%;width:min(38%,34rem);display:flex;flex-direction:column;gap:.5rem}
 #ch-forever :is(.forum,.sub) p{margin:0}
 #ch-forever :is(.forum__rule,.sub__rule){display:block;height:1px;max-width:11em;background:var(--rule-strong);transform-origin:left}
-#ch-forever .forum__label{color:var(--gold-leaf);margin-bottom:.35rem}
-#ch-forever .f--pre{font-size:var(--fs-body);color:var(--fg-muted)}
-#ch-forever .q{margin:.15rem 0 .35rem;font-variation-settings:"SOFT" 0}
-#ch-forever ul{list-style:none;padding:0;margin:.15rem 0 0}
-#ch-forever .chip{color:var(--fg)}
-#ch-forever .subs{bottom:9%;display:grid;grid-template-columns:repeat(2,minmax(0,17rem));gap:var(--gap)}
-#ch-forever .sub{display:flex;flex-direction:column;gap:.45rem}
-#ch-forever .sub__rule{background:var(--rule)}
-#ch-forever .sub__line{font:400 var(--fs-body)/var(--lh-body) var(--font-sans);color:var(--fg);text-wrap:pretty}
-#ch-forever .sub__caps{font:500 var(--fs-label)/1.7 var(--font-mono);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--gold-leaf)}
+#ch-forever :is(.forum__label,.sub__t){color:var(--gold-leaf)}
+#ch-forever .forum__label{margin-bottom:.3rem}
+#ch-forever .f--pre{font-size:var(--fs-body);color:color-mix(in oklab,var(--paper) 92%,transparent)}
+#ch-forever .q{margin:.1rem 0 .3rem;font-variation-settings:"SOFT" 0}
+#ch-forever ul{list-style:none;padding:0;margin:.1rem 0 0}
+#ch-forever .chip{background:color-mix(in oklab,var(--press) 38%,transparent);color:var(--paper)}
+/* the two sub-blocks — bottom-left, in the band the counter has vacated */
+#ch-forever .subs{position:absolute;left:7%;bottom:12%;display:grid;grid-template-columns:repeat(2,minmax(0,15rem));gap:var(--gap)}
+#ch-forever .sub{display:flex;flex-direction:column;gap:.4rem}
+#ch-forever .sub__line{font:400 var(--fs-small)/var(--lh-body) var(--font-sans);color:var(--fg);text-wrap:pretty}
+#ch-forever .sub__caps{font:500 var(--fs-label)/1.7 var(--font-mono);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--paper)}
+/* the sign-off line into Ch 10 — its own band, clear of every block's exit */
+#ch-forever .leaf{position:absolute;left:7%;top:66%;margin:0}
 @media (max-width:820px){
-#ch-forever .head{top:10%;max-width:86%}
-#ch-forever .stack{top:27%;width:86%}
-#ch-forever .leaf{top:27%}
-#ch-forever .count{top:78%;font-size:var(--fs-h2);letter-spacing:0}
-#ch-forever .forum{left:7%;right:7%;top:12%;width:auto;gap:.4rem}
+#ch-forever .col{top:11%;width:86%}
+#ch-forever .head{margin-bottom:clamp(1.4rem,3.2vh,2rem)}
+#ch-forever .stack{width:100%}
+#ch-forever .count{top:58%}
+#ch-forever .glyph--counter{font-size:clamp(1.75rem,8.4vw,2.75rem);letter-spacing:.04em}
+#ch-forever .forum{left:7%;right:7%;top:11%;width:auto;gap:.4rem}
 #ch-forever .q{font-size:var(--fs-h3);line-height:var(--lh-h3)}
-#ch-forever .subs{bottom:4%;right:7%;grid-template-columns:1fr;gap:.9rem}
-#ch-forever .sub{gap:.3rem}
-#ch-forever .sub__line{font-size:var(--fs-small)}
+#ch-forever .subs{bottom:auto;top:58%;right:7%;grid-template-columns:1fr;gap:.85rem}
+#ch-forever .sub{gap:.28rem}
+#ch-forever .leaf{top:82%}
+#ch-forever .wash--l{inset:0 0 46% -16%}
+#ch-forever .wash--r{inset:28% -12% -6% -6%}
 }
-#ch-forever.chapter--static .pin__frame{display:flex;flex-direction:column;gap:var(--gap-y)}
-#ch-forever.chapter--static .pin__frame>*{position:static;width:auto;max-width:none}
-#ch-forever.chapter--static .subs{grid-template-columns:repeat(auto-fit,minmax(16rem,17rem))}
+/* reduced motion — one flowing stack, everything visible, no film (§5.3) */
+#ch-forever.chapter--static .pin__frame{display:flex;flex-direction:column;gap:var(--gap-y);padding:clamp(7rem,14vh,10rem) var(--gutter) clamp(5rem,10vh,7rem)}
+#ch-forever.chapter--static :is(.pin__frame,.col)>*{position:static;width:auto;max-width:none}
+#ch-forever.chapter--static .col{position:static;width:auto}
+#ch-forever.chapter--static .subs{grid-template-columns:repeat(auto-fit,minmax(15rem,17rem))}

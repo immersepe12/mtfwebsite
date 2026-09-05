@@ -12,8 +12,9 @@ import './style.css'
  * Chapter 04 — THE TENTH DAWN · Canto III · Ogygia · 23:00 · DESIGN-BIBLE §6.4
  * The star lands in the cave of an ink island; the Mediterranean rises out of the sea as a mosaic floor;
  * the Foundation introduces itself in the right column; the veil enters at the seam.
- * Beats (p): head .06–.16 · island rises .06–.30 · ripples .20–.42 · storyteller ×3 stacks .30–.62 ·
- * Forum A .53–.70 · stats .71–.785 · closing + date + hotel .80–.88 · exit .88–.90 · veil .88–1
+ * Beats (p): head .06–.17 · island rises .06–.30 · ripples .18–.40 · storyteller ×3 stacks .21–.534 (left column
+ * clears whole) · Forum rule/label .54–.58 · the host .578–.652 · the mission .662–.720 · the numbers .728–.796
+ * (full-width band above the mosaic) · the close + date + hotel .806–.876 · exit by .89 · veil .88–1
  */
 
 gsap.registerPlugin(SplitText)
@@ -114,7 +115,8 @@ function frameHTML(c: any): string {
   const f = c.foundation, who = f.whoIsMtf, st = c.stats as any[], closing = c.audiences.closing as string[]
   const story = STORY.map((g, i) => `<div class="stack stack--${i}" aria-label="The Storyteller">${g.map(l => `<p class="s">${esc(l)}</p>`).join('')}</div>`).join('')
   const n = (to: number, shown: string) => `<span class="n" data-to="${to}">${shown}</span>`
-  const stat = (num: string, label: string) => `<li class="stat"><span class="stat__n tnum">${num}</span><span class="stat__l">${esc(label)}</span></li>`
+  const stat = (num: string, label: string) =>
+    `<li class="stat"><span class="stat__rule" aria-hidden="true"></span><span class="stat__n tnum">${num}</span><span class="stat__l">${esc(label)}</span></li>`
   const s2 = st[2].detail ? `${st[2].label} — ${st[2].detail}` : st[2].label
   const date = `${esc(c.event.dates.display)} · ${esc(c.event.city.value)} · ${esc(c.event.venue.display)}`
   return `
@@ -130,22 +132,24 @@ function frameHTML(c: any): string {
       <div class="mv mv--a">
         <p class="f name">${esc(f.name.value)}</p>
         <p class="f body">${esc(who.lines[0])}</p>
-        <p class="h2 mission">${esc(who.lines[1])}</p>
         <p class="f body">${esc(who.lines[2])}</p>
         <p class="label tagline">${esc(f.tagline.value)}</p>
       </div>
-      <ul class="mv mv--b stats" aria-label="The Forum in numbers">
-        ${stat(`${n(st[0].number, '1,600')}+`, st[0].label)}
-        ${stat(`${n(60, '60')} / ${n(40, '40')}`, st[1].label)}
-        ${stat(`${n(st[2].number, '31')}+`, s2)}
-      </ul>
+      <div class="mv mv--m">
+        <p class="h2 mission">${esc(who.lines[1])}</p>
+      </div>
       <div class="mv mv--c">
         <p class="f closing">${esc(closing[0])}</p>
         <p class="h2 one">${esc(closing[1])}</p>
         <p class="chip date tnum">${date}</p>
         <a class="link link--mono cta" href="#ch-register">${HOTEL}<span class="btn__arrow" aria-hidden="true">↗</span></a>
       </div>
-    </div>`
+    </div>
+    <ul class="statband" aria-label="The Forum in numbers">
+      ${stat(`${n(st[0].number, '1,600')}+`, st[0].label)}
+      ${stat(`${n(60, '60')} / ${n(40, '40')}`, st[1].label)}
+      ${stat(`${n(st[2].number, '31')}+`, s2)}
+    </ul>`
 }
 
 export const ogygia: Chapter = {
@@ -180,14 +184,17 @@ export const ogygia: Chapter = {
     const eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), coords = q('.coords'), hl = q('.hl'), head = q('.head')
     const stacks = [qa('.stack--0 .s'), qa('.stack--1 .s'), qa('.stack--2 .s')]
     const forum = q('.forum'), fRule = q('.forum__rule'), fLabel = q('.forum__label')
-    const mvA = qa('.mv--a > *'), mvB = qa('.mv--b > *'), mvC = qa('.mv--c > *')
+    const mvA = qa('.mv--a > *'), mvM = qa('.mv--m > *'), mvC = qa('.mv--c > *')
+    const statRules = qa('.stat__rule')
+    const statBodies = qa('.statband .stat').map(li => Array.from(li.querySelectorAll<HTMLElement>('.stat__n, .stat__l')))
+    const statBody = statBodies.flat()
     counters = qa('.n')
 
     /* initial states (seam rule: nothing visible before p .06) */
-    gsap.set([eyeT, coords, fLabel, ...stacks.flat(), ...mvA, ...mvB, ...mvC, ripplesEl], { opacity: 0 })
+    gsap.set([eyeT, coords, fLabel, ...stacks.flat(), ...mvA, ...mvM, ...mvC, ...statBody, ripplesEl], { opacity: 0 })
     gsap.set(stacks.flat(), { y: 4 })
-    gsap.set([...mvA, ...mvB, ...mvC], { y: 10 })
-    gsap.set([eyeRule, fRule], { scaleX: 0, transformOrigin: 'left center' })
+    gsap.set([...mvA, ...mvM, ...mvC, ...statBody], { y: 10 })
+    gsap.set([eyeRule, fRule, ...statRules], { scaleX: 0, transformOrigin: 'left center' })
     gsap.set(rise, { yPercent: 100 })
     gsap.set(rings, { strokeDashoffset: 1, strokeDasharray: 1 })
     gsap.set(fr, { '--draw': 0 })
@@ -196,9 +203,9 @@ export const ogygia: Chapter = {
     tl.to(rise, { yPercent: 0, duration: .24 }, .06)
     tl.to(fr, { '--draw': 1, duration: .12 }, .12)
     tl.to(plate, { opacity: 0, duration: .06 }, .28)
-    tl.set(ripplesEl, { opacity: 1 }, .20)
-    rings.forEach((r, i) => tl.to(r, { strokeDashoffset: 0, duration: .1 }, .20 + i * .03))
-    tl.to(ripplesEl, { opacity: 0, duration: .08 }, .34)
+    tl.set(ripplesEl, { opacity: 1 }, .18)
+    rings.forEach((r, i) => tl.to(r, { strokeDashoffset: 0, duration: .1 }, .18 + i * .03))
+    tl.to(ripplesEl, { opacity: 0, duration: .08 }, .32)
 
     /* head sequence: rule → eyebrow → coordinates → headline lines (masked) */
     tl.to(eyeRule, { scaleX: 1, duration: .04 }, .06)
@@ -208,43 +215,54 @@ export const ogygia: Chapter = {
       type: 'lines', mask: 'lines', linesClass: 'line', autoSplit: true,
       onSplit: self => {
         const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .012, ease: 'none', immediateRender: true })
-        tl.add(tw, .11)
-        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .11)), true, true)
+        tl.add(tw, .12)
+        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .12)), true, true)
         return tw
       },
     })
     hl.classList.add('is-split')
-    tl.to(head, { opacity: 0, y: -8, duration: .03 }, shared.mobile ? .50 : .58)
 
-    /* storyteller: three stacks of ≤ 5, each replacing the last; older lines fall to faint */
+    /* storyteller: three stacks of ≤ 5, each replacing the last; older lines fall to faint.
+       The whole left column (headline + stack 3) clears together at .534, so the Forum never
+       shares the frame with the story — one reveal per beat (§5.4.2). */
     const land = (line: HTMLElement, at: number, prev?: HTMLElement) => {
       tl.to(line, { opacity: 1, y: 0, duration: .02 }, at)
       if (prev) tl.to(prev, { opacity: .55, duration: .015 }, at)
     }
-    const starts = [.30, .41, .52], exits = [.405, .515, .62]
+    /* stack 3's last line lands at .506, so its exit must sit after it on the timeline (a stack that
+       exits before its own lines land leaves them stranded on screen — QA round 3, mobile). */
+    const HEAD_OUT = .534
+    const starts = [.21, .328, .446], exits = [.318, .436, HEAD_OUT]
     stacks.forEach((lines, s) => {
       lines.forEach((l, i) => land(l, starts[s] + i * .02, lines[i - 1]))
-      tl.to(lines, { opacity: 0, y: -8, duration: .012 }, exits[s])
+      tl.to(lines, { opacity: 0, y: -8, duration: .014 }, exits[s])
     })
+    tl.to(head, { opacity: 0, y: -8, duration: .03 }, HEAD_OUT)
 
-    /* Forum second movement in the right column: rule → label → A (the host) → B (the trio) → C (the close) */
-    tl.to(fRule, { scaleX: 1, duration: .04 }, .53)
-    tl.to(fLabel, { opacity: 1, duration: .02 }, .57)
+    /* Forum second movement. Every block sits in the upper band, clear of the mosaic floor:
+       rule → label → the host → the mission → the numbers (full-width band) → the close. */
+    tl.to(fRule, { scaleX: 1, duration: .04 }, .540)
+    tl.to(fLabel, { opacity: 1, duration: .02 }, .565)
     const beat = (els: HTMLElement[], at: number, gap: number, out: number) => {
-      els.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .015 }, at + i * gap))
-      tl.to(els, { opacity: 0, y: -8, duration: .012 }, out)
+      els.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .018 }, at + i * gap))
+      tl.to(els, { opacity: 0, y: -8, duration: .014 }, out)
     }
-    beat(mvA, .59, .012, .70)    // the host · whole from .653, holds to .70
-    beat(mvB, .71, .012, .785)   // the trio · whole from .749, holds to .785 (it counts up as it lands)
-    beat(mvC, .80, .01, .88)     // the close, the date, the hotel · whole from .845, holds to .88
-    tl.to([fRule, fLabel], { opacity: 0, duration: .02 }, .88)
-    tl.to(forum, { y: -8, duration: .02 }, .88)
+    beat(mvA, .578, .010, .652)   // the host: name, purpose, what tourism is, THINK TOGETHER
+    beat(mvM, .662, 0, .720)      // the mission, alone in the frame — the chapter's serif statement
+    /* the trio, across the sky above the mosaic: rule → number → label, one stat at a time, all three
+       lit together from .782 and held whole to .796 (they count up once, on the first crossing of .755) */
+    statRules.forEach((r, i) => tl.to(r, { scaleX: 1, duration: .025 }, .728 + i * .012))
+    statBodies.forEach((pair, i) => beat(pair, .740 + i * .012, .006, .796))
+    tl.to(statRules, { opacity: 0, duration: .014 }, .796)
+    beat(mvC, .806, .009, .876)   // the close, the date, the hotel — whole from .851, holds to .876
+    tl.to([fRule, fLabel], { opacity: 0, duration: .02 }, .868)
+    tl.to(forum, { y: -8, duration: .02 }, .868)
   },
 
   onProgress(p) {
     if (reduced) return
-    /* the trio counts up once, when it first enters (.71) */
-    if (!counted && p >= .70 && (prevP < .70 || prevP < 0)) {
+    /* the trio counts up once, when it first enters (.740) */
+    if (!counted && p >= .735 && (prevP < .735 || prevP < 0)) {
       counted = true
       for (const c of counters) countUp(c, Number(c.dataset.to), { duration: 2.2 })
     }

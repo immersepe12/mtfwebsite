@@ -1,4 +1,4 @@
-import type { Chapter, ChapterCtx, Shared } from '../../engine/chapter'
+import type { Chapter, ChapterCtx } from '../../engine/chapter'
 import { createFilm } from '../../engine/film'
 import { gsap } from '../../engine/scroll'
 import { SplitText } from 'gsap/SplitText'
@@ -11,8 +11,11 @@ import './style.css'
  * Rothko's cold field (sky = sea = --sky); Opałka's counter climbs only while you scroll; it freezes on
  * "Life matters because it ends." and dissolves tile-wise; the field warms to gold in three sliding bands;
  * the Forum lands; the N fills and S·U·N reads whole for the first time.
- * Beats (p): head .06–.14 · storyteller A ×6 .14–.29 · B .36–.52 (freeze .42, dissolve .46) ·
- *            Forum .54–.82 · exit .85–.895 · N fills .88 · "A leaf falls." .88–.98
+ *
+ * Composition (§4.2 placement): ONE left column (.col) holds the head and the storyteller stack in normal
+ * flow, so the stack can never land on the headline however the headline wraps; the counter is an emblema
+ * centred on the sea band well below the stack; the Forum owns the right column; the two sub-blocks land
+ * bottom-left, in the band the counter has vacated. Nothing overlaps at any p.
  */
 
 gsap.registerPlugin(SplitText)
@@ -83,9 +86,19 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase()
 const isCaps = (s: string) => s === s.toUpperCase()
 
+/* ─── beat table (§5.3 pacing: 18 substantive beats, ~4.3 % of p apart; frame empty p < .06 and p > .90) ─── */
+const B = {
+  eyeRule: .060, eyeText: .078, head: .105,
+  a: [.150, .190, .230, .270, .310, .350],
+  b: [.395, .440, .485, .525],
+  freeze: .440, dissolve: .480, fxOut: .530,
+  fRule: .565, fLabel: .586, fLead: .610, fMeasure: .650, fQ: .668, fMeans: .700, fChips: .716,
+  sub: [.745, .783],
+  exit: .828, leafIn: .864, leafOut: .884,
+} as const
+
 /* ─── chapter state (one instance on the page) ─── */
 let reduced = false
-let curP = 0
 let prevP = -1
 let glyphSent = false
 let counterRoot: HTMLElement | null = null
@@ -94,8 +107,8 @@ let counterVal = 0
 let counterShown = -1
 let leadShown = -1
 let frozen = false
-const COUNT_RATE = 1800      // arrivals per scrolled pixel (≈ 2 M by the freeze on a 900 px viewport)
-const COUNT_VMAX = 80        // px/frame cap so a nav jump does not fill the nine digits at once
+/** arrivals added per unit of |Δp| — a full pass to the freeze reaches ≈ 3.7 M. */
+const COUNT_RATE = 8_437_000
 
 /** Roll the cached digit strips to n (same semantics as art/counter setValue, no DOM queries per frame). */
 function roll(n: number) {
@@ -116,11 +129,13 @@ function frameHTML(n: Pillar): string {
         ${s.lines.map(l => `<p class="${isCaps(l) ? 'sub__caps' : 'sub__line'}">${esc(l)}</p>`).join('')}
       </div>`).join('')
   return `
-    <div class="head">
-      <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
-      <h2 class="h1 hl">${esc(sentence(n.closingLine))}</h2>
+    <div class="col">
+      <div class="head">
+        <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
+        <h2 class="h1 hl">${esc(sentence(n.closingLine))}</h2>
+      </div>
+      <div class="stack" aria-label="The Storyteller">${story(STORY_A, 's--a')}${story(STORY_B, 's--b')}</div>
     </div>
-    <div class="stack" aria-label="The Storyteller">${story(STORY_A, 's--a')}${story(STORY_B, 's--b')}</div>
     <div class="forum">
       <span class="forum__rule" aria-hidden="true"></span>
       <p class="label forum__label">${esc(n.letter)} · ${esc(n.name.toUpperCase())}</p>
@@ -151,105 +166,110 @@ export const forever: Chapter = {
     const mobile = shared.mobile
     const { pin, tl } = createFilm(ctx, { length: mobile ? 2 : 3 })
     pin.innerHTML = `
+      <div class="pin__layer plate" aria-hidden="true"><span class="wash wash--l"></span><span class="wash wash--r"></span></div>
       <div class="pin__frame">${frameHTML(pillar)}</div>
       <div class="pin__layer fx"><div class="count">${counter()}</div></div>`
 
     const q = <T extends Element = HTMLElement>(sel: string) => pin.querySelector(sel) as T
     const qa = (sel: string) => Array.from(pin.querySelectorAll<HTMLElement>(sel))
-    const fx = q('.fx'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
+    const plate = q('.plate'), fx = q('.fx')
+    const head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
     const sA = qa('.s--a'), sB = qa('.s--b'), stack = q('.stack')
     const forum = q('.forum'), fRule = q('.forum__rule'), fLabel = q('.forum__label')
     const pres = qa('.f--pre')
-    const fBlocks = [q('.f--lead'), pres[0], q('.q'), pres[1]]
     const chips = qa('.means .chip')
     const subs = qa('.sub'), subRules = qa('.sub__rule'), leaf = q('.leaf')
     counterRoot = q('.glyph--counter')
     digits = qa('.glyph--counter .digit')
-    counterVal = 0; counterShown = -1; leadShown = -1; frozen = false
+    counterVal = 0; counterShown = -1; leadShown = -1; frozen = false; prevP = -1
     setValue(counterRoot, 0)
 
     /* initial states — the seam rule: nothing visible before p .06 */
-    gsap.set([eyeT, ...sA, ...sB, fLabel, ...fBlocks, ...chips, ...subs, leaf], { opacity: 0 })
+    gsap.set([eyeT, hl, ...sA, ...sB, fLabel, q('.f--lead'), ...pres, q('.q'), ...chips, ...subs, leaf], { opacity: 0 })
     gsap.set([...sA, ...sB, leaf], { y: 4 })
-    gsap.set([...fBlocks, ...chips, ...subs], { y: 10 })
+    gsap.set([q('.f--lead'), ...pres, q('.q'), ...chips, ...subs], { y: 10 })
     gsap.set([eyeRule, fRule, ...subRules], { scaleX: 0, transformOrigin: 'left center' })
-    gsap.set(fx, { opacity: 0 })
+    gsap.set([fx, plate], { opacity: 0 })
 
-    /* head: rule → eyebrow → headline lines (masked) · the counter surfaces with the head */
-    tl.to(eyeRule, { scaleX: 1, duration: .04 }, .06)
-    tl.to(eyeT, { opacity: 1, duration: .02 }, .08)
-    tl.to(fx, { opacity: 1, duration: .05 }, .06)
+    /* head: rule → eyebrow → headline lines (masked) · the counter and the legibility plate surface with it */
+    tl.to(eyeRule, { scaleX: 1, duration: .035 }, B.eyeRule)
+    tl.to(eyeT, { opacity: 1, duration: .02 }, B.eyeText)
+    tl.to(fx, { opacity: 1, duration: .05 }, B.eyeRule)
+    tl.to(plate, { opacity: 1, duration: .08 }, B.eyeRule)
     SplitText.create(hl, {
       type: 'lines', mask: 'lines', linesClass: 'line', autoSplit: true,
       onSplit: self => {
-        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .012, ease: 'none', immediateRender: true })
-        tl.add(tw, .10)
-        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - .10)), true, true)
+        const tw = gsap.fromTo(self.lines, { yPercent: 110 }, { yPercent: 0, duration: .05, stagger: .014, ease: 'none', immediateRender: true })
+        tl.add(tw, B.head)
+        tw.render(Math.max(0, Math.min(tw.duration(), tl.time() - B.head)), true, true)
         return tw
       },
     })
+    tl.to(hl, { opacity: 1, duration: .012 }, B.head)
     hl.classList.add('is-split')
 
-    /* storyteller: lines land whole (4 px rise) and stack; the previous line falls to faint */
+    /* storyteller: lines land whole (4 px rise) and stack; the previous line falls back but stays legible on gold */
     const land = (line: HTMLElement, at: number, prev?: HTMLElement) => {
       tl.to(line, { opacity: 1, y: 0, duration: .025 }, at)
-      if (prev) tl.to(prev, { opacity: .55, duration: .02 }, at)
+      if (prev) tl.to(prev, { opacity: .62, duration: .02 }, at)
     }
-    sA.forEach((l, i) => land(l, .14 + i * .03, sA[i - 1]))
-    /* the second stack: the offer collapses, the answer arrives · "Life matters because it ends." at .42 stays bright */
-    tl.to(sA, { opacity: 0, height: 0, marginBottom: 0, duration: .01 }, .35)
-    land(sB[0], .36)
-    land(sB[1], .42, sB[0])
-    land(sB[2], .48)
-    land(sB[3], .52, sB[2])
-    tl.to(fx, { opacity: 0, duration: .03 }, .50)   // the dissolve (time-based, onProgress) has finished by here
+    sA.forEach((l, i) => land(l, B.a[i], sA[i - 1]))
+    /* the offer collapses, the answer arrives · "Life matters because it ends." stays bright */
+    tl.to(sA, { opacity: 0, height: 0, marginBottom: 0, duration: .012 }, B.b[0] - .012)
+    land(sB[0], B.b[0])
+    land(sB[1], B.b[1], sB[0])
+    land(sB[2], B.b[2])
+    land(sB[3], B.b[3], sB[2])
+    tl.to(fx, { opacity: 0, duration: .035 }, B.fxOut)   // the dissolve (600 ms) has finished by here
 
-    /* mobile: the head and the stack make room before the Forum lands (§6.9 Mobile — one column) */
-    if (mobile) tl.to([head, stack], { opacity: 0, y: -8, duration: .03 }, .53)
+    /* mobile: the left column makes room before the one-column Forum lands (§6.9 Mobile) */
+    if (mobile) tl.to(q('.col'), { opacity: 0, y: -8, duration: .03 }, B.fxOut + .01)
 
-    /* the Forum lands over the warming field: rule → label → lead → the question → chips → the two sub-blocks */
-    tl.to(fRule, { scaleX: 1, duration: .04 }, .54)
-    tl.to(fLabel, { opacity: 1, duration: .02 }, .58)
-    fBlocks.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .03 }, .60 + i * .035))
-    tl.to(chips, { opacity: 1, y: 0, duration: .02, stagger: .004 }, .73)
+    /* the Forum lands over the warming field: rule → label → lead → measure + question → means + chips */
+    tl.to(fRule, { scaleX: 1, duration: .035 }, B.fRule)
+    tl.to(fLabel, { opacity: 1, duration: .02 }, B.fLabel)
+    tl.to(q('.f--lead'), { opacity: 1, y: 0, duration: .03 }, B.fLead)
+    tl.to(pres[0], { opacity: 1, y: 0, duration: .022 }, B.fMeasure)
+    tl.to(q('.q'), { opacity: 1, y: 0, duration: .035 }, B.fQ)
+    tl.to(pres[1], { opacity: 1, y: 0, duration: .022 }, B.fMeans)
+    tl.to(chips, { opacity: 1, y: 0, duration: .02, stagger: .0035 }, B.fChips)
+
+    /* the two sub-blocks land in the band the counter has vacated: rule → label → lines */
     subs.forEach((s, i) => {
-      tl.to(subRules[i], { scaleX: 1, duration: .03 }, .76 + i * .04)
-      tl.to(s, { opacity: 1, y: 0, duration: .03 }, .78 + i * .04)
+      tl.to(subRules[i], { scaleX: 1, duration: .028 }, B.sub[i] - .008)
+      tl.to(s, { opacity: 1, y: 0, duration: .03 }, B.sub[i])
     })
 
-    /* exit · .85–.895 · then only the transition line remains (§6.9 transition → 10) */
-    tl.to([forum, ...subs], { opacity: 0, y: -8, duration: .04 }, .85)
-    if (!mobile) tl.to([head, stack], { opacity: 0, y: -8, duration: .04 }, .855)
-    tl.to(leaf, { opacity: 1, y: 0, duration: .02 }, .88)
-    tl.to(leaf, { opacity: 0, y: -8, duration: .03 }, .95)
+    /* exit · .835–.87 · then only the transition line, gone by .90 (§5.3 seam rule) */
+    const exiting = mobile ? [forum, ...subs] : [head, stack, forum, ...subs]
+    tl.to(exiting, { opacity: 0, y: -8, duration: .032 }, B.exit)
+    tl.to([eyeRule, fRule, ...subRules], { opacity: 0, duration: .028 }, B.exit)
+    tl.to(plate, { opacity: 0, duration: .045 }, B.exit)
+    tl.to(leaf, { opacity: 1, y: 0, duration: .016 }, B.leafIn)
+    tl.to(leaf, { opacity: 0, y: -8, duration: .014 }, B.leafOut)
   },
 
   onProgress(p) {
     if (reduced) return
-    curP = p
     const root = counterRoot
     if (root) {
-      /* freeze on "Life matters because it ends." (.42) · dissolve tile-wise (.46) · both reversible */
-      if (p >= .42 && !frozen) { frozen = true; freeze(root) }
-      else if (p < .40 && frozen) { frozen = false; root.classList.remove('is-frozen') }
-      if (prevP < .46 && p >= .46) dissolve(root)
-      else if (prevP >= .46 && p < .44) { root.classList.remove('tess-out'); root.style.setProperty('--go', '0'); if (!frozen) root.classList.remove('is-frozen') }
+      /* Opałka: the count climbs only while you move — it never runs on its own, and it never runs back.
+         A direct jump (?p=) seeds it so a still is a number, not nine zeros. */
+      if (!frozen && p < B.freeze) {
+        counterVal = prevP < 0 ? p * COUNT_RATE : Math.min(999_999_999, counterVal + Math.abs(p - prevP) * COUNT_RATE)
+        const n = Math.floor(counterVal)
+        if (n !== counterShown) { counterShown = n; roll(n) }
+      }
+      /* freeze on "Life matters because it ends." · dissolve tile-wise · both reversible */
+      if (p >= B.freeze && !frozen) { frozen = true; freeze(root) }
+      else if (p < B.freeze - .02 && frozen) { frozen = false; root.classList.remove('is-frozen') }
+      if (prevP < B.dissolve && p >= B.dissolve) dissolve(root)
+      else if (prevP >= B.dissolve && p < B.dissolve - .02) { root.classList.remove('tess-out'); root.style.setProperty('--go', '0'); if (!frozen) root.classList.remove('is-frozen') }
     }
     /* the N fills gold at .88 — S · U · N complete; the rail shines all three (idempotent per crossing) */
     if (p >= .88 && !glyphSent) { glyphSent = true; document.dispatchEvent(new CustomEvent('mtf:glyph', { detail: { letter: 'N' } })) }
     else if (p < .84 && glyphSent) glyphSent = false
     prevP = p
-  },
-
-  onFrame(shared: Shared) {
-    if (reduced || frozen || !counterRoot) return
-    if (curP < .02 || curP > .42) return
-    /* Opałka: the count climbs only while you move — at a rate tied to scroll velocity, never on its own */
-    const v = Math.min(COUNT_VMAX, Math.abs(shared.velocity))
-    if (v < .05) return
-    counterVal = Math.min(999_999_999, counterVal + v * COUNT_RATE)
-    const n = Math.floor(counterVal)
-    if (n !== counterShown) { counterShown = n; roll(n) }
   },
 
   mood: p => (reduced ? STILL : moodAt(p)),

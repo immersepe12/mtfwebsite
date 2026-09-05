@@ -9,8 +9,8 @@ import './style.css'
  * Chapter 06 — PARADISE · Canto V · Three Days · the clock stops · DESIGN-BIBLE §6.6
  * The single daylight chapter. Everything inverts to paper; the sun crosses the sky three times and each
  * sunrise brings one day-column of the programme. `theme-paper` on <html> while the film is active.
- * Beats (p): inversion .06–.18 · head .06–.16 · storyteller I .12–.27 · DAY 01 .24 · DAY 02 .43 · DAY 03 .63
- *            closing stack .78–.83 · FULL PROGRAMME .80 · exit .865–.895 · third sunset keeps going.
+ * Beats (p): inversion .06–.18 · head .06–.17 · storyteller stanzas .155–.34 · DAY 01 .378 · DAY 02 .538
+ *            DAY 03 .698 · closing stack .800–.862 · sign-off .818 · exit .876–.900; the third sunset keeps going.
  */
 
 /* ─── keyframe helpers (piecewise-linear between the §6.6 anchors) ─── */
@@ -39,7 +39,7 @@ const SKY_TOP: [number, RGB][] = [[IN0, hex('#124A66')], [IN1, hex('#A9CBDD')], 
 const SKY_BOT: [number, RGB][] = [[IN0, hex('#2B8FA3')], [IN1, hex('#F3EEE3')], [.8, hex('#F3EEE3')], [1, hex('#E8DCC2')]]
 const SEA_COL: [number, RGB][] = [[IN0, hex('#0E3D57')], [IN1, hex('#D6C39C')], [.8, hex('#D6C39C')], [1, hex('#B9A77E')]]
 const K = {
-  camY: [[0, 1.4], [.2, 1.8], [.32, 2.4]] as KF,
+  camY: [[0, 1.4], [.2, 1.8], [.34, 2.4]] as KF,
   camTilt: [[0, -.06], [.2, -.04]] as KF,
   sunGlow: [[0, .6], [.2, 1], [.8, 1], [1, .8]] as KF,
   haze: [[0, .3], [.2, .4], [.8, .4], [1, .35]] as KF,
@@ -51,20 +51,23 @@ const K = {
   warmth: [[0, .45], [.2, 1], [.8, 1], [1, .85]] as KF,
   bloom: [[0, .5], [.2, .4], [.8, .4], [1, .45]] as KF,
 }
-/** The camera sits at camX 2 with camYaw .1, so the view centre at the sun's depth (Δz 8) is x ≈ 2 − sin(.1)·8 ≈ 1.2.
- *  The bible's ±4 arc is centred there so each day rises at the left edge and sets at the right. */
-const SUN_CX = 1.2, SUN_R = 4
+/** Three daylight passes. The arcs are placed so each day's column arrives on a CLIMBING sun (t ≈ .21–.39),
+ *  and so the low limbs sit clear of the left type column: the sun rises between the storyteller and the
+ *  programme slab, crowns it at noon, and sets past its right edge. Dawn 0 is held below the frame. */
+const SUN_X0 = -1.4, SUN_X1 = 5.6
+const ARCS: [number, number][] = [[.30, .50], [.50, .66], [.66, .84]]
 const sunAt = (p: number): [number, number] => {
-  if (p < .2) return [SUN_CX - SUN_R, kf(p, [[0, -1.6], [.2, -.6]])]   // held under the frame while camY is still low
-  if (p >= .8) return [SUN_CX + SUN_R, -.6]
-  const t = ((p - .2) / .2) % 1                       // three days, one per 20% of p
-  return [SUN_CX - SUN_R + 2 * SUN_R * t, -.6 + (mobile ? 5.8 : 4) * Math.sin(Math.PI * t)]   // portrait: the noon sun clears the headline
+  if (p < ARCS[0][0]) return [SUN_X0, kf(p, [[0, -2.6], [ARCS[0][0], -.6]])]
+  if (p >= ARCS[2][1]) return [SUN_X1, -.6]
+  const a = ARCS.find(([s, e]) => p >= s && p < e) as [number, number]
+  const t = (p - a[0]) / (a[1] - a[0])
+  return [SUN_X0 + (SUN_X1 - SUN_X0) * t, -.6 + (mobile ? 5.8 : 4.2) * Math.sin(Math.PI * t)]
 }
-/** Reduced motion: the chapter's end state as a still (§5.3). */
+/** Reduced motion: the chapter as one still (§5.3) — high noon on paper. */
 const STILL: Partial<Mood> = {
   camX: 2, camY: 2.4, camZ: 2, camTilt: -.04, camYaw: .1, fov: 34,
   skyTop: hex('#7FA9C2'), skyBottom: hex('#E8DCC2'), haze: .35,
-  sunX: 2.2, sunY: 2.9, sunRadius: .5, sunGlow: .8, sunHeat: 1, sunVisible: 1,
+  sunX: 2.1, sunY: 2.8, sunRadius: .5, sunGlow: .8, sunHeat: 1, sunVisible: 1,
   seaColor: hex('#B9A77E'), seaAmp: .1, stars: 0, tess: 1, tessForm: 1, tessGold: .3, tessGlint: .4,
   veil: 1, p4: 0, grain: .04, warmth: .85, bloom: .45,
 }
@@ -77,6 +80,16 @@ const CLOSE = ['Calypso was happy.', 'The island that had always been paradise�
 const LAST = 'And time passed.'
 const NOTE = 'Times and venues to be announced.'          // Appendix C — programme times are TBC
 const CTA = 'Full programme'                               // satellite /programme is TBC → #ch-eleven for now
+
+/** The storyteller as stanzas, not a strobe of single lines: [p, line indices into ALL]. One substantive
+ *  beat per ≈ 3.7% of p, and never more than WIN stanzas on screen at once. */
+const ALL = [...STORY_I, ...BETWEEN, ...CLOSE, LAST]
+const STANZAS: [number, number[]][] = [
+  [.155, [0]], [.192, [1]], [.229, [2, 3]], [.266, [4, 5]], [.303, [6, 7, 8]], [.340, [9]],
+  [.500, [10, 11]], [.660, [12, 13]], [.800, [14, 15]], [.833, [16, 17]], [.862, [18]],
+]
+const DAY_AT = [.378, .538, .698]
+const FOOT_AT = .818, EXIT_AT = .876
 
 const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -98,28 +111,29 @@ function dayHTML(d: Day, i: number, size: number): string {
     items = `<ol class="day__items">${d.items.map((it, n) => li(it, n + 1)).join('')}</ol>`
   }
   return `<article class="day" data-day="${i + 1}">
-    <div class="day__disc" aria-hidden="true">${disc({ size })}</div>
-    <p class="label day__head"><time datetime="${esc(d.date)}">${head}</time></p>
+    <div class="day__top">
+      <div class="day__disc" aria-hidden="true">${disc({ size })}</div>
+      <p class="label day__head"><time datetime="${esc(d.date)}">${head}</time></p>
+    </div>
     ${items}
     <div class="day__foot"><span class="day__rule" aria-hidden="true"></span><p class="label day__sum">${esc(d.keywordsLine)}</p></div>
   </article>`
 }
 
-function frameHTML(c: any, mobile: boolean): string {
+function frameHTML(c: any, mob: boolean): string {
   const prog = c.programme
   const days = prog.days as Day[]
   const heading = String(prog.heading).replace(/\.\s*/g, ' · ').replace(/\s·\s*$/, '')       // THREE DAYS · ONE ECOSYSTEM
   const nums = days.map(d => d.date.slice(8)).join(' · ')                                        // 25 · 26 · 27
   const month = new Date(days[0].date + 'T12:00:00Z').toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }).toUpperCase()
   const eyebrow = `06 — ${heading}`, dates = `${nums} ${month}`
-  const story = (lines: string[]) => lines.map(l => `<p class="s">${esc(l)}</p>`).join('')
   return `
     <div class="head">
       <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span><span class="eye__d">${dates}</span></p>
       <h2 class="display hl"><span class="hl__m"><span class="hl__in">${HEADLINE}</span></span></h2>
     </div>
-    <div class="stack" aria-label="The Storyteller">${story(STORY_I)}${story(BETWEEN)}${story(CLOSE)}${story([LAST])}</div>
-    <div class="days" aria-label="Programme">${days.map((d, i) => dayHTML(d, i, mobile ? 48 : 64)).join('')}</div>
+    <div class="stack" aria-label="The Storyteller">${ALL.map(l => `<p class="s">${esc(l)}</p>`).join('')}</div>
+    <div class="days" aria-label="Programme">${days.map((d, i) => dayHTML(d, i, mob ? 44 : 52)).join('')}</div>
     <div class="foot">
       <p class="fine note">${NOTE}</p>
       <a class="btn btn--sky cta" href="#ch-eleven"><span class="flood" aria-hidden="true"></span><span>${CTA}</span><span class="btn__arrow" aria-hidden="true">→</span></a>
@@ -156,26 +170,24 @@ export const paradise: Chapter = {
     const isle = q('.isle'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hlIn = q('.hl__in')
     const stack = q('.stack'), lines = qa('.stack .s'), daysEl = q('.days'), days = qa('.day'), foot = q('.foot')
     const discs = qa<SVGElement>('.day__disc svg'), rules = qa('.day__rule'), sums = qa('.day__sum')
-    const MAX = mobile ? 3 : 6
+    const WIN = mobile ? 2 : 3          // stanzas held on screen
 
     /* head sequence: rule → eyebrow → headline (line mask) · the island fades in as the sky turns to paper */
     tl.fromTo([head, stack], { opacity: 0 }, { opacity: 1, duration: .01 }, .06)
-    tl.fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .06)
-      .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .03 }, .085)
-      .fromTo(hlIn, { yPercent: 110 }, { yPercent: 0, duration: .06 }, .10)
-      .fromTo(isle, { opacity: 0 }, { opacity: 1, duration: .10 }, .08)
+    tl.fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .035 }, .06)
+      .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .028 }, .088)
+      .fromTo(hlIn, { yPercent: 110 }, { yPercent: 0, duration: .055 }, .115)
+      .fromTo(isle, { opacity: 0 }, { opacity: 1, duration: .11 }, .09)
 
-    /* the storyteller stack: one line per beat, 4 px rise; older lines go faint; at most MAX visible */
-    const line = (i: number, at: number) => {
-      tl.fromTo(lines[i], { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .02 }, at)
-      if (i >= 2) tl.to(lines[i - 2], { '--old': 1, duration: .02 }, at)
-      if (i >= MAX) tl.to(lines[i - MAX], { opacity: 0, height: 0, marginBottom: 0, duration: .02 }, at - .02)
-    }
-    STORY_I.forEach((_, i) => line(i, .12 + i * .017))
-    const B = STORY_I.length, C = B + BETWEEN.length, L = C + CLOSE.length
-    ;[.37, .40, .56, .59, .76].forEach((at, i) => line(B + i, at))
-    ;[.78, .80, .82].forEach((at, i) => line(C + i, at))
-    line(L, .84)
+    /* the storyteller: one stanza per beat, 6 px rise; the previous stanza goes faint, the WIN-th back collapses */
+    STANZAS.forEach(([at, idx], k) => {
+      idx.forEach((i, j) => tl.fromTo(lines[i], { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .02 }, at + j * .007))
+      if (k > 0) STANZAS[k - 1][1].forEach(i => tl.to(lines[i], { '--pd-old': 1, duration: .02 }, at))
+      if (k >= WIN) STANZAS[k - WIN][1].forEach(i => {          // fade out first, then close the gap — never a squashed remnant
+        tl.to(lines[i], { opacity: 0, duration: .009 }, at - .024)
+        tl.to(lines[i], { height: 0, marginBottom: 0, duration: .013 }, at - .015)
+      })
+    })
 
     /* three sunrises: a column settles up from the water, its Disc writes the day, flips back; rule → summary */
     const flip = (svg: SVGElement, text: string, at: number) => {
@@ -183,18 +195,21 @@ export const paradise: Chapter = {
       tl.to({ v: 0 }, { v: 1, duration: .004, onStart: () => clear(svg), onReverseComplete: () => write(svg, text) }, at + .07)
     }
     const dayNums = (content.programme.days as Day[]).map(d => d.date.slice(8))
-    ;[.24, .43, .63].forEach((at, i) => {
-      tl.fromTo(days[i], { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: .06 }, at)
-      if (mobile && i > 0) tl.to(days[i - 1], { opacity: 0, y: -8, duration: .03 }, at - .03)   // one column at a time on portrait
-      flip(discs[i], dayNums[i], at + .03)
-      tl.fromTo(rules[i], { scaleX: 0 }, { scaleX: 1, duration: .03 }, at + .06)
-      tl.fromTo(sums[i], { opacity: 0 }, { opacity: 1, duration: .02 }, at + .085)
+    DAY_AT.forEach((at, i) => {
+      // the stone face arrives solid, then finishes sliding — a column is never ghost type on open water
+      tl.fromTo(days[i], { opacity: 0 }, { opacity: 1, duration: .018 }, at)
+      tl.fromTo(days[i], { y: 44 }, { y: 0, duration: .06 }, at)
+      if (mobile && i > 0) tl.to(days[i - 1], { opacity: 0, y: -10, duration: .03 }, at - .03)   // one column at a time on portrait
+      flip(discs[i], dayNums[i], at + .028)
+      tl.fromTo(rules[i], { scaleX: 0 }, { scaleX: 1, duration: .03 }, at + .055)
+      tl.fromTo(sums[i], { opacity: 0 }, { opacity: 1, duration: .022 }, at + .068)
     })
+    // portrait: the last column steps aside so the closing stack and the sign-off own the frame
+    if (mobile) tl.to(days[2], { opacity: 0, y: -10, duration: .03 }, .782)
 
     /* the honesty line + FULL PROGRAMME → · then the whole frame exits by .90 (seam rule); the sun does not stop */
-    tl.fromTo(foot, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .04 }, .80)
-    tl.to([head, stack, daysEl, foot], { opacity: 0, y: -8, duration: .03 }, .865)
-    tl.to(isle, { opacity: 0, duration: .03 }, .865)
+    tl.fromTo(foot, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .04 }, FOOT_AT)
+    tl.to([head, stack, daysEl, foot, isle], { opacity: 0, y: -8, duration: .024 }, EXIT_AT)
   },
 
   onEnter() { active = true; setPaper(reduced || filmP() >= PAPER_AT) },

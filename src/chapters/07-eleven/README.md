@@ -2,7 +2,7 @@
 
 Canto VI · TIME · 11 for 11 · clock 01:00 → 04:00 · DESIGN-BIBLE §6.7. Film 5 vh desktop / 3 vh mobile.
 The stillest chapter: the camera is locked (`camX 2, camY 2, camZ 2, camTilt −.06, camYaw 0, fov 34`) while the sky
-time-lapses; the eleven think tanks assemble as DOM tesserae; the numeral 11 drifts `"opsz" 144 → 60`.
+time-lapses (2.5 unhurried day/night passes); the eleven think tanks are set into a mosaic wall as DOM tesserae; the numeral 11 drifts `"opsz" 144 → 60`.
 Nav: `03` · label `Seven Years, Eleven Editions`. `html.theme-paper` is removed at mount, onEnter and onProgress.
 
 ## Beats (p → what happens; every beat is a tween on the scrubbed `tl`, ease none)
@@ -10,18 +10,26 @@ Nav: `03` · label `Seven Years, Eleven Editions`. `html.theme-paper` is removed
 | p | beat |
 |---|---|
 | < .06 | frame empty (seam rule) |
-| .06–.14 | eyebrow rule draws → eyebrow text (.09) → date stamp (.09); the island fades up on the horizon |
-| .11–.17 | headline lines rise (SplitText masked lines, 3 lines at 1440) |
-| .12–.72 | the numeral **11** (both `.opsz` spans) drifts `"opsz" 144 → 60` — "they stopped counting" |
-| .15 / .18 / .21 / .24 | storyteller I: *At first they counted the days.* / *Then the months.* / *Then…* / *they stopped counting.* (4 px rise; older lines go `--fg-faint`; 3 visible, older ones collapse) |
-| .26–.38 | Forum: rule → `11 FOR 11` label → formula → who → outputs chips (stagger) → `THINK → CHALLENGE → DESIGN → ACT` |
-| .27–.33 | the four group sectors: hairlines draw, then `01–03 PEOPLE & INNOVATION` … labels |
-| .31–.645 | the eleven tiles assemble one at a time (autoAlpha + 14 px rise via `translate`, .03 apart) |
-| .70–.85 | the tile grain darkens (`--age` 0 → 1: sand 8% → 3%) — "the world ages around them" |
-| .70 / .73 / .76 / .79 / .82 | storyteller II: *Life never announces:* / *Remember this moment.* / *It simply happens.* / *And only later do we understand:* / **THAT WAS OUR LIFE.** |
+| .06–.115 | the graded wash fades up · eyebrow rule draws → eyebrow text (.085) → date stamp (.085); the island fades up |
+| .11–.175 | headline lines rise (SplitText masked lines, 3 lines at 1440) |
+| .12–.70 | the numeral **11** (both `.opsz` spans) drifts `"opsz" 144 → 60` — "they stopped counting" |
+| .17 / .21 / .25 / .29 | storyteller I: *At first they counted the days.* / *Then the months.* / *Then…* / *they stopped counting.* (one line every 4% of p; older lines go faint, 3 visible) |
+| .32 | portrait only: the first stack clears the single voice slot for the Forum |
+| .34–.46 | Forum: rule → `11 FOR 11` label → formula → who → outputs chips (stagger) → `THINK → CHALLENGE → DESIGN → ACT` |
+| .35–.40 | the four group sectors: hairlines draw, then `01–03 PEOPLE & INNOVATION` … labels |
+| .38–.42 | the wall's plate arrives whole — eleven empty sockets in hairline grout |
+| .41–.675 | the eleven are set into it one at a time (`--fill` + 14 px rise via `translate`, .023 apart ≈ 850 px of scroll each) |
+| .60 | portrait only: the Forum body vacates the voice slot (the CTA stays) |
+| .64–.73 | the world ages around them: `--age` 0 → 1 (the grain darkens) and the wall recedes (`--dim`) so the storyteller is heard over it |
+| .67 / .70 / .73 / .76 / .79 | storyteller II: *Life never announces:* / *Remember this moment.* / *It simply happens.* / *And only later do we understand:* / **THAT WAS OUR LIFE.** |
+| .795 | portrait only: the wall exits before the call to action (one column never holds both) |
 | .83 | `JOIN A THINK TANK →` (mailto, route TBC) |
-| .87–.90 | everything exits (opacity 0, −8 px); the island fades |
+| .865–.895 | everything exits (opacity 0, −8 px); the island and the wash fade |
 | .86–1 | the veil crosses again behind (mood `veil` 1 → 1.6), carrying nothing |
+
+Spacing: no narrative beat is closer than ~3.5% of p to the next and no stretch of ≥ 12% of p is empty — at the pacing
+table's `eleven: 1.5` (7.5 vh of film, ≈ 6,750 px at a 900 px viewport) that is ≥ 240 px of scroll per beat. The declared
+`length` (5 / 3) is unchanged; the multiplier is the pacing table's.
 
 The date stamp `EDITION XI · X · … I` (Roman numerals only — edition years are TBC, Appendix C) ticks backwards on the same
 decelerating curve as the sky, resting on `I` at p .7. It is driven from `onProgress` and from a proxy tween on `tl`
@@ -29,9 +37,9 @@ decelerating curve as the sky, resting on `I` at p .7. It is driven from `onProg
 
 ## Sky time-lapse (computed in `mood(p)`)
 
-`c(p) = 2π · 5.75 · smoothstep(p / .7)` — accelerates, then decelerates to a stop at p .7 where `c ≡ 3π/2` (deep night, held to p 1).
-`day = max(0, sin c)`. Per frame: `sunX = 2 + 4·cos c` (the camera sits at x 2, so the sun rises at the right frame edge
-and sets at the left, its noon core between the two type columns), `sunY = −.6 + 3.6·day`, `sunVisible = sin c > 0`,
+`c(p) = 2π · 2.5 · smoothstep(p / .7)` — accelerates, then decelerates to a stop at p .7 where `c ≡ 3π/2` (deep night, held to p 1).
+`day = max(0, sin c)`. Per frame: `sunX = 2 − 26·cos c` at `sunZ −55` (a wide far arc: the sun rises at one horizon and sets at the other),
+`sunY = −1.4 + 9·sin c`, `sunVisible` smoothsteps through the horizon,
 `warmth = .35 + .65·day`, `skyTop = mix(#090D16, #A9CBDD, day)`, `skyBottom = mix(#06192B, #E8DCC2, day)`,
 `seaColor = mix(#0E3D57, #D6C39C, day)`, `stars = 1 − day`. The DOM island (`art/island`, `--day` on the pin) flickers
 `--press` ↔ `--sand` with it.
@@ -53,20 +61,36 @@ and sets at the left, its noon core between the two type columns), `sunY = −.6
 p 1 = Ch 08's documented p 0 (night sky, no sun, stars 1, constellation 2, tess 1, veil 1.6, camYaw 0).
 `--sky-top-static: var(--press)` / `--sky-bottom-static: var(--abyss)` on the pin for `html.no-gl`.
 
-## Layout
+## Layout — three regions that never touch
 
-Desktop (1440 × 900): head `left 7% top 8%` (max-width 46%), date stamp `right 7% top 8%`, storyteller stack `top 36%`
-(3 visible lines — the rail's fixed chapter label sits at ≈ 48%), Forum column `right 7% top 22%` width `min(38%, 34rem)`,
-group sectors at `50.5%`, tiles `54% → 95%`: a 12-track grid, each tile spans 2, the 7th starts on track 2 (6 + 5
-brickwork, odd row offset ½ cell). Tile: numeral (Fraunces 300 `--fs-h3`), title (Fraunces 400 ≥ 18 px, 3-line clamp),
-subtitle (sans `--fs-fine`, 2-line clamp), group chip (mono `--fs-index`) at the foot. The card (`.tile__card`) slides in
-at `right 7% top 20%` over the Forum column (which fades to .12) with description, keyword chips and the closing line
-(04 uses `closingLineFromSpecialistEvent`; 11 shows both closing lines). The island is small (17.5% wide, centred at
-46%) and sits on `--horizon-now` between the two columns so type never crosses it.
+The chapter's one hard constraint is that the sun crosses the whole frame two and a half times, so **no fixed block can
+be safe from the glare by placement alone**. The answer is three regions plus one graded wash:
 
-Mobile (< 820 px): head 10%, stack 29.5%, Forum 40% (formula + process + CTA only), tiles 55% → 95% as a
-two-column, six-row grid that scrolls inside the pin (`data-lenis-prevent`); tiles show numeral + title (4-line clamp);
-tap expands the card in place after the tile's row. Island and stamp hidden.
+Desktop (1440 × 900): **left column** = head `left 7% top 9%` (max-width `min(44%, 40rem)`, 3 headline lines ending
+≈ 37%) and the storyteller stack `top 38.5%` (`min(42%, 38rem)`, 3 visible lines ending ≈ 52%). **Right column** =
+the Forum `right 7% top 20%` width `min(33%, 29rem)` (ends ≈ 53%); the date stamp sits above it at `right 7% top 9%`,
+clear of the header's REGISTER pill. **Lower band** = the four group sectors at `54.5%` and the wall of eleven
+`58.5% → 93%`. The two columns are 10% of the frame apart; the band starts 2.5% below the deepest column.
+
+The wall is **one plate with 1 px grout**, not eleven cards on the sea: a 12-track grid, each tile spans 2, the 7th
+starts on track 2 (6 + 5 brickwork, odd row offset ½ cell, the two end half-cells left as plate). The plate arrives
+whole at .38 and each tile's `--fill` raises its own ground and content from an empty socket — so the wall reads as
+composed at every scroll position instead of as missing tiles. Tile: numeral + group mark on a hairline top row,
+title (Fraunces 400, 3-line clamp), subtitle (`--fs-fine`, 2-line clamp, `--fg-muted`).
+
+`.wash` is a full-frame ND filter (three feathered gradients: left column, right column, rising floor) whose depth is
+tied to `--day` — the same value that flickers the island — so every block keeps its contrast through noon without a
+visible box anywhere. A matching `--day`-weighted text halo backs the headline, storyteller, eyebrow and stamp.
+
+The card (`.tile__card`) takes the Forum's column at `right 7% top 17%`, `max-height 66%`, on an opaque `--press`
+ground; the Forum goes to opacity 0 (not .12) so nothing ghosts underneath.
+
+Mobile (< 820 px): one column, and therefore **one voice slot** at `top 34%` shared in time, never in space — the
+storyteller stack clears it at .32, the Forum body vacates it at .60, the second stack takes it back at .67. The wall
+becomes the ledger it always was: eleven hairline-ruled rows (numeral + title on one line, ellipsis) from `47%` to
+`bottom 16%`, which clears the bottom corner labels and the fixed REGISTER pill. The card is a sheet laid over the
+wall's band rather than an extra grid row (an in-place row would push the last tiles below a pin that cannot scroll).
+Island, stamp, `who`, outputs, sectors, subtitles and group marks are hidden.
 
 Interaction: tiles are `<button aria-expanded aria-controls>`; hover (mouse) / focus open the card, click pins it,
 arrow keys move focus in the grid (Home/End too), Esc closes and returns focus, `focusout` closes an unpinned card.
@@ -84,11 +108,12 @@ tiles as an auto-fill grid, the card in place.
 
 ## Status / known gaps
 
-- Composed at p 0 / .5 / .85 / .9 (1440 × 900) and p .5 (390 × 844); typecheck + build clean.
-- CSS is ~1.1 KB (minified) over the §11 budget; the largest remaining items are the tile (glint, clamps, chip) and the mobile block.
-- The tile numeral uses `--fs-h3` (bible §7.12 says `--fs-h2`) so two rows of tiles fit the lower 41% at 900 px tall.
-- Mobile "two-column brickwork": a half-cell offset in two columns cannot be drawn without clipping, so mobile rows are
-  not offset; the tiles grid scrolls inside the pin because eleven Fraunces titles do not fit 45% of an 844 px frame.
-- By day the cream type sits on a paper-coloured sky for a few hundred px of scroll per cycle (as specified: the flicker
-  lives in the world; the tiles and card carry an abyss tint for legibility).
+- Composed and checked at p 0 / .25 / .45 / .5 / .75 / .95 (1440 × 900) and p .5 / .62 (390 × 844): no block touches
+  another at any position, nothing sits in the sun's glare unbacked, nothing runs under the header, the rail label,
+  the corner labels or the mobile REGISTER pill, nothing leaves the frame. Typecheck + build clean.
+- CSS is ~1.3 KB (minified) over the §11 3 KB budget — the wall, the card, the portrait recomposition and the wash.
+- The tile numeral uses `--fs-h3`-ish (bible §7.12 says `--fs-h2`) so two rows of eleven tiles fit the lower band at
+  900 px tall without clipping a title.
+- Portrait deviates from §6.7's "two-column brickwork / card expands in place": eleven Fraunces titles do not fit two
+  columns of a 844 px frame, so the wall is a one-line ledger and the card is a sheet over it. Flagged for the lead.
 - `JOIN A THINK TANK →` route is TBC (mailto placeholder, Appendix C).

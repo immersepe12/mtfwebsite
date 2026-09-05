@@ -11,8 +11,11 @@ import './style.css'
  * The stillest chapter: the camera is locked, the sky time-lapses (5¾ day/night cycles, accelerating then
  * decelerating, settling on deep night at p .7), a small distant island flickers paper ↔ ink with it on the
  * horizon, and the eleven think tanks assemble as DOM tesserae. The numeral 11 drifts opsz 144 → 60.
- * Beats (p): head .06–.17 · storyteller I .15–.24 · forum .26–.38 · sectors .27 · tiles .31–.645 ·
- *            storyteller II .70–.82 (tiles age) · JOIN A THINK TANK .83 · exit .87–.90 · veil 1 → 1.6 from .86.
+ * Beats (p), re-spaced for the longer film (src/engine/pacing.ts × 1.5): head .06–.11 · storyteller I .17/.21/.25/.29 ·
+ * forum .34–.44 · sectors .35 · the eleven tiles .41–.64 · the wall dims and ages .64 ·
+ * storyteller II .67/.70/.73/.76/.79 · JOIN A THINK TANK .83 · exit .865–.895 · veil 1 → 1.6 from .86.
+ * Placement (§4.2): head + storyteller own the left column, the Forum the right column, the tile wall the lower band —
+ * three regions that never touch, and a day-reactive graded wash keeps every one of them legible under the noon sky.
  */
 
 /* ─── keyframe helpers (piecewise-linear between anchors) ─── */
@@ -29,16 +32,23 @@ const smooth = (t: number) => { const x = Math.min(1, Math.max(0, t)); return x 
 
 /* ─── the day/night cycle. c(p) = phase; 5¾ cycles over p 0–.7 (smoothstep: accelerates, then decelerates
        to a stop) so c(.7) ≡ 3π/2 = deep night, held to p 1. day(p) = max(0, sin c). ─── */
-const CYCLE_END = .7, CYCLES = 5.75
+// Time passing, not a strobe: two and a half unhurried days, decelerating into the last night.
+const CYCLE_END = .7, CYCLES = 2.5
 const phase = (p: number) => Math.PI * 2 * CYCLES * smooth(p / CYCLE_END)
+/** smoothstep on an arbitrary edge pair — used so the sun dissolves through the horizon rather than switching off */
+const smooth01 = (x: number, a: number, b: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t) }
 const dayOf = (p: number) => Math.max(0, Math.sin(phase(p)))
 
 /* colours of the cycle (§6.7) */
-const NIGHT_TOP = hex('#090D16'), DAY_TOP = hex('#A9CBDD')
-const NIGHT_BOT = hex('#06192B'), DAY_BOT = hex('#E8DCC2')
-const NIGHT_SEA = hex('#0E3D57'), DAY_SEA = hex('#D6C39C')
+// Days passing over the same sea — but the daylight peak stays a Mediterranean day, not a white-out: at full
+// noon the frame kept no contrast and the type, the tiles and the island all washed to milk (client review).
+const NIGHT_TOP = hex('#090D16'), DAY_TOP = hex('#6E97B4')
+const NIGHT_BOT = hex('#06192B'), DAY_BOT = hex('#C9B48C')
+const NIGHT_SEA = hex('#0E3D57'), DAY_SEA = hex('#7C8F86')
 /** The camera sits at camX 2 (camYaw 0), so the sun's sweep is centred on x = 2: it rises at the right frame edge and sets at the left. */
-const SUN_CX = 2, SUN_R = 4
+// The sun is a celestial body, not a lamp on a string: it sits far away and travels a wide, shallow arc from
+// one horizon to the other. A near sun on a small circle reads as a glitch, however slowly it moves.
+const SUN_CX = 2, SUN_R = 26, SUN_Z = -55, SUN_H = 9, SUN_BASE = -1.4
 
 /** Reduced motion: the chapter's end state as a still (§5.3) — deep night, veil 1.6, the mosaic on the water. */
 const STILL: Partial<Mood> = {
@@ -80,12 +90,15 @@ function frameHTML(c: any, mobile: boolean): string {
     return `<div class="sector"><i class="sector__rule" aria-hidden="true"></i><span class="index sector__i tnum">${esc(n[0])}–${esc(n[n.length - 1])}</span><span class="label sector__l">${esc(g.name)}</span></div>`
   }).join('')
   const tiles = items.map((it, i) => `<button class="tile" type="button" aria-expanded="false" aria-controls="ch-eleven-card" data-i="${i}">
-      <span class="tile__n tnum">${esc(it.number)}</span>
+      <span class="tile__top">
+        <span class="tile__n tnum">${esc(it.number)}</span>
+        <span class="chip tile__g">${esc(it.group)}</span>
+      </span>
       <span class="tile__t">${esc(it.title)}</span>
       <span class="tile__s">${esc(it.subtitle)}</span>
-      <span class="chip tile__g">${esc(it.group)}</span>
     </button>`).join('')
   return `
+    <i class="wash" aria-hidden="true"></i>
     <div class="head">
       <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
       <h2 class="h1 hl">${wrapNumerals(sentenceCase(val(tt.closingLine)))}</h2>
@@ -206,11 +219,13 @@ export const eleven: Chapter = {
     pin.style.setProperty('--sky-bottom-static', 'var(--abyss)')
     pin.innerHTML = `<div class="pin__layer shadow"><div class="isle">${island()}</div></div><div class="pin__frame">${frameHTML(content, mobile)}</div>`
     const frame = pin.querySelector('.pin__frame') as HTMLElement
-    wireTiles(frame, items, mobile, cols)
+    // portrait: the card is a sheet laid over the wall, not an extra grid row — an in-place row would push
+    // the last tiles below the fold inside a pin that cannot scroll. (Reduced motion still expands in place.)
+    wireTiles(frame, items, false, cols)
 
     const q = <T extends Element = HTMLElement>(s: string) => pin.querySelector(s) as T
     const qa = <T extends Element = HTMLElement>(s: string) => Array.from(pin.querySelectorAll(s)) as T[]
-    const isle = q('.isle'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
+    const isle = q('.isle'), wash = q('.wash'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
     const stamp = q('.stamp'); stampN = q('.stamp__n')
     const stack = q('.stack'), lines = qa('.stack .s')
     const forum = q('.forum'), fRule = q('.forum__rule'), fLab = q('.forum__lab'), fForm = q('.forum__formula'), fWho = q('.forum__who')
@@ -220,9 +235,10 @@ export const eleven: Chapter = {
     const MAX = 3                                                 // visible storyteller lines (≤ 6; the tiles need the room)
 
     /* head sequence: rule → eyebrow → headline lines (masked) → the date stamp; the island fades up with the first day */
-    tl.fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .06)
-      .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .03 }, .09)
-      .fromTo(stamp, { opacity: 0 }, { opacity: 1, duration: .03 }, .09)
+    tl.fromTo(wash, { opacity: 0 }, { opacity: 1, duration: .05 }, .06)
+      .fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .06)
+      .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .03 }, .085)
+      .fromTo(stamp, { opacity: 0 }, { opacity: 1, duration: .03 }, .085)
       .fromTo(isle, { opacity: 0 }, { opacity: 1, duration: .08 }, .06)
     let headTween: gsap.core.Tween | null = null
     SplitText.create(hl, {
@@ -237,7 +253,7 @@ export const eleven: Chapter = {
     })
     hl.classList.add('is-split')
     /* the numeral 11: "opsz" 144 → 60 over the hold ("they stopped counting") — one tween, one element (§2.3 allowance 3) */
-    tl.fromTo(hl, { '--opsz': 144 }, { '--opsz': 60, duration: .60 }, .12)
+    tl.fromTo(hl, { '--opsz': 144 }, { '--opsz': 60, duration: .58 }, .12)
 
     /* the storyteller stack: one line per beat, 4 px rise, older lines go faint, at most MAX visible */
     const line = (i: number, at: number) => {
@@ -245,33 +261,42 @@ export const eleven: Chapter = {
       if (i >= 1) tl.to(lines[i - 1], { '--old': 1, duration: .02 }, at)
       if (i >= MAX) tl.to(lines[i - MAX], { opacity: 0, maxHeight: 0, marginBottom: 0, duration: .02 }, at - .02)
     }
-    STORY_I.forEach((_, i) => line(i, .15 + i * .03))
-    ;[.70, .73, .76, .79, .82].forEach((at, i) => line(STORY_I.length + i, at))
+    STORY_I.forEach((_, i) => line(i, .17 + i * .04))                       // .17 .21 .25 .29 — one line every 4% of p
+    ;[.67, .70, .73, .76, .79].forEach((at, i) => line(STORY_I.length + i, at))
+    /* Portrait has one column, so the storyteller and the Forum share a single voice slot: the first stack
+       clears the slot at .32, the Forum body vacates it at .60, and the second stack returns at .67. Never both. */
+    if (mobile) tl.to(lines.slice(0, STORY_I.length), { opacity: 0, y: -6, duration: .025 }, .32)
 
     /* the Forum block: rule → label → formula → who → chips → process (§5.4 rule 3) */
-    tl.fromTo(fRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .26)
-      .fromTo(fLab, { opacity: 0 }, { opacity: 1, duration: .02 }, .29)
-      .fromTo(fForm, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .03 }, .31)
-      .fromTo(fWho, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .03 }, .33)
-      .fromTo(fOut, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .02, stagger: .008 }, .35)
-      .fromTo(fProc, { opacity: 0 }, { opacity: 1, duration: .02 }, .38)
+    tl.fromTo(fRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .34)
+      .fromTo(fLab, { opacity: 0 }, { opacity: 1, duration: .02 }, .36)
+      .fromTo(fForm, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .03 }, .38)
+      .fromTo(fWho, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .03 }, .40)
+      .fromTo(fOut, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .02, stagger: .008 }, .42)
+      .fromTo(fProc, { opacity: 0 }, { opacity: 1, duration: .02 }, .44)
+    if (mobile) tl.to([fRule, fLab, fForm, fProc], { opacity: 0, duration: .025 }, .60)
 
     /* the four hairline sectors, then the eleven tiles assemble one at a time (settle + 14 px rise) */
-    tl.fromTo(sRules, { scaleX: 0 }, { scaleX: 1, duration: .04, stagger: .01 }, .27)
-      .fromTo(sLabs, { opacity: 0 }, { opacity: 1, duration: .02 }, .31)
-    tiles.forEach((t, i) => tl.fromTo(t, { autoAlpha: 0, '--ty': '14px' }, { autoAlpha: 1, '--ty': '0px', duration: .035 }, .31 + i * .03))   // `translate`, so the hover tilt (transform) survives
-    /* p .70–.85: the world ages around them — the tile grain darkens */
-    tl.fromTo(tilesEl, { '--age': 0 }, { '--age': 1, duration: .15 }, .70)
+    tl.fromTo(sRules, { scaleX: 0 }, { scaleX: 1, duration: .04, stagger: .01 }, .35)
+      .fromTo(sLabs, { opacity: 0 }, { opacity: 1, duration: .02 }, .38)
+    /* the plate arrives whole (empty sockets, hairline grout), then the eleven are set into it one at a time,
+       one every 2.3% of p ≈ 850 px of scroll each at the new pace: .41 → .64. No half-built rectangle. */
+    tl.fromTo(tilesEl, { '--plate': 0 }, { '--plate': 1, duration: .04 }, .38)
+    tiles.forEach((t, i) => tl.fromTo(t, { '--fill': 0, '--ty': '14px' }, { '--fill': 1, '--ty': '0px', duration: .035 }, .41 + i * .023))   // `translate`, so the hover tilt (transform) survives
+    /* p .64–.79: the world ages around them — the grain darkens and the wall recedes so the storyteller can be heard */
+    tl.fromTo(tilesEl, { '--age': 0, '--dim': 0 }, { '--age': 1, '--dim': 1, duration: .09 }, .64)
 
     /* the sky's clock, driven by the scrubbed timeline itself (and by onProgress, so a jump lands right) */
     const proxy = { v: 0 }
     tl.to(proxy, { v: 1, duration: 1, onUpdate: () => tick(tl.progress()) }, 0)
 
     /* JOIN A THINK TANK → · then everything exits by .90 (seam rule); the veil crosses behind (mood) */
+    // portrait: the wall leaves before the call to action so the one column never holds both
+    if (mobile) tl.to(tilesEl, { autoAlpha: 0, y: -8, duration: .03 }, .795)
     tl.fromTo(cta, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .03 }, .83)
-    tl.to([head, stamp, stack, sectors], { opacity: 0, y: -8, duration: .03 }, .87)
-    tl.to([forum, tilesEl, card], { autoAlpha: 0, y: -8, duration: .03 }, .87)
-    tl.to(isle, { opacity: 0, duration: .03 }, .87)
+    tl.to([head, stamp, stack, sectors], { opacity: 0, y: -8, duration: .03 }, .865)
+    tl.to([forum, tilesEl, card], { autoAlpha: 0, y: -8, duration: .03 }, .865)
+    tl.to([isle, wash], { opacity: 0, duration: .03 }, .865)
   },
 
   onEnter() { html().classList.remove('theme-paper') },
@@ -287,13 +312,15 @@ export const eleven: Chapter = {
     const c = phase(p), d = Math.max(0, Math.sin(c))
     return {
       camX: 2, camY: 2, camZ: 2, camTilt: -.06, camYaw: 0, fov: 34,
-      skyTop: mix(NIGHT_TOP, DAY_TOP, d), skyBottom: mix(NIGHT_BOT, DAY_BOT, d), haze: kf(p, [[0, .3], [.7, .3], [1, .12]]),
-      sunX: SUN_CX + SUN_R * Math.cos(c), sunY: -.6 + 3.6 * d, sunRadius: .5, sunGlow: .8, sunHeat: 1, sunVisible: Math.sin(c) > 0 ? 1 : 0,
+      skyTop: mix(NIGHT_TOP, DAY_TOP, d), skyBottom: mix(NIGHT_BOT, DAY_BOT, d), haze: .12 + .10 * d,
+      // rises east (−x), crosses, sets west (+x); it fades through the horizon instead of snapping off
+      sunX: SUN_CX - SUN_R * Math.cos(c), sunY: SUN_BASE + SUN_H * Math.sin(c), sunZ: SUN_Z,
+      sunRadius: 2.6, sunGlow: .85, sunHeat: 1, sunVisible: smooth01(Math.sin(c), -.14, .12),
       seaColor: mix(NIGHT_SEA, DAY_SEA, d), seaAmp: kf(p, [[0, .1], [.7, .1], [1, .08]]), seaSpeed: kf(p, [[0, .5], [.7, .5], [1, .35]]),
       stars: 1 - d, constellation: kf(p, [[.7, 0], [.86, 2]]),
       tess: 1, tessForm: 1, tessSpread: 1, tessGold: kf(p, [[0, .4], [1, .3]]), tessGlint: kf(p, [[0, .5], [1, .2]]),
       veil: kf(p, [[.86, 1], [1, 1.6]]), p4: 0,
-      grain: .05, warmth: .35 + .65 * d, bloom: .5,
+      grain: .05, warmth: .3 + .5 * d, bloom: .5 - .12 * d,
     }
   },
 }

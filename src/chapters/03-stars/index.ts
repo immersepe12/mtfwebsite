@@ -15,13 +15,19 @@ import './style.css'
  * hairlines draw between them; the old question is struck through; the Malta star (anchor 10) swells gold and
  * the world's star billboard takes over at the same screen position (sunX/sunY from the anchor's NDC).
  *
- * Layout (desktop): head + first storyteller stack left (p .06–.30, the constellation is dark then) → the sky
- * lights (p .30–.60) with the statement top-right and the questions bottom-left in the outline's free corners →
- * Malta swells (p .58–.64) → second stack left over the dimmed sky (p .62–.80) → NINE NIGHTS ↓ + the last two
- * beats → exit by .90 (seam rule).
+ * COMPOSITION — the constellation owns the centre 70 % of the frame, so type is never placed inside it. Three
+ * free zones, measured from the live fit (`placeZones`) rather than guessed in %:
+ *   A · top-left wedge, above the Gibraltar→Adriatic chain — eyebrow, headline, stack A (p .06–.34, the sky
+ *       is still dark there: the constellation does not light until .36, so this zone is doubly safe).
+ *   B · lower-left, below the Malta→Gibraltar hairline and left of Cap Bon — the two questions (p .49–.72),
+ *       then, once they have gone, storyteller stacks B and C (p .72–.90). `--qy` / `--by` are set in px from
+ *       the fitted outline so the blocks clear the two labels that reach into this zone at every viewport.
+ *   C · top-right wedge, above the Adriatic→Levant chain — the Forum statement (p .39–.73).
+ * Nothing is ever placed on the sun: the eleven labels fade out at p .59–.64, before the Malta star swells at
+ * p .67 and the world's glow arrives at .69.
  *
  * The outline's fit is `fitOutline()` from the art file — the SAME fit the GL stars layer (set 1) uses, so the
- * gold GL lines sit on the DOM hairlines at every aspect.
+ * gold GL lines sit on the DOM hairlines at every aspect. The DOM constellation therefore never moves.
  */
 
 type KF = [number, number][]
@@ -53,26 +59,32 @@ const STACK_C = ['On the tenth dawn…', 'the star touched the earth.']
 const HINT = 'NINE NIGHTS ↓'
 const HEADLINE = 'Where do I go from here?'
 
+/** Relative weight of each line's dwell inside a stack — a question in three words breathes less than a sentence. */
+const WEIGHT_A = [1, 1.15, 0.72, 0.72, 0.9, 1.05, 1]
+const WEIGHT_B = [1.15, 0.8, 0.62, 0.62, 0.9, 1.15, 1]
+
 /**
  * Label placement per anchor: [anchor, dx, dy] — 's' start (text runs right of the star), 'e' end (text ends left
  * of it), 'm' centred; dy is the text's centre relative to the star. Chosen so no label sits on a hairline (the
- * outline's edges, the spear) or on another label. The portrait table is used below 820 px, where the outline is
- * only 70 % of a narrow frame and the long forces are shortened (SHORT) — the full names stay in the DOM.
+ * outline's edges, the spear), on another label, or in the lower-left type zone: anchor 0 (Gibraltar) is pushed
+ * below its star and anchor 9 (Cap Bon) above its own, and Malta's name is carried well clear of the point that
+ * becomes the sun. The portrait table is used below 820 px, where the outline is only 70 % of a narrow frame
+ * and the long forces are shortened (SHORT) — the full names stay in the DOM.
  */
 type Anchor = 's' | 'e' | 'm'
 type Pos = [Anchor, number, number]
 const LABEL_POS: Pos[] = [
-  ['s', 12, 18], ['s', 12, 4], ['s', 12, 8], ['s', 12, -4], ['s', 12, -10],
-  ['e', 12, 8], ['e', 12, -8], ['s', 12, 22], ['s', 12, 18], ['s', 36, 4], ['s', 18, 8],
+  ['s', 14, 20], ['s', 12, 4], ['s', 12, 8], ['s', 12, -4], ['s', 12, -10],
+  ['e', 12, 14], ['e', 12, -8], ['s', 12, 22], ['s', 12, 18], ['e', 12, -16], ['e', 20, -46],
 ]
 const LABEL_POS_M: Pos[] = [
   ['s', 8, 16], ['s', 8, 2], ['s', 8, 8], ['m', 0, -10], ['s', 8, -8],
-  ['e', 8, 14], ['e', 8, -10], ['s', 2, 13], ['m', 0, 13], ['e', 8, 12], ['e', 10, -13],
+  ['e', 8, 22], ['e', 8, -10], ['s', 2, 13], ['m', 0, 13], ['e', 8, -12], ['e', 10, -22],
 ]
 /** Portrait short forms (visible < 820 px, aria-hidden); the desktop copy and the accessible name are unchanged. */
 const SHORT: Record<number, string> = { 4: 'GEOPOLITICS', 5: 'MIGRATION', 7: 'HOUSING', 9: 'EXPECTATIONS', 10: 'SUSTAINABILITY' }
 /** Labels keep at least this many px from the frame's edges (runtime clamp). */
-const EDGE = 12
+const EDGE = 14
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const str = (v: unknown, fallback = ''): string => typeof v === 'string' ? v : (v && typeof v === 'object' && typeof (v as { value?: unknown }).value === 'string') ? (v as { value: string }).value : fallback
@@ -140,6 +152,55 @@ function placeLabels(frame: HTMLElement, lis: HTMLElement[]) {
     if (sy) li.style.setProperty('--sy', `${sy.toFixed(1)}px`)
   }
 }
+
+/**
+ * No label may sit on another. After the flip/clamp pass the eleven boxes are walked in story order and any that
+ * still intersects one already placed is pushed clear (down, or up when the frame's foot is nearer) through --sy.
+ * On the desktop table this is a no-op; on a 390 px frame, where the outline is a seventh of the area, it is what
+ * keeps Gibraltar, Cap Bon, Malta and the Gulf of Sirte legible. Runs once fonts are ready and on resize.
+ */
+function deCollide(frame: HTMLElement, lis: HTMLElement[]) {
+  const fr = frame.getBoundingClientRect()
+  const placed: DOMRect[] = []
+  for (const li of lis) {
+    const box = li.firstElementChild as HTMLElement | null
+    if (!box) continue
+    let r = box.getBoundingClientRect()
+    for (let guard = 0; guard < 6; guard++) {
+      const hit = placed.find(o => r.left < o.right + 6 && r.right > o.left - 6 && r.top < o.bottom + 4 && r.bottom > o.top - 4)
+      if (!hit) break
+      const down = hit.bottom + 5 - r.top, up = hit.top - 5 - r.bottom
+      const d = r.bottom + down > fr.bottom - EDGE ? up : down
+      const sy = Number((li.style.getPropertyValue('--sy') || '0').replace('px', '')) + d
+      li.style.setProperty('--sy', `${sy.toFixed(1)}px`)
+      r = box.getBoundingClientRect()
+    }
+    placed.push(r)
+  }
+}
+
+/**
+ * The lower-left type zone, measured rather than guessed. `--by` is the first free line below the
+ * Malta→Gibraltar hairline (storyteller stacks B and C, which run only after the eleven names have gone) and
+ * `--qy` also clears every label whose box reaches into the column the Forum blocks occupy — so the questions
+ * never touch a name or a hairline at any viewport, desktop or portrait.
+ */
+function placeZones(pin: HTMLElement, sky: HTMLElement, lis: HTMLElement[], col: HTMLElement) {
+  const r = sky.getBoundingClientRect()
+  if (!r.width || !r.height) return
+  const f = fitOutline(r.width, r.height)
+  const y0 = r.top + f.oy + 0.58 * f.sh          // Gibraltar (anchor 0) — the Malta→Gibraltar hairline
+  const cr = col.getBoundingClientRect()
+  const right = cr.width ? cr.right : r.left + r.width * 0.42
+  let low = y0 + 34
+  for (const li of lis) {
+    const b = (li.firstElementChild as HTMLElement | null)?.getBoundingClientRect()
+    if (b && b.left < right + 14 && b.bottom > y0 - 30) low = Math.max(low, b.bottom + 20)
+  }
+  pin.style.setProperty('--by', `${Math.round(y0 + 26)}px`)
+  pin.style.setProperty('--qy', `${Math.round(low)}px`)
+}
+
 /** Run `fn` once the curtain has opened and fonts are ready (label widths are final then). */
 function onReady(fn: () => void) {
   const go = () => { document.fonts.ready.then(fn).catch(fn) }
@@ -199,14 +260,14 @@ export const stars: Chapter = {
 
     const q = (s: string) => pin.querySelector(s) as HTMLElement
     const qa = (s: string) => Array.from(pin.querySelectorAll(s)) as HTMLElement[]
-    const eyebrowEl = q('.stars__eyebrow'), h2 = q('.stars__h2'), fx = q('.fx'), hint = q('.stars__hint')
+    const eyebrowEl = q('.stars__eyebrow'), h2 = q('.stars__h2'), fx = q('.fx'), hint = q('.stars__hint'), skyEl = q('.stars__sky')
     const stA = q('.stars__stack--a'), stB = q('.stars__stack--b'), stC = q('.stars__stack--c')
     const statementEl = q('.stars__statement'), questionsEl = q('.stars__questions')
     const framing = qa('.stars__framing'), oldEl = q('.stars__old'), strike = q('.stars__strike'), newEl = q('.stars__new')
     const edges = qa('.c-edge'), spear = q('.c-spear'), starG = qa('.c-star'), labels = qa('.stars__forces li'), edgeGroup = q('.c-edges')
 
-    /* labels inside the frame (flip / clamp) once fonts are final, and again on resize (rAF-coalesced) */
-    const place = () => placeLabels(fx, labels)
+    /* labels inside the frame (flip / clamp) and the lower-left zone measured, once fonts are final and on resize */
+    const place = () => { placeLabels(fx, labels); deCollide(fx, labels); if (skyEl) placeZones(pin, skyEl, labels, questionsEl) }
     onReady(place)
     let raf = 0
     window.addEventListener('resize', () => {
@@ -214,18 +275,28 @@ export const stars: Chapter = {
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; place() })
     }, { passive: true })
 
-    const D = 0.03
+    const D = 0.028
     const show = (t: HTMLElement | HTMLElement[], at: number, dur = D, y = 10) => tl.fromTo(t, { opacity: 0, y }, { opacity: 1, y: 0, duration: dur }, at)
     const hide = (t: HTMLElement | HTMLElement[], at: number, dur = D) => tl.to(t, { opacity: 0, y: -8, duration: dur }, at)
     const draw = (t: HTMLElement, at: number, dur = D) => tl.fromTo(t, { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: dur }, at)
-    /** Storyteller lines arrive whole (4 px rise) and stay; older lines fade to the faint level; max 6 visible. */
-    const stackIn = (root: HTMLElement, at: number, step: number) => {
+    /**
+     * Storyteller lines arrive whole (4 px rise) and stay; older lines fade to the faint level; max 6 visible.
+     * `span` is the p the whole stack is given and `weights` how it is shared out — three-word questions take
+     * less scroll than a full sentence, so the stack reads as speech rather than a metronome.
+     */
+    const stackIn = (root: HTMLElement, at: number, span: number, weights: number[]) => {
       const lines = Array.from(root.children) as HTMLElement[]
+      const total = weights.slice(0, lines.length).reduce((s, v) => s + v, 0) || lines.length
+      let acc = 0
       lines.forEach((ln, i) => {
-        const t = at + i * step, prev = lines[i - 1], old = lines[i - 6]
-        tl.fromTo(ln, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: step * 0.8 }, t)
-        if (prev) tl.to(prev, { opacity: 0.55, duration: step * 0.8 }, t)
-        if (old) tl.to(old, { opacity: 0, duration: step * 0.8 }, t)
+        const wgt = weights[i] ?? 1
+        const t = at + (acc / total) * span
+        const dur = Math.max(0.01, (wgt / total) * span * 0.8)
+        acc += wgt
+        const prev = lines[i - 1], old = lines[i - 6]
+        tl.fromTo(ln, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: dur }, t)
+        if (prev) tl.to(prev, { opacity: 0.55, duration: dur }, t)
+        if (old) tl.to(old, { opacity: 0, duration: dur }, t)
       })
     }
     /** Masked line reveal (SplitText) once fonts are ready; falls back to a whole-block rise. */
@@ -240,57 +311,66 @@ export const stars: Chapter = {
       })
     }
 
-    /* ── p .06–.30 · head sequence + the first stack, left ── */
-    draw(q('.stars__eyebrow .stars__rule'), 0.06)
-    show(q('.stars__eyebrow .eyebrow'), 0.09, 0.02, 0)
-    linesIn(h2, 0.11, 0.035)
-    stackIn(stA, 0.16, 0.02)
-    hide([h2, stA], 0.30)
+    /* ── ZONE A · p .06–.36 · head sequence + the first stack, top-left, over a still-dark sky ── */
+    draw(q('.stars__eyebrow .stars__rule'), 0.060, 0.030)
+    show(q('.stars__eyebrow .eyebrow'), 0.098, 0.024, 0)
+    linesIn(h2, 0.135, 0.045)
+    stackIn(stA, 0.190, 0.110, WEIGHT_A)
+    hide(h2, 0.318, 0.024)
+    hide(stA, 0.334, 0.024)
 
-    /* ── p .30–.60 · eleven stars, one by one, 2.6 % apart; each label follows the hairline that reaches it ── */
-    const STEP = 0.026, T0 = 0.30
+    /* ── p .36–.56 · eleven stars, one by one, 1.8 % apart; each label follows the hairline that reaches it ── */
+    const STEP = 0.018, T0 = 0.360
     starG.forEach((g, i) => {
       const t = T0 + i * STEP
-      tl.fromTo(g, { opacity: 0 }, { opacity: 1, duration: 0.02 }, t)
+      tl.fromTo(g, { opacity: 0 }, { opacity: 1, duration: 0.016 }, t)
       const label = labels[i], edge = edges[i]
-      if (label) tl.fromTo(label, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.018 }, t + 0.01)
+      if (label) tl.fromTo(label, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.016 }, t + 0.008)
       if (edge) tl.to(edge, { strokeDashoffset: 0, duration: STEP }, t)
     })
-    if (spear) tl.to(spear, { strokeDashoffset: 0, duration: 0.03 }, 0.58)
+    if (spear) tl.to(spear, { strokeDashoffset: 0, duration: 0.030 }, 0.556)
 
-    /* statement, top-right (rule → label → block) */
-    draw(q('.stars__statement .stars__rule'), 0.34)
-    show(q('.stars__statement .label'), 0.37, 0.02, 0)
-    show(q('.stars__statement .f'), 0.39)
-    /* the two questions, bottom-left: the old one is struck through by a drawing hairline; the new one settles */
-    draw(q('.stars__questions .stars__rule'), 0.44)
-    if (framing[0]) show(framing[0], 0.47, 0.02, 0)
-    show(oldEl, 0.49, 0.02)
-    draw(strike, 0.51, 0.035)
-    tl.to(oldEl, { opacity: 0.55, duration: 0.02 }, 0.545)
-    if (framing[1]) show(framing[1], 0.55, 0.02, 0)
-    linesIn(newEl, 0.57, 0.04)
-    hide(questionsEl, mobile ? 0.61 : 0.70)
+    /* ── ZONE C · the statement, top-right wedge (rule → label → block). Portrait has no right column, so it
+          takes zone B first and leaves before the questions arrive in the same place. ── */
+    const sAt = mobile ? 0.348 : 0.392
+    draw(q('.stars__statement .stars__rule'), sAt, 0.030)
+    show(q('.stars__statement .label'), sAt + 0.030, 0.022, 0)
+    show(q('.stars__statement .f'), sAt + 0.056, 0.032)
 
-    /* ── p .58–.64 · Malta swells gold, the GL star takes over at the same screen position; the rest dims to 40 % ── */
+    /* ── ZONE B · the two questions, lower-left: the old one is struck through, the new one settles ── */
+    const qAt = mobile ? 0.500 : 0.462
+    draw(q('.stars__questions .stars__rule'), qAt, 0.030)
+    if (framing[0]) show(framing[0], qAt + 0.028, 0.022, 0)
+    show(oldEl, qAt + 0.054, 0.026)
+    draw(strike, qAt + 0.082, 0.032)
+    tl.to(oldEl, { opacity: 0.55, duration: 0.020 }, qAt + 0.118)
+    if (framing[1]) show(framing[1], qAt + 0.134, 0.022, 0)
+    linesIn(newEl, qAt + 0.156, 0.045)
+
+    /* ── p .59–.65 · the names dissolve: the sailor stops reading and simply sees the sky. This also clears the
+          lower-left zone for stack B and takes every label out of the glow before the star arrives. ── */
+    tl.to(labels, { opacity: 0, duration: 0.048 }, 0.590)
+    tl.to(starG.slice(0, 10), { opacity: 0.55, duration: 0.050 }, 0.604)
+    tl.to(edgeGroup, { opacity: 0.45, duration: 0.050 }, 0.604)
+
+    /* ── p .67–.74 · Malta swells gold and the GL star takes over at the same screen position ── */
     const malta = starG[10]
-    if (malta) tl.to(malta, { scale: 2.6, transformOrigin: '50% 50%', duration: 0.04 }, 0.58).to(malta, { opacity: 0, duration: 0.03 }, 0.61)
-    tl.to(starG.slice(0, 10), { opacity: 0.4, duration: 0.04 }, 0.60)
-    tl.to(labels, { opacity: 0.4, duration: 0.04 }, 0.60)
-    tl.to(edgeGroup, { opacity: 0.5, duration: 0.04 }, 0.60)
+    if (malta) tl.to(malta, { scale: 2.6, transformOrigin: '50% 50%', duration: 0.048 }, 0.668)
+      .to(malta, { opacity: 0, duration: 0.030 }, 0.710)
 
-    /* ── p .62–.80 · the second stack ── */
-    const bAt = mobile ? 0.65 : 0.63, bStep = mobile ? 0.02 : 0.025
-    stackIn(stB, bAt, bStep)
-    hide(stB, 0.805)
+    hide(statementEl, mobile ? 0.468 : 0.700, 0.030)
+    hide(questionsEl, 0.700, 0.030)
 
-    /* ── p .82–.90 · NINE NIGHTS ↓, the last two beats, exit ── */
-    show(hint, 0.82, 0.02, 0)
-    stackIn(stC, 0.83, 0.025)
-    hide(fx, 0.86, 0.04)
-    hide(statementEl, 0.86, 0.025)
-    hide(eyebrowEl, 0.87)
-    hide([hint, stC], 0.88, 0.02)
+    /* ── p .74–.86 · the second stack, in the freed lower-left ── */
+    stackIn(stB, 0.732, 0.100, WEIGHT_B)
+    hide(stB, 0.846, 0.018)
+
+    /* ── p .81–.90 · NINE NIGHTS ↓, the last two beats, exit by .90 (seam rule) ── */
+    show(hint, 0.812, 0.022, 0)
+    stackIn(stC, 0.850, 0.026, [1, 1])
+    hide(fx, 0.862, 0.038)
+    hide(eyebrowEl, 0.866, 0.026)
+    hide([hint, stC], 0.884, 0.016)
   },
 
   /* the rail's nine ticks pulse in sequence at p .85–.94 (nine nights); cleared as the star touches the earth */
@@ -318,12 +398,12 @@ export const stars: Chapter = {
       sunX: kf(p, [[0.25, 0], [0.5, sunPos.x], [0.85, sunPos.x], [1, 1.2]]),
       sunY: kf(p, [[0, -2.4], [0.25, 2], [0.5, sunPos.y], [0.85, sunPos.y], [1, 0.9]]),
       sunZ: kf(p, [[0, -6], [0.25, -8]]),
-      sunRadius: kf(p, [[0, 1], [0.25, 0.1], [0.58, 0.1], [0.64, 0.18], [0.85, 0.18], [1, 0.2]]),
-      sunGlow: kf(p, [[0.58, 0], [0.64, 1.4], [0.85, 1.4], [1, 1.6]]),
-      sunHeat: 0, sunVisible: kf(p, [[0.58, 0], [0.64, 1]]),
+      sunRadius: kf(p, [[0, 1], [0.25, 0.1], [0.68, 0.1], [0.74, 0.18], [0.85, 0.18], [1, 0.2]]),
+      sunGlow: kf(p, [[0.68, 0], [0.74, 1.4], [0.85, 1.4], [1, 1.6]]),
+      sunHeat: 0, sunVisible: kf(p, [[0.68, 0], [0.735, 1]]),
       stars: kf(p, [[0, 0.8], [0.25, 1], [0.85, 1], [1, 0.7]]),
       starDrift: kf(p, [[0, 0.2], [0.25, 0.15], [0.6, 0.1]]),
-      constellation: kf(p, [[0.28, 0], [0.6, 1]]),
+      constellation: kf(p, [[0.355, 0], [0.575, 1]]),
       tess: 0, tessForm: 0, tessSpread: 12,
       veil: 0, p1: 0, p2: 0, p3: 0, p4: 0, mosaic: 0,
       bloom: kf(p, [[0.25, 0.5], [0.6, 0.7]]),

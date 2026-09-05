@@ -18,10 +18,14 @@ import './style.css'
  * Because the section is taller than the film, the Stage's p (0..1 across the WHOLE section) is remapped to
  * film progress inside mood()/onProgress via `travelScale` (measured on every ScrollTrigger refresh).
  *
- * Beats (film p): eyebrow rule .06 · eyebrow .09 · "I lived." .12–.20 · stack L1–L4 .22/.26/.30/.33 ·
- * last star fades .25–.40 · couplet .37 / .45 (ink, on the water) · dawn ink .56–.66 · L5–L8 .50/.54/.58/.63 (L1/L2 leave) ·
- * REGISTER → pill on the water .62–.70 · the stack leaves .80–.94; headline, couplet and pill stay for the
- * frozen last image (the pin then scrolls away into the footer).
+ * Beats (film p) — one substantive beat every ~5%, no gap over 8%, nothing ever sharing a rectangle:
+ *   .06 eyebrow rule · .11 eyebrow · .15 "I lived." (settles .22) · ACT I .26/.31/.36/.41 (four lines, left column) ·
+ *   .28–.50 dawn: the halo behind the cream type deepens as the stage lights · .26–.40 the last star goes out ·
+ *   .46 ACT I clears · .47 / .55 the couplet, centred on the water below the storyteller band ·
+ *   .60 the gold REGISTER → pill (bottom left) · ACT II .64/.69/.74/.79 (four lines, the same band) ·
+ *   .86 the eyebrow and ACT II leave — headline, couplet and pill hold for the frozen last image.
+ * The storyteller plays as TWO acts of four in one fixed band, so the stack can never grow into the couplet,
+ * the pill or the bottom chrome at any scroll position, on any viewport.
  * mtf:sunrise { p } is dispatched for the rail's S·U·N flight (p .1–.35).
  */
 
@@ -46,7 +50,7 @@ const K = {
   stars: [[0, .15], [.35, 0]] as KF,
   bloom: [[0, .7], [.35, 1.1], [.6, 1.1], [.72, 1], [1, .9]] as KF,
   warmth: [[0, .35], [.35, .8], [.6, 1]] as KF,
-  mosaic: [[.72, 0], [.92, .48], [1, .3]] as KF,   // the frame tessellates, then settles: enough to read as laid stone, not enough to bury the type
+  mosaic: [[.74, 0], [.90, .30], [1, .22]] as KF,  // the frame tessellates, then settles — a whisper of laid stone, never a rug of tiles over the type
 }
 const SKY_T: [number, string][] = [[0, '#071E30'], [.35, '#0F5A80'], [.6, '#2B8FA3'], [.72, '#7FA9C2'], [1, '#A9CBDD']]
 const SKY_B: [number, string][] = [[0, '#2B5468'], [.35, '#FF7A1A'], [.6, '#FFD166'], [.72, '#FFD166'], [1, '#F1C86A']]
@@ -89,14 +93,17 @@ function frameHTML(c: any): string {
   const lines = (c.gala?.keyLines ?? []) as { text?: string }[]
   const cp1 = String(lines[0]?.text ?? 'LOVE IS NOT THE HAND THAT CLOSES.')
   const cp2 = String(lines[1]?.text ?? 'LOVE IS THE HAND THAT OPENS.')
-  const stack = STACK.map(l => `<p class="s st">${esc(l)}</p>`).join('')
+  // the storyteller plays as two acts of four in ONE fixed band: the stack can never grow into the couplet,
+  // the pill or the bottom chrome, at any p, on any viewport (§5.4.4 max 6 visible — we hold 4)
+  const act = (from: number, n: number, i: number) =>
+    `<div class="act act${i}">${STACK.slice(from, from + n).map(l => `<p class="s st">${esc(l)}</p>`).join('')}</div>`
   return `
     <div class="col">
       <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${esc(eyebrow)}</span></p>
       <h2 class="display hl"><span class="hl__m">${esc(HEADLINE)}</span></h2>
-      <div class="stack" aria-label="The Storyteller">${stack}</div>
+      <div class="stack" aria-label="The Storyteller">${act(0, 4, 1)}${act(4, 4, 2)}</div>
     </div>
-    <p class="couplet"><span class="cp cp1">${esc(cp1)}</span><span class="cp cp2">${esc(cp2)}</span></p>
+    <p class="couplet"><span class="cp__rule" aria-hidden="true"></span><span class="cp cp1">${esc(cp1)}</span><span class="cp cp2">${esc(cp2)}</span></p>
     <p class="pill"><a class="btn btn--primary" href="#ch-register"><span>Register</span><span class="btn__arrow" aria-hidden="true">→</span><span class="flood" aria-hidden="true"></span></a></p>`
 }
 
@@ -198,35 +205,41 @@ function buildFilm(ctx: ChapterCtx) {
   film.className = 'film'
   el.appendChild(film)
   film.appendChild(pin)
-  pin.innerHTML = `<div class="pin__layer fx" aria-hidden="true"><span class="last-star">${star(22)}</span></div><div class="pin__frame">${frameHTML(content)}</div>`
+  pin.innerHTML = `<div class="pin__layer shadow grade" aria-hidden="true"></div><div class="pin__layer fx" aria-hidden="true"><span class="last-star">${star(22)}</span></div><div class="pin__frame">${frameHTML(content)}</div>`
 
   const q = (s: string) => pin.querySelector(s) as HTMLElement
-  const frame = q('.pin__frame'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl__m')
-  const lines = Array.from(pin.querySelectorAll<HTMLElement>('.st'))
-  const cp1 = q('.cp1'), cp2 = q('.cp2'), pill = q('.pill'), lastStar = q('.last-star')
+  const eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl__m')
+  const acts = [Array.from(pin.querySelectorAll<HTMLElement>('.act1 .st')), Array.from(pin.querySelectorAll<HTMLElement>('.act2 .st'))]
+  const cpRule = q('.cp__rule'), cp1 = q('.cp1'), cp2 = q('.cp2'), pill = q('.pill'), lastStar = q('.last-star')
+  const eye = q('.eye')
 
-  // head sequence: rule → eyebrow → headline (masked line, yPercent 110 → 0)
+  // head sequence: rule → eyebrow → headline (masked line, yPercent 110 → 0); settles by .22
   tl.fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .05 }, .06)
-  tl.fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .04 }, .09)
-  tl.fromTo(hl, { yPercent: 110 }, { yPercent: 0, duration: .08 }, .12)
+  tl.fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .04 }, .11)
+  tl.fromTo(hl, { yPercent: 110 }, { yPercent: 0, duration: .07 }, .15)
   // the last star goes out as the sky warms
-  tl.fromTo(lastStar, { opacity: 1 }, { opacity: 0, duration: .15 }, .25)
-  // the storyteller stack accumulates (4 px rise), older lines fade to the faint level; max 6 visible
-  const at = [.22, .26, .30, .33, .50, .54, .58, .63]
-  lines.forEach((l, i) => {
-    tl.fromTo(l, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .04 }, at[i])
-    if (i > 0) tl.to(lines[i - 1], { opacity: .55, duration: .03 }, at[i])
-    if (i >= 6) tl.to(lines[i - 6], { opacity: 0, duration: .03 }, at[i])
-  })
-  // the couplet, held under the sunrise — pause between the two lines
-  tl.fromTo(cp1, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .05 }, .37)
-  tl.fromTo(cp2, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .05 }, .45)
-  // dawn: the stage goes light, so the type goes to ink (linear, scrubbed)
-  tl.fromTo(frame, { '--dawn': 0 }, { '--dawn': 1, duration: .1 }, .56)
-  // the storyteller leaves before the frame freezes into mosaic; headline, couplet and pill stay for the last image
-  tl.to(lines, { opacity: 0, duration: .1, stagger: .006 }, .8)
+  tl.fromTo(lastStar, { opacity: 1 }, { opacity: 0, duration: .14 }, .26)
+  // dawn: the graded shade in the left of the frame and the halo behind the type deepen as the stage goes light
+  // (the letters never change colour, so the copy never passes through a mid-grey that would vanish against
+  //  both the teal sky and the gold water — the contrast curve is monotonic and never dips)
+  tl.fromTo(pin, { '--dawn': 0 }, { '--dawn': 1, duration: .22 }, .28)
+
+  // the storyteller: ACT I (.26–.41) clears for the couplet, ACT II (.64–.79) answers it — same band, never stacked
+  const AT: number[][] = [[.26, .31, .36, .41], [.64, .69, .74, .79]]
+  acts.forEach((act, a) => act.forEach((l, i) => {
+    tl.fromTo(l, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: .04 }, AT[a][i])
+    if (i > 0) tl.to(act[i - 1], { opacity: .58, duration: .03 }, AT[a][i])
+  }))
+  tl.to(acts[0], { opacity: 0, y: -8, duration: .05, stagger: .008 }, .46)
+
+  // the couplet, centred on the water below the storyteller band — its hairline draws, then the two lines
+  tl.fromTo(cpRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .44)
+  tl.fromTo(cp1, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: .05 }, .47)
+  tl.fromTo(cp2, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: .05 }, .55)
   // the large gold REGISTER → pill on the water
-  tl.fromTo(pill, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .08 }, .62)
+  tl.fromTo(pill, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .07 }, .60)
+  // the eyebrow and ACT II leave; headline, couplet and pill hold the frozen last image
+  tl.to([eye, ...acts[1]], { opacity: 0, y: -8, duration: .06, stagger: .008 }, .86)
 
   // the film's own scrub (positions are fractions of the film, not of the section)
   let lastP = -1

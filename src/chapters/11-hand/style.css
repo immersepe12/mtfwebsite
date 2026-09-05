@@ -1,47 +1,102 @@
+/* 11 · hand — The Open Hand. Tokens only; every selector scoped to #ch-hand.
+   STRICT TWO ZONES (desktop): all type in the left column / sign-off slot, 7 % → ~37 % of the width; the
+   mosaic hand is the emblema in the right two thirds. The invitation pill in the palm is the ONLY block that
+   sits on the figure. Nothing crosses the fixed chrome (header 72 px · rail 0–60 px · corners last 60 px). */
 #ch-hand .pin{--sky-top-static:var(--black);--sky-bottom-static:var(--black)}
 #ch-hand .fx svg{position:absolute;inset:0;width:100%;height:100%}
 #ch-hand .glyph--net .strands line{stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--net-draw,0))}
-#ch-hand .col{position:absolute;left:7%;top:18%;width:min(34%,30rem);display:grid;gap:1.4rem}
+
+/* the soft ground the whole type zone stands on: it holds cream type against the net, the mosaic and the
+   glint without ever reading as a panel (no edge, no blur, no backdrop-filter inside the pin) */
+#ch-hand .scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(96deg,color-mix(in oklab,var(--press) 74%,transparent) 0%,color-mix(in oklab,var(--press) 58%,transparent) 26%,color-mix(in oklab,var(--press) 22%,transparent) 40%,transparent 50%)}
+
+/* ── the type column: clear of the header (72 px), the rail (0–60 px) and the corner labels (last 60 px) ── */
+#ch-hand .col{position:absolute;left:7%;top:17%;width:min(30%,27rem);display:grid;gap:1.3rem}
 #ch-hand .eye{flex-direction:column;align-items:flex-start;gap:.9rem}
 #ch-hand :is(.eye__rule,.forum__rule){display:block;width:11em;height:1px;background:var(--rule);transform-origin:left center}
 #ch-hand .hl__sub{display:block;font-style:italic;font-size:var(--fs-h3);margin-top:.5em;color:var(--fg-muted)}
-#ch-hand .stack{position:absolute;left:0;top:calc(20vh + 1rem);width:100%}
-#ch-hand .stack .s{margin:0 0 .45em}
-#ch-hand .cutline{color:var(--cream);font-weight:400}
-#ch-hand :is(.forum,.awards){position:absolute;left:0;top:6vh;width:100%;display:grid;justify-items:start;gap:.85rem}
-#ch-hand :is(.forum,.awards) .f{font-size:var(--fs-body);line-height:var(--lh-body)}
+#ch-hand .stack{position:absolute;left:0;top:13vh;width:100%}
+#ch-hand .stack .s{margin:0 0 .45em;max-width:none}
+#ch-hand .cut-slot{position:absolute;left:7%;top:41%;width:min(30%,27rem)}
+#ch-hand .cutline{margin:0;color:var(--cream);font-weight:400;max-width:none}
+/* the Gala sits UNDER the drawn headline; the Awards takes the whole column after the headline has left */
+#ch-hand :is(.forum,.awards){position:absolute;left:0;width:100%;display:grid;justify-items:start;gap:.8rem}
+#ch-hand .forum{top:26vh}
+#ch-hand .awards{top:7vh}
+#ch-hand :is(.forum,.awards) .f{font-size:var(--fs-body);line-height:var(--lh-body);max-width:none}
 #ch-hand .f2{color:var(--fg-muted)}
+/* the canto strip: nine cantos, complete and legible in three mono columns. It keeps its own scroll track
+   (§6.11) but is laid out to FIT, so no still ever shows a canto cut off mid-word. */
 #ch-hand .track{width:100%;overflow-x:auto;scrollbar-width:none}
+#ch-hand .track::-webkit-scrollbar{display:none}
 #ch-hand :is(.cantos,.meta){list-style:none;margin:0;padding:0}
-#ch-hand .cantos{padding:.6rem 0 .5rem;display:flex;gap:1.6rem;border-block:1px solid var(--rule);width:max-content;min-width:100%}
-#ch-hand .canto{display:flex;gap:.6em;white-space:nowrap;font:500 var(--fs-label)/1 var(--font-mono);letter-spacing:var(--ls-label);color:var(--fg-muted)}
+#ch-hand .cantos{padding:.6rem 0 .55rem;display:grid;grid-template-columns:repeat(3,1fr);gap:.42rem .7rem;width:100%;border-block:1px solid var(--rule)}
+#ch-hand .canto{display:flex;gap:.5em;white-space:nowrap;font:500 var(--fs-label)/1 var(--font-mono);letter-spacing:.13em;color:var(--fg-muted)}
 #ch-hand .canto__i{letter-spacing:var(--ls-index);color:var(--gold)}
-#ch-hand .awards .s{font-size:var(--fs-h3)}
+#ch-hand .awards .s{font-size:var(--fs-h3);max-width:none}
 #ch-hand .fine{font:400 var(--fs-fine)/1.5 var(--font-sans);color:var(--fg-faint);margin:0}
-#ch-hand :is(.couplet,.closing){position:absolute;left:7%;bottom:14%;width:min(34%,30rem);display:grid;gap:.6rem}
+
+/* ── the headline slot: the drawn CALYPSO'S ODYSSEY, in the column — never on the mosaic ── */
+#ch-hand .title{position:absolute;left:7%;top:16%;width:min(27%,24rem);pointer-events:none;display:grid;justify-items:start;gap:.7rem;transform:none!important}
+#ch-hand .title__ink{display:block;width:100%}
+#ch-hand .title svg{display:block;width:100%}
+#ch-hand .glyph--gala .gala-sub{display:none}
+#ch-hand .title__sub{margin:0;max-width:20ch;font-family:var(--font-display);font-style:italic;font-weight:300;font-size:var(--fs-h3);line-height:1.25;color:var(--fg-muted);font-variation-settings:"WONK" 1,"SOFT" 12;text-wrap:balance}
+
+/* ── the sign-off slot: the couplet, then the closing lines. Above the corner labels, left of the hand ── */
+#ch-hand :is(.couplet,.closing){position:absolute;left:7%;bottom:15%;width:min(29%,25rem);display:grid;gap:.6rem}
 #ch-hand .cp{font-size:var(--fs-h2);line-height:var(--lh-h2);max-width:11em;margin:0;color:var(--cream)}
 #ch-hand .cp:first-child{color:var(--fg-muted)}
-#ch-hand :is(.title,.pill-pos){position:absolute;left:0;top:0}
-#ch-hand .title{width:min(46vw,52rem);pointer-events:none}
-#ch-hand .title svg{display:block;width:100%}
-#ch-hand .closing{gap:.3rem;color:var(--fg-faint)}
-#ch-hand .closing .s{margin:0}
-#ch-hand .pin__frame :is(.st,.cutline,.cp,.c,.eye__t,.forum__label,.awards__label,.fb,.ab,.title,.pill){opacity:0}
+#ch-hand .closing{gap:.28rem;color:var(--fg-faint)}
+#ch-hand .closing .s{margin:0;font-size:var(--fs-h3);max-width:none}
+
+/* ── in the palm: the invitation pill on its own soft radial ground, so gold-on-gold never happens ── */
+#ch-hand .pill-pos{position:absolute;left:0;top:0}
+#ch-hand .pill-pos::before{content:'';position:absolute;left:50%;top:50%;width:30rem;height:12rem;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,color-mix(in oklab,var(--press) 66%,transparent) 0%,transparent 72%)}
+
+#ch-hand .pin__frame :is(.scrim,.st,.cutline,.cp,.c,.eye__t,.forum__label,.awards__label,.f,.track,.meta,.ab,.title,.title__sub,.pill){opacity:0}
 #ch-hand .pin__frame :is(.eye__rule,.forum__rule){transform:scaleX(0)}
-@media (max-width:820px){
-#ch-hand .col{left:var(--gutter);right:var(--gutter);top:9%;width:auto;gap:1rem}
-#ch-hand .stack{top:9vh}
-#ch-hand .stack .s{font-size:var(--fs-lead);line-height:var(--lh-h3)}
-#ch-hand :is(.forum,.awards){top:4vh;gap:.6rem}
-#ch-hand :is(.forum,.awards) .f{font-size:var(--fs-small);line-height:1.4}
-#ch-hand .f2{font-size:var(--fs-fine)}
-#ch-hand .track{overflow:visible}
-#ch-hand .cantos{flex-direction:column;gap:.35rem;width:100%;padding:.45rem 0}
-#ch-hand .couplet{left:var(--gutter);right:var(--gutter);bottom:auto;top:34%;width:auto}
-#ch-hand .cp{font-size:var(--fs-h3);line-height:var(--lh-h3)}
-#ch-hand .title{width:86vw}
-#ch-hand .closing{left:var(--gutter);bottom:10%}
+
+@media (max-width:1180px){
+  #ch-hand .col,#ch-hand .cut-slot{width:min(34%,25rem)}
+  #ch-hand .title{width:min(31%,22rem)}
+  #ch-hand :is(.couplet,.closing){width:min(33%,24rem)}
+  #ch-hand .cantos{grid-template-columns:repeat(2,1fr)}
+  #ch-hand .forum{top:24vh}
 }
+
+@media (max-width:820px){
+  /* portrait: the hand is small and low (camY 3.2 / camZ 4.4), so all type lives in the upper band on a
+     soft top-down scrim; nothing reaches the bottom 120 px (corner counter + the docked REGISTER pill) */
+  #ch-hand .scrim{background:linear-gradient(to bottom,color-mix(in oklab,var(--press) 86%,transparent) 0%,color-mix(in oklab,var(--press) 70%,transparent) 46%,color-mix(in oklab,var(--press) 18%,transparent) 68%,transparent 82%)}
+  #ch-hand .col{left:var(--gutter);right:var(--gutter);top:9%;width:auto;gap:.8rem}
+  #ch-hand .stack{top:8vh}
+  #ch-hand .stack .s{font-size:var(--fs-lead);line-height:var(--lh-h3)}
+  #ch-hand .cut-slot{left:var(--gutter);right:var(--gutter);top:20%;width:auto}
+  #ch-hand .cutline{font-size:var(--fs-h3)}
+  #ch-hand .forum{top:19vh}
+  #ch-hand .awards{top:3vh}
+  #ch-hand :is(.forum,.awards){gap:.5rem}
+  #ch-hand :is(.forum,.awards) .f{font-size:var(--fs-small);line-height:1.4}
+  #ch-hand .f2{font-size:var(--fs-fine)}
+  #ch-hand .track{overflow:visible}
+  #ch-hand .cantos{grid-template-columns:1fr 1fr;gap:.24rem .7rem;padding:.35rem 0}
+  #ch-hand .canto{letter-spacing:.1em}
+  #ch-hand .awards .s{font-size:var(--fs-lead)}
+  #ch-hand .couplet{left:var(--gutter);right:var(--gutter);bottom:auto;top:20%;width:auto}
+  #ch-hand .closing{left:var(--gutter);right:var(--gutter);bottom:auto;top:14%;width:auto}
+  #ch-hand .cp{font-size:var(--fs-h3);line-height:var(--lh-h3);max-width:none}
+  #ch-hand .closing .s{font-size:var(--fs-lead)}
+  /* portrait: the lettering is the head of the SAME single column (no third band that could meet the Gala
+     block or the fingertips); its subtitle would push the Forum onto the hand, so the real <h2> and reduced
+     motion carry it instead */
+  #ch-hand .title{left:var(--gutter);right:var(--gutter);top:12%;width:auto;gap:.45rem;justify-items:start}
+  #ch-hand .title__sub{display:none}
+  #ch-hand .pill-pos{left:50%;top:auto;bottom:13%;transform:translateX(-50%)!important}
+  #ch-hand .pill-pos::before{width:20rem;height:7rem;background:radial-gradient(50% 50% at 50% 50%,color-mix(in oklab,var(--press) 80%,transparent) 0%,color-mix(in oklab,var(--press) 40%,transparent) 52%,transparent 76%)}
+}
+
 #ch-hand.chapter--static :is(.pin__frame,.col){display:grid;gap:var(--gap-y)}
-#ch-hand.chapter--static :is(.col,.stack,.forum,.awards,.couplet,.closing,.pill-pos,.forum__rule){position:static;width:auto;max-width:var(--measure);transform:none!important}
+#ch-hand.chapter--static :is(.col,.stack,.cut-slot,.forum,.awards,.couplet,.closing,.pill-pos,.forum__rule){position:static;width:auto;max-width:var(--measure);transform:none!important}
+#ch-hand.chapter--static .scrim,#ch-hand.chapter--static .pill-pos::before{display:none}
 #ch-hand.chapter--static .pin__frame *{opacity:1}

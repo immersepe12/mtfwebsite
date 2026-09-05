@@ -23,7 +23,15 @@ import type { Shared } from '../../engine/chapter'
  *   `seaSpeed` scales time through an accumulated phase (a change of speed never jumps the sea;
  *   reduced motion runs it at ×.15). Plus two octaves of simplex chop. Each wave's displacement
  *   fades with distance so the far field never shimmers; the analytic Gerstner normal is exact
- *   whatever the tessellation.
+ *   whatever the tessellation. The chop is crest-shaped (u^1.5) — broad flat troughs, pointed
+ *   crests — so the water has a wave PROFILE, not an airbrushed swell.
+ *
+ * THE THIRD OCTAVE  Within ~34 units of the camera the fragment adds two more sub-octaves
+ *   (`fineChop`, feature size .32 and .14 world units, crest-shaped harder at u^1.7) to the normal
+ *   and, at 15%, to the depth colour. It is per-pixel only: the disc's tessellation could never
+ *   carry detail that fine, and evaluating it in the fragment means it can never alias with the
+ *   mesh. A very low-frequency gust field (.075) patches it, so the near water is mottled the way
+ *   real water is rather than uniformly ruffled. Desktop only; still no foam, no white water.
  *
  * FRAGMENT  Depth colour from `seaColor` (troughs deep, crests toward `--lagoon` scaled by
  *   `warmth`); Schlick fresnel toward `skyBottom` (with the sun's warmth mirrored on the sun side
@@ -38,12 +46,23 @@ import type { Shared } from '../../engine/chapter'
  *   ever show a rim. `seaOpacity` fades the plane. NEVER foam, NEVER white water: the glitter is
  *   clamped below the tone-mapper's white.
  *
+ * THE REFLECTION BAND  A mirror is never one flat colour. Under the horizon (grazing .090 → .005)
+ *   the sky reflection gains a ±22% vertical smear — two octaves of noise sampled on the unit
+ *   circle around the camera, so it is constant along a bearing and therefore VERTICAL on screen,
+ *   drifting slowly. On the sun's own bearing that band also gains a wide column of the path colour
+ *   (exponent 3) and the glitter thickens (×1 → ×2.4 under the sun, the same cap), so the lane runs
+ *   from the horizon down into the sparkle instead of floating detached below it. The sea cannot
+ *   know about the island, the raft or the tessera path, so this is the ground those layers sit
+ *   over: a silhouette on the rim now stands on streaked, reflecting water.
+ *
  * DEPTH  The plane writes depth. The sun tests depth (its disc sinks into the water), the star dome
  *   and the tesserae test depth (nothing below the surface shows through). The material stays
  *   `transparent` so the Ch 11–13 fade needs no program recompile; `renderOrder −20` draws it before
  *   the other translucent layers.
  *
- * Mobile: 96² segments, three waves, vertex-interpolated chop normals, no micro-normal jitter.
+ * Mobile: 96² segments, three waves, vertex-interpolated chop normals, ONE fine octave inside 22
+ * units (one noise tap — without it the phone's water is a bare gradient), no
+ * micro-normal jitter — but the reflection band is there (two taps, and only under the horizon).
  * Draw calls: 1. No per-frame allocations.
  */
 
@@ -79,12 +98,17 @@ vec3 snoised(vec2 p){
   return vec3(v, d);
 }
 // two octaves of chop drifting with the swell. q = world xz, t = the sea's phase. (value, d/dx, d/dz)
+// The sum is crest-shaped before it is returned: u^1.5 pulls the troughs broad and flat and leaves
+// the crests pointed (water, not an airbrush). The chain rule keeps the returned slope exact.
 vec3 chop(vec2 q, float t){
   vec3 n1 = snoised(q * 0.55 + vec2(0.21, 0.07) * t);
   vec3 n2 = snoised(vec2(q.y, -q.x) * 1.35 - vec2(0.13, 0.19) * t);
   vec2 d1 = n1.yz * 0.55;
   vec2 d2 = vec2(-n2.z, n2.y) * 1.35;
-  return vec3(n1.x * 0.65 + n2.x * 0.35, d1 * 0.65 + d2 * 0.35);
+  float v = n1.x * 0.65 + n2.x * 0.35;
+  vec2 d = d1 * 0.65 + d2 * 0.35;
+  float u = clamp(v * 0.5 + 0.5, 0.0, 1.0);
+  return vec3(pow(u, 1.5) * 2.0 - 0.72, d * (1.5 * pow(max(u, 1e-4), 0.5)));
 }
 `
 
@@ -161,14 +185,47 @@ vec3 hash3(vec2 p){
   vec3 q = vec3(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)), dot(p, vec2(419.2, 371.9)));
   return fract(sin(q) * 43758.5453);
 }
+// THE THIRD OCTAVE. Two sub-octaves of capillary detail (feature size .32 and .14 world units) that
+// only exist within ~34 units of the camera, where the disc's own tessellation could never carry
+// them. Per-pixel, so it never aliases with the mesh; crest-shaped like chop() but harder (u^1.7),
+// which is what turns a smooth plane into water that reads as photographed.
+vec3 fineChop(vec2 q, float t){
+  vec3 a = snoised(q * 3.10 + vec2(-0.34, 0.26) * t);
+  vec3 b = snoised(vec2(q.y, -q.x) * 7.40 + vec2(0.42, -0.17) * t);
+  float v = a.x * 0.60 + b.x * 0.40;
+  vec2 d = a.yz * (3.10 * 0.60) + vec2(-b.z, b.y) * (7.40 * 0.40);
+  float u = clamp(v * 0.5 + 0.5, 0.0, 1.0);
+  return vec3(pow(u, 1.7) * 2.0 - 0.66, d * (1.7 * pow(max(u, 1e-4), 0.7)));
+}
 void main(){
   vec3 V = normalize(uCam - vWorld);
   vec3 N = normalize(vN);
   vec2 g = vChop;
+  float fineC = 0.0;
   #ifndef MOBILE
   // per-pixel chop slope near the camera (the vertex slope is only the fallback)
   float chopLod = 1.0 - smoothstep(8.0, 50.0, vDist);
   if (chopLod > 0.002) { vec3 ch = chop(vWorld.xz, uTime); g = ch.yz * 0.05 * uAmp * chopLod; }
+  // the third octave, in wind patches: a very slow low-frequency gust field decides where the fine
+  // chop lives, so the near water is mottled the way real water is, never uniformly ruffled
+  float fineK = 1.0 - smoothstep(4.0, 34.0, vDist);
+  if (fineK > 0.004) {
+    float gust = 0.40 + 0.60 * (0.5 + 0.5 * snoised(vWorld.xz * 0.075 + vec2(0.05, -0.03) * uTime).x);
+    vec3 fc = fineChop(vWorld.xz, uTime);
+    float k = fineK * gust;
+    g += fc.yz * (0.012 + 0.007 * min(uAmp, 2.5)) * k;
+    fineC = fc.x * k;
+  }
+  #else
+  // mobile gets ONE fine octave over a shorter reach — one noise tap inside 22 units. Without it the
+  // phone's 96² disc has no per-pixel detail at all and the water reads as an airbrushed gradient.
+  float fineK = 1.0 - smoothstep(4.0, 22.0, vDist);
+  if (fineK > 0.004) {
+    vec3 fa = snoised(vWorld.xz * 3.40 + vec2(-0.34, 0.26) * uTime);
+    float fu = clamp(fa.x * 0.5 + 0.5, 0.0, 1.0);
+    g += fa.yz * (3.40 * 1.7 * pow(max(fu, 1e-4), 0.7)) * (0.012 + 0.007 * min(uAmp, 2.5)) * fineK;
+    fineC = (pow(fu, 1.7) * 2.0 - 0.66) * fineK;
+  }
   #endif
   N = normalize(N + vec3(-g.x, 0.0, -g.y));
 
@@ -184,6 +241,9 @@ void main(){
   float crest = clamp(vCrest, -1.0, 1.0);
   vec3 col = mix(uColor * 0.55, uColor * 1.15, crest * 0.5 + 0.5);
   col = mix(col, toLinear(LAGOON), smoothstep(0.35, 1.0, crest) * 0.30 * uWarmth);
+  // the fine crests carry their own light — the near field is textured even away from the sun path
+  col *= 1.0 + fineC * 0.15;
+  col = mix(col, toLinear(LAGOON), max(fineC, 0.0) * 0.11 * uWarmth);
 
   // the sun's contribution: star-white → flame/gold by heat and warmth; a set sun lights nothing
   vec3 L = normalize(uSun - vWorld);
@@ -204,20 +264,37 @@ void main(){
   float side = pow(max(dot(toP, toS), 0.0), 8.0);
   float skyGate = smoothstep(0.12, 0.50, uWarmth) * smoothstep(0.30, 0.70, uHeat);
   vec3 skyRef = uSkyBottom + pathCol * (side * 0.30 + 0.04) * strength * skyGate;   // the sun-side scatter, mirrored
+
+  // THE REFLECTION BAND. Below the horizon the water is a mirror, and a mirror is never one flat
+  // colour: it is the sky smeared into vertical streaks by the swell. The sea cannot know about the
+  // island, the raft or the tessera path above it, so it lays down the ground those layers stand on
+  // — the streaked sky beneath the rim — and, on the sun's own bearing, widens its reflection into a
+  // column that runs from the horizon down to the glitter, so the bright thing above the line has
+  // something under it. Radial noise = vertical on screen; it costs two taps and only in the band.
+  float band = 1.0 - smoothstep(0.005, 0.090, grz);
+  if (band > 0.003) {
+    vec2 dirC = normalize(vWorld.xz - uCam.xz + vec2(1e-5, 0.0));
+    float drift = uTime * 0.035;
+    float s1 = snoised(dirC * 7.0 + vec2(drift, -drift)).x;
+    float s2 = snoised(dirC * 19.0 - vec2(drift * 1.7, drift * 0.8)).x;
+    skyRef *= 1.0 + (s1 * 0.66 + s2 * 0.34) * 0.22 * band;
+    skyRef += pathCol * pow(max(dot(toP, toS), 0.0), 3.0) * band * 0.13 * strength;
+  }
   col = mix(col, skyRef, F);
 
   // the gold path: wide lobe (24, .15) + a medium lobe that gives the lane a body + jittered micro-normal glitter
   // (capped: never white water)
   float ndh = max(dot(N, H), 0.0);
+  float horizGlint = 1.0 + band * side * 1.4;   // the lane thickens as it reaches the horizon
   col += pathCol * (pow(ndh, 24.0) * 0.15 + pow(ndh, 90.0) * 0.30) * strength;
   #ifndef MOBILE
   vec2 tx = floor(gl_FragCoord.xy / uTexel);
   vec3 j = hash3(mod(tx, 1024.0) + uSeed) - 0.5;
   vec3 Nj = normalize(N + vec3(j.x, 0.0, j.z) * uJitter);
   float glit = pow(max(dot(Nj, H), 0.0), 400.0);
-  col += glintCol * min(glit * 2.0, 1.25) * strength;
+  col += glintCol * min(glit * 2.0 * horizGlint, 1.35) * strength;
   #else
-  col += glintCol * min(pow(ndh, 400.0) * 1.6, 1.2) * strength;
+  col += glintCol * min(pow(ndh, 400.0) * 1.6 * horizGlint, 1.3) * strength;
   #endif
 
   col = mix(col, skyRef, fog);
