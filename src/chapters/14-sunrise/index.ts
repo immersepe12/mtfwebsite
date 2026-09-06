@@ -198,13 +198,20 @@ function wireFooter(footer: HTMLElement, ctx: ChapterCtx) {
 function buildFilm(ctx: ChapterCtx) {
   const { el, shared, content } = ctx
   const length = shared.mobile ? 1.5 : 2
-  const { pin, tl, st } = createFilm(ctx, { length })
-  // the section is film + footer: move the pin into a film-length wrapper and drive the timeline from that wrapper
-  st.kill()
+  // the film's own scrub (positions are fractions of the film, not of the section)
+  let lastP = -1
+  const onFilm = (p: number) => {
+    // the rail's S · U · N glyphs fly to the sun on p .1–.35; keep sending while near that window so it can reset
+    if (p < .42 || lastP < .42) document.dispatchEvent(new CustomEvent('mtf:sunrise', { detail: { p } }))
+    lastP = p
+  }
+  const { pin, tl, attach } = createFilm(ctx, { length, onUpdate: onFilm })
+  // the section is film + footer: move the pin into a film-length wrapper and hang the scrub on that wrapper
   const film = document.createElement('div')
   film.className = 'film'
   el.appendChild(film)
   film.appendChild(pin)
+  attach(film)
   pin.innerHTML = `<div class="pin__layer shadow grade" aria-hidden="true"></div><div class="pin__layer fx" aria-hidden="true"><span class="last-star">${star(22)}</span></div><div class="pin__frame">${frameHTML(content)}</div>`
 
   const q = (s: string) => pin.querySelector(s) as HTMLElement
@@ -240,15 +247,6 @@ function buildFilm(ctx: ChapterCtx) {
   tl.fromTo(pill, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .07 }, .60)
   // the eyebrow and ACT II leave; headline, couplet and pill hold the frozen last image
   tl.to([eye, ...acts[1]], { opacity: 0, y: -8, duration: .06, stagger: .008 }, .86)
-
-  // the film's own scrub (positions are fractions of the film, not of the section)
-  let lastP = -1
-  const onFilm = (p: number) => {
-    // the rail's S · U · N glyphs fly to the sun on p .1–.35; keep sending while near that window so it can reset
-    if (p < .42 || lastP < .42) document.dispatchEvent(new CustomEvent('mtf:sunrise', { detail: { p } }))
-    lastP = p
-  }
-  ScrollTrigger.create({ trigger: film, start: 'top top', end: 'bottom bottom', scrub: .6, animation: tl, onUpdate: s => onFilm(s.progress) })
 
 }
 

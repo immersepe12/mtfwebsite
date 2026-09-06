@@ -7,7 +7,7 @@ const chrome = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Conte
 const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars'] })
 const page = await browser.newPage()
 await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: dpr })
-await page.goto(base, { waitUntil: 'networkidle0', timeout: 60000 })
+await page.goto(base + (base.includes('?') ? '&' : '?') + 'nohold', { waitUntil: 'networkidle0', timeout: 60000 })
 await page.waitForFunction(() => document.documentElement.classList.contains('is-ready'), { timeout: 20000 }).catch(() => {})
 await new Promise(r => setTimeout(r, 1200))
 // warm-up pass: shader compiles, first paints and any adaptive-DPR resizes happen here, not in the measurement

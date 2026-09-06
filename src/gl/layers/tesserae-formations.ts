@@ -379,7 +379,7 @@ export function buildFormations(N: number, mobile: boolean): FormationData {
 
   // ---- placements (world) -------------------------------------------------------------------
   const HERO: [number, number, number] = [0, 0.9, -4]
-  const ISLAND: [number, number, number] = [5.2, 0.06, -9]     // y relative to seaY; x sits on the Ch 04 camera's heading (camX 2, yaw −.32)
+  const ISLAND: [number, number, number] = [6.8, 0.06, -9]     // y relative to seaY; a little east of the Ch 04 camera's heading (camX 2, yaw −.32), clear of the island's rock window at x 2.4
   const HAND: [number, number, number] = [0.8, 1.35, -8]       // viewBox centre; palm ≈ .2 below
   const handSize = 4.17                                        // viewBox 1000 → 4.17 world units (open hand ≈ 2.0 tall)
   const islandSize = 7

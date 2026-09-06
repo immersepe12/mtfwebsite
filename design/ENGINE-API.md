@@ -19,10 +19,18 @@ src/engine/gl.ts                lead     — World: one renderer/scene/camera/co
 src/engine/mood.ts              lead     — Mood type (all world params), DEFAULT_MOOD, hex(), lerpMood()
 src/engine/chapter.ts           lead     — Chapter + ChapterCtx + Shared types
 src/engine/stage.ts             lead     — mounts chapters into #app, per-chapter ScrollTrigger, blends moods
-src/engine/film.ts              lead     — createFilm(ctx,{length}) → sticky pinned frame + scrubbed timeline (pear.no "film" chapters)
+src/engine/film.ts              lead     — createFilm(ctx,{length,onUpdate}) → sticky pinned frame + scrubbed timeline; builds the breath map and the reading gates; .attach(el) re-hangs the scrub
+src/engine/breath.ts            lead     — the breath's pure maths: Breath/Seg/Gate types, through()/inverse(), readingMs(), beatSeconds()
+src/engine/hold.ts              lead     — the hold: film registry, limitAhead() (the scroll governor), speedAt() (player pace), tickGates()
+src/engine/play.ts              lead     — the player (PLAY THE STORY): drives Lenis at the film's pace, waits at gates, stops on any input
+src/engine/pacing.ts            lead     — per-chapter scroll multiplier table (filmLength)
+src/engine/avoid.ts             lead     — overlap resolver: pushes text blocks clear of the headline after layout
 src/engine/text.ts              lead     — reveal() (SplitText masked lines/words/chars), rise(), drawRule(), countUp()
 src/engine/utils.ts             lead     — clamp, lerp, damp, smoothstep, el(), qs/qsa, prefersReducedMotion, isTouch, isMobile
 src/gl/layers/{sky,sun,sea,stars,tesserae}.ts   one GL agent each — implement Layer; read Mood every frame
+src/gl/layers/island.ts         lead     — the island (Ogygia): faceted limestone mesas + a rock window; placed by the island* mood keys; a mirrored reflection
+src/chapters/scene.ts           lead     — shared anchors of the Ogygia scene: ISLE, ISLE_SCALE, CAVE (chapters 04 and 05)
+src/ui/holdcue.ts               lead     — the reading cue: a hairline that drains while the hold keeps the scroll on a sentence
 src/gl/post/mosaic.ts           gl/post agent — MosaicEffect (postprocessing Effect); World sets .amount from mood.mosaic
 src/ui/preloader.ts             ui/preloader agent — must keep initPreloader().done() contract (resolves when curtain opened)
 src/ui/header.ts                ui/header agent — header + nav overlay; ids #site-header, #site-nav, [data-nav-toggle]
@@ -95,7 +103,40 @@ Rules:
 export interface Layer { name: string; init(ctx: LayerCtx): void; update(mood: Mood, shared: Shared, ctx: LayerCtx): void; resize?(w,h,ctx): void; dispose?(): void }
 export interface LayerCtx { scene, camera, renderer, shared, world }   // world.sunNdc = sun position in NDC; world.mood = current damped mood
 ```
-Layers are added in main.ts in this order: sky (NDC backdrop, renderOrder −100) → stars → sun (additive billboard) → sea (y=seaY, z centred at −12) → tesserae (instanced, at z −4). One ShaderMaterial per layer; uniforms updated from Mood each frame; keep draw calls ≤ 3 per layer; no per-frame allocations. Post chain (World): Bloom → MosaicEffect → ChromaticAberration → Noise → Vignette in ONE EffectPass.
+Layers are added in main.ts in this order: sky (NDC backdrop, renderOrder −100) → stars (−90) → tesserae (−60) → island (−55) → sun (additive billboard, −50) → sea (y=seaY, −20) → the island's reflection (−15, no depth test). One ShaderMaterial per layer; uniforms updated from Mood each frame; keep draw calls ≤ 3 per layer; no per-frame allocations. Post chain (World): Bloom → MosaicEffect → ChromaticAberration → Noise → Vignette in ONE EffectPass.
+
+## The breath, the hold and the player (src/engine/breath.ts · film.ts · hold.ts · play.ts)
+A film's timeline is walked once (after mount, and again on every ScrollTrigger refresh) into a **breath map**: scroll fraction → timeline
+time, piecewise-linear. Beats (any tween) pass at their natural speed; the still moment after a beat is given 2.2× the scroll (capped at
+14 % of the film); the empty run-in and run-out are *seams* — weight .75, never more than 6 % of the film. The pauses are paid for by growing
+the section (`--film-len` × stretch, ≤ 1.6×), never by speeding beats up. `filmTime(el, p)` is what the Stage feeds `mood(p)` and `onProgress(p)`,
+so the world and the copy share one clock.
+
+The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising (`startAt` yPercent → 0) —
+and makes a **gate**: the next change on the timeline may not begin until the text has been on screen for `readingMs(chars)` (1.2 s for a
+glance, 2 s floor, up to 4.2 s). Landings that begin within .012 of each other are one arrival (a stanza, a staggered block) and share a gate; a
+container fading in while its lines land separately is not a landing; SVG, `aria-hidden` and mono metadata (`.eyebrow .label .chip …`) count
+little or nothing. `ScrollEngine` meters **forward wheel input** against `limitAhead(y)`: input that would carry past a closed gate is shortened so
+the scroll settles exactly where the next change begins, and is absorbed (with `mtf:hold` → the reading cue) until the time is given. Keys are
+routed through the same hold; touch stays native; programmatic jumps are never metered. `?nohold` switches it off (the QA scripts use it).
+
+**The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) moves a Lenis target at `speedAt(y)`: beats take
+`beatSeconds(len)` (.55–2.4 s), still spans a .4 s rest, seams 1.15 vh/s, flowing sections .9 vh/s — and it waits at gates exactly as the wheel does.
+Any wheel, key or touch stops it. `player.estimate()` ≈ the whole film's running time (≈ 13½ min at 1440×900).
+
+**Seams.** Two films in a row overlap by one screen (`.chapter--film + .chapter--film { margin-top: -100vh }`): the incoming pin — transparent,
+empty until its first beat — rises over the outgoing film's last screen instead of after it. So a chapter's frame MUST be empty by p .90 (the seam
+rule); a chapter whose frame stays live to p 1 adds `chapter--stays` on its section and keeps the plain slide after it (13 → 14). The Stage sets
+`.is-live` on a film while 0 < p < 1; a pin takes the pointer only then.
+
+A chapter whose section is more than its film (14: film + footer) calls `createFilm(ctx, {…}).attach(filmEl)` after moving the pin into
+the film wrapper — never its own ScrollTrigger on `tl`, or the breath, the hold and the player all lose the film.
+
+## Mood keys added after the bible
+`sunNear` (0 celestial — pushed 140 units out along its ray and cut by the horizon; 1 an object at its declared point — the star in the island's
+window; chapters 04/05 set 1). `island` (presence), `islandX/Y/Z` (the base of the rock window; Y = the waterline it stands in), `islandScale`,
+`islandYaw`, `islandTone` (0 night stone → 1 the paper world's sand). 04/05 stage it near (`chapters/scene.ts`), 06/07 far on the horizon at a
+matched apparent size, so the seam 05 → 06 carries it out rather than swapping it.
 
 ## Timeline of a page load
 preloader shows → Lenis stopped → World + layers init → Stage mounts all chapters (your mount runs here; DOM is `visibility:hidden` until ready) → fonts ready → ScrollTrigger.refresh → first frame + world.snap() → preloader curtain → `html.is-ready` + `mtf:ready` event → Lenis starts. `reveal(..., { immediate: true })` automatically waits for `mtf:ready`.

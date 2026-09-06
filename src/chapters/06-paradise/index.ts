@@ -2,7 +2,6 @@ import type { Chapter, ChapterCtx } from '../../engine/chapter'
 import { createFilm } from '../../engine/film'
 import { hex, type Mood, type RGB } from '../../engine/mood'
 import { disc, write, clear } from '../../art/disc'
-import { island } from '../../art/island'
 import './style.css'
 
 /**
@@ -32,6 +31,12 @@ const kfRGB = (p: number, k: [number, RGB][]): RGB => {
   }
   return k[k.length - 1][1]
 }
+
+/** The island stands on the horizon, on the camera's heading (camX 2, yaw .1). Chapter 05 leaves it near (window at
+ *  2.4, −9.4, scale 1); the seam carries it out here at the same apparent size (scale ≈ distance ÷ 11.6), so it
+ *  recedes to the horizon rather than jumping, and the paper world turns its stone to sand. */
+const ISLE: [number, number, number] = [-7.6, -1.2, -52.7]   // the window; the body runs east, so the stone is centred on the heading
+const ISLE_SCALE = 2.6
 
 /* ─── §6.6 mood table. The inversion runs over 12% of scroll (.06 → .18); the table's .2 state holds to .8 ─── */
 const IN0 = .06, IN1 = .18
@@ -69,6 +74,7 @@ const STILL: Partial<Mood> = {
   skyTop: hex('#7FA9C2'), skyBottom: hex('#E8DCC2'), haze: .35,
   sunX: 2.1, sunY: 2.8, sunRadius: .5, sunGlow: .8, sunHeat: 1, sunVisible: 1,
   seaColor: hex('#B9A77E'), seaAmp: .1, stars: 0, tess: 1, tessForm: 1, tessGold: .3, tessGlint: .4,
+  island: 1, islandX: ISLE[0], islandY: ISLE[1], islandZ: ISLE[2], islandScale: ISLE_SCALE, islandYaw: .35, islandTone: 1,
   veil: 1, p4: 0, grain: .04, warmth: .85, bloom: .45,
 }
 
@@ -145,6 +151,7 @@ let reduced = false, mobile = false
 let active = false, paper = false
 let filmP = () => 0   // the film ScrollTrigger's progress (set in mount)
 const PAPER_AT = .1   // the DOM inverts once the sky is mostly paper (inversion .06–.18); the world leads, the chrome follows
+const PAPER_OFF = .93 // …and turns back at the seam's midpoint, where the blend into 07's night is half done
 const setPaper = (on: boolean) => { if (on !== paper) { paper = on; document.documentElement.classList.toggle('theme-paper', on) } }
 
 export const paradise: Chapter = {
@@ -163,21 +170,20 @@ export const paradise: Chapter = {
     }
     const { pin, tl, st } = createFilm(ctx, { length: mobile ? 3 : 4.5 })
     filmP = () => st.progress
-    pin.innerHTML = `<div class="pin__layer shadow"><div class="isle">${island()}</div></div><div class="pin__frame">${frameHTML(content, mobile)}</div>`
+    pin.innerHTML = `<div class="pin__frame">${frameHTML(content, mobile)}</div>`
 
     const q = <T extends Element = HTMLElement>(s: string) => pin.querySelector(s) as T
     const qa = <T extends Element = HTMLElement>(s: string) => Array.from(pin.querySelectorAll(s)) as T[]
-    const isle = q('.isle'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hlIn = q('.hl__in')
+    const head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hlIn = q('.hl__in')
     const stack = q('.stack'), lines = qa('.stack .s'), daysEl = q('.days'), days = qa('.day'), foot = q('.foot')
     const discs = qa<SVGElement>('.day__disc svg'), rules = qa('.day__rule'), sums = qa('.day__sum')
     const WIN = mobile ? 2 : 3          // stanzas held on screen
 
-    /* head sequence: rule → eyebrow → headline (line mask) · the island fades in as the sky turns to paper */
+    /* head sequence: rule → eyebrow → headline (line mask) · the island rises on the horizon as the sky turns to paper (mood) */
     tl.fromTo([head, stack], { opacity: 0 }, { opacity: 1, duration: .01 }, .06)
     tl.fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .035 }, .06)
       .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .028 }, .088)
       .fromTo(hlIn, { yPercent: 110 }, { yPercent: 0, duration: .055 }, .115)
-      .fromTo(isle, { opacity: 0 }, { opacity: 1, duration: .11 }, .09)
 
     /* the storyteller: one stanza per beat, 6 px rise; the previous stanza goes faint, the WIN-th back collapses */
     STANZAS.forEach(([at, idx], k) => {
@@ -209,12 +215,13 @@ export const paradise: Chapter = {
 
     /* the honesty line + FULL PROGRAMME → · then the whole frame exits by .90 (seam rule); the sun does not stop */
     tl.fromTo(foot, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .04 }, FOOT_AT)
-    tl.to([head, stack, daysEl, foot, isle], { opacity: 0, y: -8, duration: .024 }, EXIT_AT)
+    tl.to([head, stack, daysEl, foot], { opacity: 0, y: -8, duration: .024 }, EXIT_AT)
   },
 
   onEnter() { active = true; setPaper(reduced || filmP() >= PAPER_AT) },
   onLeave() { active = false; setPaper(false) },            // both directions — Ch 07 is dark from its p 0
-  onProgress(p) { if (active && !reduced) setPaper(p >= PAPER_AT) },
+  // the chrome inverts with the light: on once the sky is mostly paper, off again as the seam takes the world to night
+  onProgress(p) { if (active && !reduced) setPaper(p >= PAPER_AT && p < PAPER_OFF) },
 
   mood: (p: number) => {
     if (reduced) return STILL
@@ -225,6 +232,7 @@ export const paradise: Chapter = {
       sunX, sunY, sunRadius: .5, sunGlow: kf(p, K.sunGlow), sunHeat: 1, sunVisible: 1,
       seaColor: kfRGB(p, SEA_COL), seaAmp: kf(p, K.seaAmp),
       stars: kf(p, K.stars), tess: 1, tessForm: 1, tessGold: kf(p, K.tessGold), tessGlint: kf(p, K.tessGlint),
+      island: 1, islandX: ISLE[0], islandY: ISLE[1], islandZ: ISLE[2], islandScale: ISLE_SCALE, islandYaw: .35, islandTone: kf(p, [[IN0, 0], [IN1, 1]]),
       veil: 1, p4: 0,
       grain: kf(p, K.grain), warmth: kf(p, K.warmth), bloom: kf(p, K.bloom),
     }

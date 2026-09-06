@@ -30,6 +30,26 @@ for (const [w, h] of widths) {
           if (o < 0.5) return false
           const r = e.getBoundingClientRect(); return r.width > 12 && r.height > 6 && r.bottom > 4 && r.top < innerHeight - 4 }
         const текст = (e) => (e.textContent || '').trim().length > 1
+        // the rect of the text a reader can actually see: each text node's box, only if its own element chain is
+        // visible, clipped by every overflow-hidden ancestor (a masked line waiting below its mask is not on screen)
+        const textRect = (e) => {
+          let u = null
+          const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT)
+          for (let n = w.nextNode(); n; n = w.nextNode()) {
+            if (!(n.textContent || '').trim()) continue
+            const par = n.parentElement
+            if (!par || par.closest('[aria-hidden="true"]') || !vis(par)) continue
+            const rg = document.createRange(); rg.selectNodeContents(n)
+            let r = rg.getBoundingClientRect(); let l = r.left, t = r.top, rt = r.right, bt = r.bottom
+            for (let a = par; a && a !== document.body; a = a.parentElement) {
+              const cs = getComputedStyle(a)
+              if (cs.overflow !== 'visible' || cs.overflowY !== 'visible' || cs.clipPath !== 'none') { const c = a.getBoundingClientRect(); l = Math.max(l, c.left); t = Math.max(t, c.top); rt = Math.min(rt, c.right); bt = Math.min(bt, c.bottom) }
+            }
+            if (rt - l < 4 || bt - t < 4) continue
+            u = u ? { left: Math.min(u.left, l), top: Math.min(u.top, t), right: Math.max(u.right, rt), bottom: Math.max(u.bottom, bt) } : { left: l, top: t, right: rt, bottom: bt }
+          }
+          return u
+        }
         const blocks = []
         for (const frame of document.querySelectorAll('#app .pin__frame, #app .ch-inner')) {
           for (const e of frame.querySelectorAll('h1, h2, h3, p, li, .chip, .stat__n, .tile__t, .voice__name, button, a')) {
@@ -38,7 +58,9 @@ for (const [w, h] of widths) {
             let parentCounted = false
             for (const b of blocks) if (b.el.contains(e) || e.contains(b.el)) { parentCounted = true; break }
             if (parentCounted) continue
-            blocks.push({ el: e, r: e.getBoundingClientRect(), t: (e.textContent || '').trim().slice(0, 46) })
+            const r = textRect(e)
+            if (!r || r.bottom < 4 || r.top > innerHeight - 4) continue
+            blocks.push({ el: e, r, t: (e.textContent || '').trim().slice(0, 46) })
           }
         }
         const out = []

@@ -7,7 +7,7 @@ import type { Chapter, ChapterCtx, Shared } from './chapter'
 import { DEFAULT_MOOD, lerpMood, resolveMoodInto, type Mood } from './mood'
 import { clamp, smoothstep } from './utils'
 
-interface Mounted { chapter: Chapter; el: HTMLElement; ctx: ChapterCtx; top: number; height: number; active: boolean; film: boolean; filmLen: number }
+interface Mounted { chapter: Chapter; el: HTMLElement; ctx: ChapterCtx; top: number; height: number; active: boolean; film: boolean; filmLen: number; live: boolean }
 
 /**
  * Stage — mounts chapters into <main id="app"> in order, gives each a ScrollTrigger for progress/enter/leave,
@@ -31,7 +31,7 @@ export class Stage {
       if (chapter.label) el.setAttribute('aria-label', chapter.label)
       this.app.appendChild(el)
       const ctx: ChapterCtx = { el, world: (this.ctxWorld ?? this.world) as World, scroll: this.scroll, shared: this.shared, content: this.content }
-      const m: Mounted = { chapter, el, ctx, top: 0, height: 1, active: false, film: false, filmLen: 0 }
+      const m: Mounted = { chapter, el, ctx, top: 0, height: 1, active: false, film: false, filmLen: 0, live: false }
       this.mounted.push(m)
       try { await chapter.mount(ctx) } catch (e) { console.error(`[stage] chapter "${chapter.id}" failed to mount`, e); el.classList.add('is-broken') }
       m.film = el.classList.contains('chapter--film')
@@ -41,7 +41,11 @@ export class Stage {
       const filmEnd = () => `+=${Math.max(1, (m.filmLen || m.height / window.innerHeight) * window.innerHeight - window.innerHeight)}`
       ScrollTrigger.create({
         trigger: el, start: m.film ? 'top top' : 'top bottom', end: m.film ? filmEnd : 'bottom top',
-        onUpdate: st => chapter.onProgress?.(st.progress, ctx),
+        onUpdate: st => {
+          chapter.onProgress?.(st.progress, ctx)
+          // a film is live while it is pinned and playing; two films overlap for a screen at every seam
+          if (m.film) { const live = st.progress > 0 && st.progress < 1; if (live !== m.live) { m.live = live; el.classList.toggle('is-live', live) } }
+        },
         onEnter: () => { m.active = true; el.classList.add('is-active'); this.resolve(el); chapter.onEnter?.(ctx) },
         onEnterBack: () => { m.active = true; el.classList.add('is-active'); this.resolve(el); chapter.onEnter?.(ctx) },
         onLeave: () => { m.active = false; el.classList.remove('is-active'); chapter.onLeave?.(ctx) },

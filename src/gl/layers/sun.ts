@@ -211,9 +211,12 @@ export class SunLayer implements Layer {
     // is treated as a DIRECTION: the disc is pushed out along the same ray to a fixed far distance and its
     // radius scaled by the same factor, which keeps its screen position and apparent size exactly as declared
     // while putting it beyond every other object. The sea then cuts it at the horizon, the way a real sunset is.
+    // …unless a chapter says the star is an object here (sunNear): then it sits at its declared point and the
+    // scene occludes it as a thing among things — the rock window of the island, not the horizon.
     this.dir.set(m.sunX, m.sunY, m.sunZ).sub(cam.position)
     const declared = Math.max(this.dir.length(), 0.05)
-    const far = Math.max(declared, SUN_DISTANCE)
+    const near = Math.min(1, Math.max(0, m.sunNear))
+    const far = declared + (Math.max(declared, SUN_DISTANCE) - declared) * (1 - near)
     this.mesh.position.copy(cam.position).addScaledVector(this.dir.multiplyScalar(1 / declared), far)
     const push = far / declared
     // world units per CSS pixel at the billboard's distance (vertical fov)

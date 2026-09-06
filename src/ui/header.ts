@@ -6,6 +6,7 @@ import { gsap } from '../engine/scroll'
 import { CustomEase } from 'gsap/CustomEase'
 import { mark } from '../art/mark'
 import { clamp } from '../engine/utils'
+import { player } from '../engine/play'
 
 /**
  * Header + REGISTER pill + nav overlay — DESIGN-BIBLE §7.2, §7.3, §7.5.
@@ -90,6 +91,20 @@ export function initHeader({ scroll, chapters, content, stage }: { scroll: Scrol
   }
   const pills: HTMLAnchorElement[] = []
   if (cta) { dressPill(cta); pills.push(cta) }
+
+  /* PLAY THE STORY — the film scrolls itself at the pace it was written for; any wheel or key takes it back */
+  const play = header.querySelector('.header__play') as HTMLButtonElement | null
+  if (play) {
+    const label = play.querySelector('.play__label') as HTMLElement | null
+    play.addEventListener('click', () => player.toggle())
+    player.onChange(on => {
+      play.setAttribute('aria-pressed', String(on))
+      play.setAttribute('aria-label', on ? 'Pause the story' : 'Play the story')
+      play.title = on ? 'Pause' : 'Play the story'
+      if (label) label.textContent = on ? 'Pause' : 'Play'
+      html.classList.toggle('is-playing', on)
+    })
+  }
 
   // < 600 px: the pill lives bottom-centre (the header hides its own copy in CSS)
   if (cta) {

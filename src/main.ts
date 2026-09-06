@@ -15,12 +15,15 @@ import { SunLayer } from './gl/layers/sun'
 import { SeaLayer } from './gl/layers/sea'
 import { StarsLayer } from './gl/layers/stars'
 import { TesseraeLayer } from './gl/layers/tesserae'
+import { IslandLayer } from './gl/layers/island'
 import { chapters } from './chapters/registry'
 import content from './content/content.json'
 import { initPreloader } from './ui/preloader'
 import { initHeader } from './ui/header'
 import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
+import { initHoldCue } from './ui/holdcue'
+import { player } from './engine/play'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
 const qsBoot = new URLSearchParams(location.search)
@@ -57,7 +60,7 @@ async function boot() {
       world = new World(canvas, shared)
       // ?nolayer=tesserae,sea — diagnostic: leave layers out to find what a frame is actually spending its time on
       const skip = new Set((qsBoot.get('nolayer') || '').split(',').filter(Boolean))
-      for (const [name, make] of [['sky', () => new SkyLayer()], ['stars', () => new StarsLayer()], ['sun', () => new SunLayer()], ['sea', () => new SeaLayer()], ['tesserae', () => new TesseraeLayer()]] as const)
+      for (const [name, make] of [['sky', () => new SkyLayer()], ['stars', () => new StarsLayer()], ['sun', () => new SunLayer()], ['sea', () => new SeaLayer()], ['tesserae', () => new TesseraeLayer()], ['island', () => new IslandLayer()]] as const)
         if (!skip.has(name)) world.addLayer(make())
     }
   } catch (e) { console.warn('[gl] WebGL unavailable, running DOM-only', e); html.classList.add('no-gl'); world = null }
@@ -78,6 +81,8 @@ async function boot() {
   initHeader({ scroll, chapters, content, stage })
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
+  initHoldCue()
+  ;(window as any).__mtf.play = player
 
   // wait for fonts, then a frame, then open the curtain
   try { await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]) } catch {}
@@ -108,8 +113,9 @@ async function boot() {
   html.classList.add('is-ready')
   document.dispatchEvent(new CustomEvent('mtf:ready'))
 
-  // dev harness: ?chapter=<id>&p=<0..1> jumps into a chapter; ?debug shows a mood readout
+  // dev harness: ?chapter=<id>&p=<0..1> jumps into a chapter; ?debug shows a mood readout; ?autoplay presses play
   const q = new URLSearchParams(location.search)
+  if (q.has('autoplay')) requestAnimationFrame(() => player.start())
   const ch = q.get('chapter')
   if (ch) {
     const m = stage.mounted.find(x => x.chapter.id === ch)

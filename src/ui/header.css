@@ -38,6 +38,21 @@ html.nav-open .header__menu i:first-child { transform: rotate(45deg); }
 html.nav-open .header__menu i:last-child { transform: rotate(-45deg); }
 html.nav-open .header__menu { box-shadow: inset 0 0 0 1px var(--cross); }
 
+/* ─────────────────────────── PLAY THE STORY ─────────────────────────── */
+.header__play { gap: .7em; padding-left: 1.1em; transition: background-color .42s linear, color .38s linear, box-shadow .26s linear, opacity .32s linear; }
+.header__play .play__glyph { position: relative; display: inline-block; width: 9px; height: 10px; }
+.header__play .play__glyph::before, .header__play .play__glyph::after { content: ''; position: absolute; inset: 0; background: currentColor; transition: clip-path var(--dur-2) var(--ease), opacity .2s linear; }
+.header__play .play__glyph::before { clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.header__play .play__glyph::after { clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0); opacity: 0; }
+.header__play[aria-pressed="true"] .play__glyph::before { opacity: 0; }
+.header__play[aria-pressed="true"] .play__glyph::after { opacity: 1; }
+.header__play[aria-pressed="true"] { --btn-fg: var(--gold); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 55%, transparent); }
+html.is-register .header__play, html.nav-open .header__play { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .32s linear, visibility 0s linear .32s; }
+@media (max-width: 599.98px) {
+  .header__play { padding: .8em .95em .75em 1em; }
+  .header__play .play__label { display: none; }
+}
+
 /* ─────────────────────────── the REGISTER pill ─────────────────────────── */
 .header__cta {
   --btn-bg: var(--sky-now); --btn-fg: var(--cream);

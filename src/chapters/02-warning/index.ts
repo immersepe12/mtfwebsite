@@ -10,7 +10,8 @@ import './style.css'
 /**
  * Chapter 02 — THE WARNING · Canto I · Stewardship · 17:40 · DESIGN-BIBLE §6.2
  * The cattle of Helios walk the horizon; Zeus answers; the whole frame becomes tesserae and falls into the sea.
- * Beats (p): head .06–.18 · storyteller ×6 .165–.33 · SHATTER .35–.47 · Forum .505–.765 · exit .80–.86 · Ulysses alone .786–.90 · S fills .92
+ * Beats (p): head .06–.18 · storyteller ×6 .165–.34 · "Zeus answered" .355 (held) · SHATTER .40–.52 · Forum .528–.80 ·
+ *            exit .83–.85 · Ulysses alone .816–.93 · S fills .935. Nothing lands inside the Shatter: the lines are read, then the sky answers.
  */
 
 gsap.registerPlugin(SplitText)
@@ -26,7 +27,7 @@ const kf = (p: number, k: KF): number => {
   return k[k.length - 1][1]
 }
 const EMBER = hex('#3A1A14'), EMBER2 = hex('#2A1410'), SEA = hex('#0E3D57'), ABYSS = hex('#06192B')
-const SKY: [number, RGB][] = [[0, EMBER], [.34, EMBER2], [.38, SEA], [.46, ABYSS], [1, ABYSS]]
+const SKY: [number, RGB][] = [[0, EMBER], [.39, EMBER2], [.43, SEA], [.51, ABYSS], [1, ABYSS]]
 const kfRGB = (p: number, k: [number, RGB][]): RGB => {
   if (p <= k[0][0]) return k[0][1]
   for (let i = 1; i < k.length; i++) {
@@ -38,23 +39,23 @@ const kfRGB = (p: number, k: [number, RGB][]): RGB => {
   return k[k.length - 1][1]
 }
 const K = {
-  camX: [[0, 0], [.34, .3], [.46, .4], [1, .6]] as KF,
-  camY: [[.34, .6], [.38, .55], [.46, .5]] as KF,
-  camTilt: [[.38, .05], [.46, .04]] as KF,
-  sunY: [[0, -1.9], [.34, -2], [.38, -2], [.46, -2.2], [1, -2.4]] as KF,
-  sunGlow: [[0, .55], [.34, .4], [.38, .2], [.46, 0]] as KF,
-  sunHeat: [[.46, 1], [1, 0]] as KF,
-  seaAmp: [[0, .14], [.34, .18], [.38, .6], [.46, .45], [1, .2]] as KF,
-  seaSpeed: [[0, .35], [.34, .4], [.38, 1.2], [.46, .9], [1, .5]] as KF,
-  tess: [[.34, .2], [.38, 1], [.40, 1], [.46, .1], [1, 0]] as KF,
-  tessForm: [[.34, 0], [.38, 1]] as KF,
-  tessSpread: [[.40, 1], [.46, 5], [1, 8]] as KF,
-  p3: [[.40, 0], [.46, 1]] as KF,
-  mosaic: [[.34, 0], [.39, 1], [.41, 1], [.46, 0]] as KF,
-  aberration: [[.34, 0], [.36, .9], [.38, .9], [.46, .1], [1, 0]] as KF,
-  stars: [[0, .35], [.34, .4], [.38, .2], [.46, .3], [1, .55]] as KF,
-  bloom: [[.34, .7], [.38, .9], [.46, .6], [1, .5]] as KF,
-  warmth: [[0, .55], [.34, .5], [.38, .3], [.46, .25], [1, .2]] as KF,
+  camX: [[0, 0], [.39, .3], [.51, .4], [1, .6]] as KF,
+  camY: [[.39, .6], [.43, .55], [.51, .5]] as KF,
+  camTilt: [[.43, .05], [.51, .04]] as KF,
+  sunY: [[0, -1.9], [.39, -2], [.43, -2], [.51, -2.2], [1, -2.4]] as KF,
+  sunGlow: [[0, .55], [.39, .4], [.43, .2], [.51, 0]] as KF,
+  sunHeat: [[.51, 1], [1, 0]] as KF,
+  seaAmp: [[0, .14], [.39, .18], [.43, .6], [.51, .45], [1, .2]] as KF,
+  seaSpeed: [[0, .35], [.39, .4], [.43, 1.2], [.51, .9], [1, .5]] as KF,
+  tess: [[.39, .2], [.43, 1], [.45, 1], [.51, .1], [1, 0]] as KF,
+  tessForm: [[.39, 0], [.43, 1]] as KF,
+  tessSpread: [[.45, 1], [.51, 5], [1, 8]] as KF,
+  p3: [[.45, 0], [.51, 1]] as KF,
+  mosaic: [[.39, 0], [.44, 1], [.46, 1], [.51, 0]] as KF,
+  aberration: [[.39, 0], [.41, .9], [.43, .9], [.51, .1], [1, 0]] as KF,
+  stars: [[0, .35], [.39, .4], [.43, .2], [.51, .3], [1, .55]] as KF,
+  bloom: [[.39, .7], [.43, .9], [.51, .6], [1, .5]] as KF,
+  warmth: [[0, .55], [.39, .5], [.43, .3], [.51, .25], [1, .2]] as KF,
 }
 /** Reduced motion: the chapter's end state, the Shatter shown assembled (§5.5). */
 const STILL: Partial<Mood> = {
@@ -175,62 +176,66 @@ export const warning: Chapter = {
       tl.to(line, { opacity: 1, y: 0, duration: .025 }, at)
       if (prev) tl.to(prev, { opacity: .55, duration: .02 }, at)
     }
-    /* six beats, one every 3.3% of p — ~130 px of scroll each at the film's tuned length */
-    sW.forEach((l, i) => land(l, .165 + i * .033, sW[i - 1]))
+    /* six beats, one every 3% of p; the whole stanza is on screen and read before anything answers it */
+    sW.forEach((l, i) => land(l, .165 + i * .03, sW[i - 1]))
 
-    /* THE SHATTER · p .35–.47: type dissolves in sympathy with the mosaic pass, frieze never returns */
-    land(sX[0], .35, sW[5])
-    tl.call(() => { const on = tl.time() >= .35 && tl.time() < .47; shadow.classList.toggle('is-go', on); frame.classList.toggle('is-go', on) }, [], .35)
-    tl.to([shadow, frame], { '--go': 1, duration: .06 }, .35)
-    tl.set(fx, { opacity: 1 }, .35)
-    tl.to(fx, { opacity: 0, duration: .05 }, .38)
-    tl.to(sW, { opacity: 0, height: 0, marginBottom: 0, duration: .005 }, .41)
-    tl.to(shadow, { opacity: 0, duration: .005 }, .41)
-    tl.to(frame, { '--go': 0, duration: .06 }, .41)
-    tl.call(() => { const on = tl.time() >= .35 && tl.time() < .47; frame.classList.toggle('is-go', on) }, [], .47)
+    /* Zeus's line lands on the still frame and holds — THEN the sky answers. */
+    land(sX[0], .355, sW[5])
+
+    /* THE SHATTER · p .40–.52: type dissolves in sympathy with the mosaic pass, frieze never returns */
+    const GO = .40, GO_END = .52
+    tl.call(() => { const on = tl.time() >= GO && tl.time() < GO_END; shadow.classList.toggle('is-go', on); frame.classList.toggle('is-go', on) }, [], GO)
+    tl.to([shadow, frame], { '--go': 1, duration: .06 }, GO)
+    tl.set(fx, { opacity: 1 }, GO)
+    tl.to(fx, { opacity: 0, duration: .05 }, GO + .03)
+    tl.to(sW, { opacity: 0, height: 0, marginBottom: 0, duration: .005 }, GO + .06)
+    tl.to(shadow, { opacity: 0, duration: .005 }, GO + .06)
+    tl.to(frame, { '--go': 0, duration: .06 }, GO + .06)
+    tl.call(() => { const on = tl.time() >= GO && tl.time() < GO_END; frame.classList.toggle('is-go', on) }, [], GO_END)
     /* the two lines after the wreck land clear of the dissolve, not inside it */
-    land(sX[1], .425, sX[0])
-    land(sX[2], .462, sX[1])
+    land(sX[1], .475, sX[0])
+    land(sX[2], .512, sX[1])
 
     /* Forum lands over the settling water: scrim → rule → label → lines → chips → verbs → closing → sign-off.
        ~3.5% of p per block so the right column reads one thought at a time. */
-    tl.to(forum, { '--scrim': 1, duration: .07 }, .498)
-    tl.to(fRule, { scaleX: 1, duration: .035 }, .505)
-    tl.to(fLabel, { opacity: 1, duration: .025 }, .538)
-    fBlocks.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .03 }, .568 + i * .034))
-    tl.to(signoff, { opacity: 1, duration: .03 }, .765)
+    tl.to(forum, { '--scrim': 1, duration: .07 }, .528)
+    tl.to(fRule, { scaleX: 1, duration: .035 }, .535)
+    tl.to(fLabel, { opacity: 1, duration: .025 }, .568)
+    fBlocks.forEach((b, i) => tl.to(b, { opacity: 1, y: 0, duration: .03 }, .598 + i * .034))
+    tl.to(signoff, { opacity: 1, duration: .03 }, .795)
 
     /* transition → 03 · Ulysses alone (faint) begins as the Forum lets go, in the left column the
        shatter lines have just vacated. The last two lines are one sentence and land as one beat. */
-    tl.to(sX, { opacity: 0, y: -8, duration: .016 }, .762)
-    tl.set(sX, { height: 0, marginBottom: 0 }, .779)
-    land(sA[0], .786)
-    tl.to([forum, signoff], { opacity: 0, y: -8, duration: .045 }, .802)
-    land(sA[1], .814)
-    tl.to(head, { opacity: 0, y: -8, duration: .045 }, .820)
-    land(sA[2], .844)
-    land(sA[3], .872)
-    land(sA[4], .882)
-    tl.to(sA, { opacity: 0, y: -8, duration: .012 }, .888)
-    tl.to(col, { '--scrim': 0, duration: .012 }, .888)
+    tl.to(sX, { opacity: 0, y: -8, duration: .016 }, .792)
+    tl.set(sX, { height: 0, marginBottom: 0 }, .809)
+    land(sA[0], .816)
+    tl.to([forum, signoff], { opacity: 0, y: -8, duration: .045 }, .832)
+    land(sA[1], .844)
+    tl.to(head, { opacity: 0, y: -8, duration: .045 }, .850)
+    land(sA[2], .874)
+    land(sA[3], .900)
+    land(sA[4], .912)
+    /* the last line is on screen whole (its landing ends at .937) before the column lets go */
+    tl.to(sA, { opacity: 0, y: -8, duration: .012 }, .945)
+    tl.to(col, { '--scrim': 0, duration: .012 }, .945)
   },
 
   onProgress(p) {
     if (reduced) return
-    /* the frieze walks p 0 → .35 (steps(4) leg cadence lives in the glyph) */
-    const w = Math.min(1, p / .35)
+    /* the frieze walks p 0 → .40 (steps(4) leg cadence lives in the glyph) */
+    const w = Math.min(1, p / .40)
     for (let i = 0; i < cattleSvgs.length; i++) walk(cattleSvgs[i], w)
-    /* Zeus: flash ×2, bolt, shake — once per upward crossing of .35 */
-    if (prevP >= 0 && prevP < .35 && p >= .35) {
+    /* Zeus: flash ×2, bolt, shake — once per upward crossing of .40 */
+    if (prevP >= 0 && prevP < .40 && p >= .40) {
       if (boltSvg) strike(boltSvg, true)
-      if (prevP >= .30 && flashEl) { flashEl.classList.remove('is-flash'); void flashEl.offsetWidth; flashEl.classList.add('is-flash'); shakeEnd = performance.now() + 400 }
-    } else if (prevP >= .34 && p < .34) {
+      if (prevP >= .35 && flashEl) { flashEl.classList.remove('is-flash'); void flashEl.offsetWidth; flashEl.classList.add('is-flash'); shakeEnd = performance.now() + 400 }
+    } else if (prevP >= .39 && p < .39) {
       if (boltSvg) strike(boltSvg, false)
       flashEl?.classList.remove('is-flash')
-    } else if (prevP < 0 && p >= .35 && boltSvg) strike(boltSvg, true)
-    /* the S fills gold at .92 — idempotent per crossing */
-    if (p >= .92 && !glyphSent) { glyphSent = true; document.dispatchEvent(new CustomEvent('mtf:glyph', { detail: { letter: 'S' } })) }
-    else if (p < .88 && glyphSent) glyphSent = false
+    } else if (prevP < 0 && p >= .40 && boltSvg) strike(boltSvg, true)
+    /* the S fills gold at .935 — idempotent per crossing */
+    if (p >= .935 && !glyphSent) { glyphSent = true; document.dispatchEvent(new CustomEvent('mtf:glyph', { detail: { letter: 'S' } })) }
+    else if (p < .90 && glyphSent) glyphSent = false
     prevP = p
   },
 

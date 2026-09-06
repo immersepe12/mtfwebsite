@@ -13,7 +13,7 @@ fs.rmSync('shots/wheel', { recursive: true, force: true }); fs.mkdirSync('shots/
 const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox', '--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars'] })
 const page = await browser.newPage()
 await page.setViewport({ width: 1440, height: 900 })
-await page.goto(`http://localhost:5173/?chapter=${id}&p=0`, { waitUntil: 'networkidle0', timeout: 60000 })
+await page.goto(`http://localhost:5173/?chapter=${id}&p=0&nohold`, { waitUntil: 'networkidle0', timeout: 60000 })
 await page.waitForFunction(() => document.documentElement.classList.contains('is-ready'), { timeout: 20000 }).catch(() => {})
 await new Promise(r => setTimeout(r, 2500))
 const start = await page.evaluate(() => window.__mtf.shared.scrollY)

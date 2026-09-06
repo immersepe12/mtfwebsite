@@ -44,6 +44,12 @@ html.no-gl #gl { display: none; }
 
 /* film chapters: sticky pinned frame */
 .chapter--film { height: calc(var(--film-len, 3) * 100vh); }
+/* Two films in a row overlap by one screen: the incoming pin (transparent, and empty until its first beat) rises
+   over the outgoing film's last screen of travel instead of after it, so a seam is no longer an exit, a screen
+   of nothing, and then a run-in. The pointer stays with the film that is live (engine/stage.ts sets .is-live). */
+.chapter--film + .chapter--film { margin-top: -100vh; margin-top: -100dvh; }
+.chapter--stays + .chapter--film { margin-top: 0; }   /* a film whose frame stays live to the end keeps the slide after it */
+.chapter--film:not(.is-live) > .pin { pointer-events: none; }
 .chapter--film > .pin { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: clip; }
 .pin__frame { position: absolute; inset: 0; z-index: 3; padding: 0 var(--gutter); }
 .pin__layer { position: absolute; inset: 0; pointer-events: none; }

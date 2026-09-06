@@ -5,6 +5,7 @@ import { SplitText } from 'gsap/SplitText'
 import { hex, type Mood, type RGB } from '../../engine/mood'
 import { routes } from '../../art/routes'
 import './style.css'
+import { CAVE, ISLE, ISLE_SCALE } from '../scene'
 
 /**
  * Chapter 05 — THE HAND THAT LIFTS · Canto IV · Unity · 00:15 · DESIGN-BIBLE §6.5
@@ -60,7 +61,8 @@ const SKY_B: [number, RGB][] = [[.85, SEA], [1, DAWN]]
 const HOLD: Partial<Mood> = {
   camX: 2, camY: 1.4, camZ: 2, fov: 34,
   skyTop: PRESS, haze: .2,
-  sunX: 2.6, sunY: -.55, sunZ: -9, sunRadius: .1, sunHeat: .2, sunVisible: 1,
+  sunX: CAVE[0], sunY: CAVE[1], sunZ: CAVE[2], sunRadius: .1, sunHeat: .2, sunVisible: 1, sunNear: 1,
+  island: 1, islandX: ISLE[0], islandY: ISLE[1], islandZ: ISLE[2], islandScale: ISLE_SCALE, islandYaw: 0, islandTone: 0,   // Ogygia, as 04 left it
   seaAmp: .1, seaSpeed: .5, seaColor: SEA,
   tess: 1, tessForm: 1, tessSpread: 1, constellation: 0,
   p1: 0, p2: 0, p3: 0, p4: 0, mosaic: 0, aberration: 0, bloom: .5, grain: .06,

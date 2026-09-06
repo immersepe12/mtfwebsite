@@ -4,8 +4,9 @@ import { gsap } from '../../engine/scroll'
 import { SplitText } from 'gsap/SplitText'
 import { countUp } from '../../engine/text'
 import { hex, type Mood, type RGB } from '../../engine/mood'
-import { island, ripples } from '../../art/island'
+import { ripples } from '../../art/island'
 import { frame } from '../../art/frame'
+import { CAVE, ISLE, ISLE_SCALE } from '../scene'
 import './style.css'
 
 /**
@@ -40,8 +41,8 @@ const kfRGB = (p: number, k: [number, RGB][]): RGB => {
   return k[k.length - 1][1]
 }
 const PRESS = hex('#090D16'), ABYSS = hex('#06192B'), SEA = hex('#0E3D57')
-/** The cave — where the star lands (world units). The island silhouette is pinned to this point. */
-const CAVE: [number, number, number] = [2.6, -.55, -9]
+/** The island (chapters/scene.ts · gl/layers/island.ts) rises out of the water .06–.30 as the star drops to its window. */
+const ISLE_RISE: KF = [[.06, -1.7 * ISLE_SCALE], [.30, 0]]
 const K = {
   camX: [[0, 1.2], [.3, 1.6], [.72, 2]] as KF,
   camY: [[0, 1.1], [.3, .8], [.72, 1.4]] as KF,
@@ -71,7 +72,8 @@ const SKY_B: [number, RGB][] = [[0, ABYSS], [.3, SEA]]
 /** Reduced motion: the chapter's end state as a still (island locked, star in the cave, veil not yet across). */
 const STILL: Partial<Mood> = {
   camX: 2, camY: 1.4, camZ: 2, camTilt: -.08, camYaw: -.32, fov: 34,
-  sunX: CAVE[0], sunY: CAVE[1], sunZ: CAVE[2], sunRadius: .1, sunGlow: .6, sunHeat: .2, sunVisible: 1,
+  sunX: CAVE[0], sunY: CAVE[1], sunZ: CAVE[2], sunRadius: .1, sunGlow: .6, sunHeat: .2, sunVisible: 1, sunNear: 1,
+  island: 1, islandX: ISLE[0], islandY: ISLE[1], islandZ: ISLE[2], islandScale: ISLE_SCALE, islandYaw: 0, islandTone: 0,
   skyTop: PRESS, skyBottom: SEA, haze: .2, seaY: -1.2, seaAmp: .1,
   tess: 1, tessForm: 1, tessSpread: 1, tessGold: .55, tessGlint: .7, mosaic: 0,
   stars: .4, warmth: .3, bloom: .5, veil: 0, p4: 0,
@@ -171,8 +173,6 @@ export const ogygia: Chapter = {
     pinEl = pin
     pin.innerHTML = `
       <div class="pin__layer shadow">
-        <div class="isle"><div class="isle__rise">${island()}</div></div>
-        <div class="isle isle--mirror"><div class="isle__rise">${island()}</div></div>
         <div class="ripples">${ripples()}</div>
       </div>
       <div class="pin__frame">${frameHTML(content)}</div>
@@ -180,7 +180,7 @@ export const ogygia: Chapter = {
 
     const q = <T extends Element = HTMLElement>(sel: string) => pin.querySelector(sel) as T
     const qa = (sel: string) => Array.from(pin.querySelectorAll<HTMLElement>(sel))
-    const rise = qa('.isle__rise'), ripplesEl = q('.ripples'), rings = qa('.ripple'), plate = q('.plate'), fr = q('.glyph--frame')
+    const ripplesEl = q('.ripples'), rings = qa('.ripple'), plate = q('.plate'), fr = q('.glyph--frame')
     const eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), coords = q('.coords'), hl = q('.hl'), head = q('.head')
     const stacks = [qa('.stack--0 .s'), qa('.stack--1 .s'), qa('.stack--2 .s'), qa('.stack--3 .s')]
     const forum = q('.forum'), fRule = q('.forum__rule'), fLabel = q('.forum__label')
@@ -195,12 +195,11 @@ export const ogygia: Chapter = {
     gsap.set(stacks.flat(), { y: 4 })
     gsap.set([...mvA, ...mvM, ...mvC, ...statBody], { y: 10 })
     gsap.set([eyeRule, fRule, ...statRules], { scaleX: 0, transformOrigin: 'left center' })
-    gsap.set(rise, { yPercent: 100 })
     gsap.set(rings, { strokeDashoffset: 1, strokeDasharray: 1 })
     gsap.set(fr, { '--draw': 0 })
 
-    /* the island rises out of the water while the star drops into its cave (mood) · .06–.30 */
-    tl.to(rise, { yPercent: 0, duration: .24 }, .06)
+    /* the island rises out of the water while the star drops into its cave (both in the mood) · .06–.30;
+       the survey frame draws around it as it surfaces, and the water rings where the star touches down */
     tl.to(fr, { '--draw': 1, duration: .12 }, .12)
     tl.to(plate, { opacity: 0, duration: .06 }, .28)
     tl.set(ripplesEl, { opacity: 1 }, .18)
@@ -277,23 +276,29 @@ export const ogygia: Chapter = {
 
   onFrame(_shared, ctx) {
     if (reduced || !pinEl) return
-    /* pin the ink island to the cave point of the world: --cx/--cy = screen px, --ppu = px per world unit */
+    /* the survey frame is pinned to the island's centre, the rings to the water under its window:
+       --ix/--iy and --cx/--cy = screen px, --ppu = px per world unit at the island */
     const w = ctx.world
-    const a = w.project(CAVE[0], CAVE[1], CAVE[2])
+    const S = ISLE_SCALE
+    const a = w.project(ISLE[0] + 1.15 * S, ISLE[1] + .45 * S, ISLE[2])
     const cx = a.x, cy = a.y
-    const b = w.project(CAVE[0] + 1, CAVE[1], CAVE[2])
+    const b = w.project(ISLE[0] + 1.15 * S + 1, ISLE[1] + .45 * S, ISLE[2])
     const ppu = Math.max(24, b.x - cx)
+    const r = w.project(ISLE[0], ISLE[1], ISLE[2] + .5 * S)
     if (Math.abs(cx - lastCx) < .3 && Math.abs(cy - lastCy) < .3 && Math.abs(ppu - lastPpu) < .3) return
     lastCx = cx; lastCy = cy; lastPpu = ppu
     const s = pinEl.style
-    s.setProperty('--cx', cx.toFixed(1) + 'px')
-    s.setProperty('--cy', cy.toFixed(1) + 'px')
+    s.setProperty('--ix', cx.toFixed(1) + 'px')
+    s.setProperty('--iy', cy.toFixed(1) + 'px')
+    s.setProperty('--cx', r.x.toFixed(1) + 'px')
+    s.setProperty('--cy', r.y.toFixed(1) + 'px')
     s.setProperty('--ppu', ppu.toFixed(1) + 'px')
   },
 
   mood: p => reduced ? STILL : ({
     camX: kf(p, K.camX), camY: kf(p, K.camY), camZ: kf(p, K.camZ), camTilt: kf(p, K.camTilt), camYaw: kf(p, mobile ? K.camYawM : K.camYaw), fov: kf(p, K.fov),
-    sunX: kf(p, K.sunX), sunY: kf(p, K.sunY), sunZ: kf(p, K.sunZ), sunRadius: kf(p, K.sunRadius), sunGlow: kf(p, K.sunGlow), sunHeat: kf(p, K.sunHeat), sunVisible: 1,
+    sunX: kf(p, K.sunX), sunY: kf(p, K.sunY), sunZ: kf(p, K.sunZ), sunRadius: kf(p, K.sunRadius), sunGlow: kf(p, K.sunGlow), sunHeat: kf(p, K.sunHeat), sunVisible: 1, sunNear: 1,
+    island: 1, islandX: ISLE[0], islandY: ISLE[1] + kf(p, ISLE_RISE), islandZ: ISLE[2], islandScale: ISLE_SCALE, islandYaw: 0, islandTone: 0,
     skyTop: PRESS, skyBottom: kfRGB(p, SKY_B), haze: kf(p, K.haze),
     seaY: -1.2, seaAmp: kf(p, K.seaAmp),
     tess: kf(p, K.tess), tessForm: 1, tessSpread: kf(p, K.tessSpread), tessGold: kf(p, K.tessGold), tessGlint: kf(p, K.tessGlint), mosaic: 0,

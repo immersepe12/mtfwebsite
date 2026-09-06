@@ -3,7 +3,6 @@ import { createFilm } from '../../engine/film'
 import { hex, type Mood, type RGB } from '../../engine/mood'
 import { gsap } from '../../engine/scroll'
 import { SplitText } from 'gsap/SplitText'
-import { island } from '../../art/island'
 import './style.css'
 
 /**
@@ -217,7 +216,7 @@ export const eleven: Chapter = {
     pinEl = pin
     pin.style.setProperty('--sky-top-static', 'var(--press)')   // html.no-gl: the p 1 sky as tokens
     pin.style.setProperty('--sky-bottom-static', 'var(--abyss)')
-    pin.innerHTML = `<div class="pin__layer shadow"><div class="isle">${island()}</div></div><div class="pin__frame">${frameHTML(content, mobile)}</div>`
+    pin.innerHTML = `<div class="pin__frame">${frameHTML(content, mobile)}</div>`
     const frame = pin.querySelector('.pin__frame') as HTMLElement
     // portrait: the card is a sheet laid over the wall, not an extra grid row — an in-place row would push
     // the last tiles below the fold inside a pin that cannot scroll. (Reduced motion still expands in place.)
@@ -225,7 +224,7 @@ export const eleven: Chapter = {
 
     const q = <T extends Element = HTMLElement>(s: string) => pin.querySelector(s) as T
     const qa = <T extends Element = HTMLElement>(s: string) => Array.from(pin.querySelectorAll(s)) as T[]
-    const isle = q('.isle'), wash = q('.wash'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
+    const wash = q('.wash'), head = q('.head'), eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), hl = q('.hl')
     const stamp = q('.stamp'); stampN = q('.stamp__n')
     const stack = q('.stack'), lines = qa('.stack .s')
     const forum = q('.forum'), fRule = q('.forum__rule'), fLab = q('.forum__lab'), fForm = q('.forum__formula'), fWho = q('.forum__who')
@@ -239,7 +238,6 @@ export const eleven: Chapter = {
       .fromTo(eyeRule, { scaleX: 0 }, { scaleX: 1, duration: .04 }, .06)
       .fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .03 }, .085)
       .fromTo(stamp, { opacity: 0 }, { opacity: 1, duration: .03 }, .085)
-      .fromTo(isle, { opacity: 0 }, { opacity: 1, duration: .08 }, .06)
     let headTween: gsap.core.Tween | null = null
     SplitText.create(hl, {
       type: 'lines', mask: 'lines', autoSplit: true, linesClass: 'line',
@@ -296,7 +294,7 @@ export const eleven: Chapter = {
     tl.fromTo(cta, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .03 }, .83)
     tl.to([head, stamp, stack, sectors], { opacity: 0, y: -8, duration: .03 }, .865)
     tl.to([forum, tilesEl, card], { autoAlpha: 0, y: -8, duration: .03 }, .865)
-    tl.to([isle, wash], { opacity: 0, duration: .03 }, .865)
+    tl.to(wash, { opacity: 0, duration: .03 }, .865)
   },
 
   onEnter() { html().classList.remove('theme-paper') },
@@ -316,6 +314,8 @@ export const eleven: Chapter = {
       // rises east (−x), crosses, sets west (+x); it fades through the horizon instead of snapping off
       sunX: SUN_CX - SUN_R * Math.cos(c), sunY: SUN_BASE + SUN_H * Math.sin(c), sunZ: SUN_Z,
       sunRadius: 2.6, sunGlow: .85, sunHeat: 1, sunVisible: smooth01(Math.sin(c), -.14, .12),
+      // the island of 06, a little further off on the horizon: stone by night, sand by day, gone by the seam into 08
+      island: kf(p, [[.86, 1], [1, 0]]), islandX: -7.6, islandY: -1.2, islandZ: -52.7, islandScale: 2.6, islandYaw: .35, islandTone: d,
       seaColor: mix(NIGHT_SEA, DAY_SEA, d), seaAmp: kf(p, [[0, .1], [.7, .1], [1, .08]]), seaSpeed: kf(p, [[0, .5], [.7, .5], [1, .35]]),
       stars: 1 - d, constellation: kf(p, [[.7, 0], [.86, 2]]),
       tess: 1, tessForm: 1, tessSpread: 1, tessGold: kf(p, [[0, .4], [1, .3]]), tessGlint: kf(p, [[0, .5], [1, .2]]),

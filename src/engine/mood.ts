@@ -11,8 +11,11 @@ export interface Mood {
   camX: number; camY: number; camZ: number; camTilt: number; camYaw: number; fov: number
   // sky gradient + haze
   skyTop: RGB; skyBottom: RGB; haze: number
-  // the sun / the star
-  sunX: number; sunY: number; sunZ: number; sunRadius: number; sunGlow: number; sunHeat: number; sunVisible: number
+  // the sun / the star. sunNear 0 = a celestial body (pushed out along its ray, cut by the horizon);
+  // 1 = an object in the scene at its declared point (the star landing in the island's window)
+  sunX: number; sunY: number; sunZ: number; sunRadius: number; sunGlow: number; sunHeat: number; sunVisible: number; sunNear: number
+  // the island (gl/layers/island.ts): presence, the base of its rock window (Y = the waterline it stands in), size, heading, night stone → paper sand
+  island: number; islandX: number; islandY: number; islandZ: number; islandScale: number; islandYaw: number; islandTone: number
   // the sea
   seaY: number; seaAmp: number; seaSpeed: number; seaOpacity: number; seaColor: RGB
   // stars / constellations
@@ -39,7 +42,8 @@ export const hex = (h: string): RGB => {
 export const DEFAULT_MOOD: Mood = {
   camX: 0, camY: 0.6, camZ: 8, camTilt: 0, camYaw: 0, fov: 42,
   skyTop: hex('#090D16'), skyBottom: hex('#0E3D57'), haze: 0.35,
-  sunX: 0, sunY: 1.4, sunZ: -6, sunRadius: 1.1, sunGlow: 0.8, sunHeat: 0.5, sunVisible: 1,
+  sunX: 0, sunY: 1.4, sunZ: -6, sunRadius: 1.1, sunGlow: 0.8, sunHeat: 0.5, sunVisible: 1, sunNear: 0,
+  island: 0, islandX: 2.4, islandY: -1.2, islandZ: -9.4, islandScale: 1, islandYaw: 0, islandTone: 0,
   seaY: -1.2, seaAmp: 0.25, seaSpeed: 0.6, seaOpacity: 1, seaColor: hex('#0E3D57'),
   stars: 0.6, starDrift: 0.2, constellation: 0,
   tess: 0, tessForm: 0, tessSpread: 1, tessGlint: 0.5, tessGold: 0.5,
