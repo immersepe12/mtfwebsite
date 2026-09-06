@@ -23,6 +23,7 @@ import { initHeader } from './ui/header'
 import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
 import { player } from './engine/play'
+import { initNext } from './ui/next'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
 const qsBoot = new URLSearchParams(location.search)
@@ -80,6 +81,7 @@ async function boot() {
   initHeader({ scroll, chapters, content, stage })
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
+  const nextBtn = initNext(scroll)
   // every in-page link lands on the chapter's first frame with something in it, through Lenis rather than a
   // native jump (a native jump leaves the smooth scroller behind and drops the reader on an empty seam)
   document.addEventListener('click', e => {
@@ -102,11 +104,13 @@ async function boot() {
   ScrollTrigger.config({ ignoreMobileResize: true })
 
   let last = performance.now() / 1000
+  let tick2 = 0
   gsap.ticker.add(() => {
     const now = performance.now() / 1000
     shared.dt = Math.min(0.05, now - last); last = now
     shared.time += shared.dt
     shared.scrollY = scroll.y; shared.scrollProgress = scroll.progress; shared.velocity = scroll.velocity
+    if ((tick2 = (tick2 + 1) % 20) === 0) nextBtn.show()   // the control stands down over the footer
     const k = 1 - Math.exp(-5 * shared.dt)
     shared.mouse.x = damp(shared.mouse.x, shared.mouse.tx, 5, shared.dt)
     shared.mouse.y = damp(shared.mouse.y, shared.mouse.ty, 5, shared.dt)

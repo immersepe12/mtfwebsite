@@ -33,7 +33,7 @@ export interface Landing { from: number; arm: number; ms: number; chars: number;
  * frame. One gesture plays the film from one stop to the next at the pace written here (engine/play.ts), so a
  * scroll advances a whole moment (a stanza, the eleven stars lighting one by one, the Shatter) and then rests.
  */
-export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; landings: Landing[]; stops: number[] }
+export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; landings: Landing[]; stops: number[]; rests: number[] }
 
 /** scroll fraction → timeline time, through the map. */
 export function through(map: Breath | null, p: number): number {
@@ -62,12 +62,14 @@ export function inverse(map: Breath | null, t: number): number {
 }
 
 /**
- * How long the player rests on a landed line before going on (under the wheel the reader decides). Measured in
- * characters: SplitText hands the film letters, not words.
+ * How long PLAY rests on a moment before going on (under the wheel and the NEXT button the reader decides).
+ * Measured in characters: SplitText hands the film letters, not words. A moment with nothing to read gets the
+ * floor — long enough to register, short enough not to stall the film.
  */
 export function readingMs(chars: number): number {
+  if (chars <= 0) return 700
   if (chars <= 12) return 900             // "Salt." · "They knew." — a glance, then a breath
-  return Math.min(2800, Math.max(1400, 300 + 32 * chars))
+  return Math.min(3200, Math.max(1200, 300 + 26 * chars))
 }
 
 /** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */

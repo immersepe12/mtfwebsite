@@ -212,21 +212,26 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // A gesture should advance a MOMENT, not a tween: arrivals that follow one another closely are played by one
   // gesture, at the pace the timeline wrote them — the stanza arrives line by line over several seconds, exactly
   // as it does when the film plays itself, and the reader decides when the next moment begins.
-  const stops = new Set<number>()
-  const moments: { a: number; b: number }[] = []
+  const moments: { a: number; b: number; chars: number }[] = []
   for (const l of landings) {
     const m = moments[moments.length - 1]
-    if (m && l.arm - m.b <= STOP_GAP && l.from - m.a <= STOP_SPAN) m.b = Math.max(m.b, l.from)
-    else moments.push({ a: l.arm, b: l.from })
+    if (m && l.arm - m.b <= STOP_GAP && l.from - m.a <= STOP_SPAN) { m.b = Math.max(m.b, l.from); m.chars += l.chars }
+    else moments.push({ a: l.arm, b: l.from, chars: l.chars })
   }
-  for (const m of moments) stops.add(+settle(m.b).toFixed(4))
   // …and the end of a long animation that carries no text at all (nothing lands inside it to rest on)
   for (const [a, b] of beats) {
     if (b - a < ANIM_MIN) continue
     if (landings.some(l => l.from > a + 1e-4 && l.from <= b + 1e-4)) continue
-    stops.add(+settle(b).toFixed(4))
+    moments.push({ a, b, chars: 0 })
   }
-  return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, landings, stops: [...stops].sort((m, n) => m - n) }
+  const byT = new Map<number, number>()
+  for (const m of moments) {
+    const t = +settle(m.b).toFixed(4)
+    byT.set(t, Math.max(byT.get(t) ?? 0, readingMs(m.chars)))
+  }
+  const stops = [...byT.keys()].sort((m, n) => m - n)
+  const rests = stops.map(t => byT.get(t)!)
+  return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, landings, stops, rests }
 }
 
 export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: number | boolean; snap?: boolean; onUpdate?: (p: number) => void; breathe?: boolean } = {}) {

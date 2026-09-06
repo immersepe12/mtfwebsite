@@ -131,8 +131,17 @@ at most three, which caps a hard flick. Keys do the same (Home/End jump). Touch 
 top. `ScrollEngine.scrollTo` resolves any element (and `main.ts` routes every in-page `a[href^="#"]` through it) to `entryOf(el)`: the film's first
 stop. A chapter may name a different entry with `data-entry` (a timeline time) — Ch 13 sets `.78`, so REGISTER lands on the form itself.
 
-**The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) runs the whole film the same way, resting on every landing for its
-reading time. Any wheel, key or touch takes it back. `player.estimate()` ≈ 11 min at 1440×900.
+**Every step lasts about as long as every other.** A moment's natural length varies wildly (a line landing, a stanza and a lightning strike), so
+`step()` measures the natural time across the moment and scales the tempo to land between `STEP_MIN` 1.8 s and `STEP_MAX` 4.2 s. Inside that time
+the moment keeps its written shape — beats and the pauses between them stay in proportion — so the film never lurches.
+
+**NEXT** (`ui/next.ts`) is the same call in a control: a button at the bottom of the frame, one press per moment, with a gold ring that draws for
+exactly as long as the moment lasts so the wait is shown rather than guessed. A second press cannot hurry it. It stands down while PLAY runs and
+once the film is over (`player.hasNext` → `atEnd`). It re-asks on every scroll event, not once at start-up — the page's height is not known then.
+
+**The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) is NEXT pressed for you: it plays a moment, rests on it for
+`restAt(y)` — the reading time of what that moment brought, 0.7–3.2 s — and takes the next. Any wheel, key or touch takes it back.
+`player.estimate()` ≈ 8 min at 1440×900.
 
 **Seams.** Two films in a row overlap by one screen (`.chapter--film + .chapter--film { margin-top: -100vh }`): the incoming pin — transparent,
 empty until its first beat — rises over the outgoing film's last screen instead of after it. So a chapter's frame MUST be empty by p .90 (the seam

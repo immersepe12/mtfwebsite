@@ -23,7 +23,7 @@ export const holdEnabled = typeof location === 'undefined' || !new URLSearchPara
 
 export function registerFilm(f: FilmHold) { films.push(f) }
 // dev: window.__mtf_gates(el) → the film's landings, stops and segments
-if (typeof window !== 'undefined') (window as any).__mtf_gates = (el: HTMLElement) => { const f = films.find(x => x.el === el); const m = f?.map(); return m ? { range: f!.range(), stretch: m.stretch, landings: m.landings, stops: m.stops, segs: m.segs } : null }
+if (typeof window !== 'undefined') (window as any).__mtf_gates = (el: HTMLElement) => { const f = films.find(x => x.el === el); const m = f?.map(); return m ? { range: f!.range(), stretch: m.stretch, landings: m.landings, stops: m.stops, rests: m.rests, segs: m.segs } : null }
 export const holdFilms = (): readonly FilmHold[] => films
 
 /** Mark landings as a film's timeline crosses them (and un-mark them when it is scrolled back above them). */
@@ -45,6 +45,13 @@ export function carryLandings(from: Landing[] | undefined, to: Landing[]) {
 
 /** page y of a timeline time, given the film's range and map */
 const yOf = (s: number, travel: number, map: Breath, t: number) => s + inverse(map, t) * travel
+
+/** Past the last film (the footer): there are no more moments, so NEXT stands down and the wheel scrolls freely. */
+export function atEnd(y: number): boolean {
+  let last = -Infinity
+  for (const f of films) { const [s, e] = f.range(); if (e > s) last = Math.max(last, e) }
+  return last > -Infinity && y >= last - 2
+}
 
 /** Is `y` inside a film, or within a screen of the next one? (Otherwise — the footer — the wheel scrolls freely.) */
 export function withinFilms(y: number, vh: number): boolean {
@@ -127,21 +134,19 @@ export function speedAt(y: number, vh: number): number {
   return FLOW_VH_PER_S * vh
 }
 
-/** The player's pause: the completion of the first landing ahead that has not yet had its time. */
-export function playerLimit(y: number, now: number): number {
-  let best = Infinity
+/** How long PLAY rests on the moment that ends at page position `y` (the nearest stop). */
+export function restAt(y: number): number {
+  let best = 700, bestD = 24
   for (const f of films) {
     const [s, e] = f.range()
-    if (!(e > s) || e < y - 2 || s > best) continue
+    if (!(e > s) || y < s - 24 || y > e + 24) continue
     const map = f.map()
     if (!map) continue
     const travel = e - s
-    for (const l of map.landings) {
-      if (l.opened >= 0 && now - l.opened >= l.ms) continue
-      const fy = yOf(s, travel, map, l.from)
-      if (fy < y - 2 || fy >= best) continue
-      best = fy
-    }
+    map.stops.forEach((t, i) => {
+      const d = Math.abs(yOf(s, travel, map, t) - y)
+      if (d < bestD) { bestD = d; best = map.rests[i] }
+    })
   }
   return best
 }
@@ -157,7 +162,7 @@ export function estimateSeconds(vh: number, limit: number): number {
     const map = f.map(), travel = e - s
     if (map) {
       for (const g of map.segs) total += g.kind === 'seam' ? ((g.x1 - g.x0) * travel) / (SEAM_VH_PER_S * vh) : g.dur
-      for (const g of map.landings) total += g.ms / 1000
+      for (const g of map.rests) total += g / 1000
     } else total += travel / (FLOW_VH_PER_S * vh)
     cursor = e
   }
