@@ -232,7 +232,8 @@ export const ogygia: Chapter = {
        exits before its own lines land leaves them stranded on screen — QA round 3, mobile). */
     const HEAD_OUT = .534
     // stack 4 (Kalyptein) closes the chapter where the veil used to carry it
-    const starts = [.21, .328, .446, .86], exits = [.318, .436, HEAD_OUT, .95]
+    // portrait has one column, so Kalyptein waits until the Forum's closing block has left it (desktop: .86)
+    const starts = [.21, .328, .446, mobile ? .885 : .86], exits = [.318, .436, HEAD_OUT, .95]
     stacks.forEach((lines, s) => {
       lines.forEach((l, i) => land(l, starts[s] + i * .02, lines[i - 1]))
       tl.to(lines, { opacity: 0, y: -8, duration: .014 }, exits[s])

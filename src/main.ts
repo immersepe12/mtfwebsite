@@ -80,6 +80,18 @@ async function boot() {
   initHeader({ scroll, chapters, content, stage })
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
+  // every in-page link lands on the chapter's first frame with something in it, through Lenis rather than a
+  // native jump (a native jump leaves the smooth scroller behind and drops the reader on an empty seam)
+  document.addEventListener('click', e => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return
+    const a = (e.target as HTMLElement | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null
+    if (!a) return
+    const id = a.getAttribute('href')!.slice(1)
+    const el = id && document.getElementById(id)
+    if (!el) return
+    e.preventDefault()
+    scroll.scrollTo(el)
+  })
   ;(window as any).__mtf.play = player
 
   // wait for fonts, then a frame, then open the curtain

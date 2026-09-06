@@ -111,20 +111,27 @@ time, piecewise-linear. Beats (any tween) pass at their natural speed; the still
 the section (`--film-len` × stretch, ≤ 1.6×), never by speeding beats up. `filmTime(el, p)` is what the Stage feeds `mood(p)` and `onProgress(p)`,
 so the world and the copy share one clock.
 
-The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising — and every animation that
-carries none. Landings within .011 of each other are one arrival (a line's own stagger, a stanza set as one beat), never spanning more than .05;
-anything further apart was written as a separate moment and stands alone (the eleven stars of Ch 03 are .018 apart). The end of each arrival and
-the end of each text-free animation over .04 long is a **stop**. About 278 across the film, ~20 a chapter.
+The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising. Landings within .011 of
+each other are one arrival (a line's own stagger, a stanza set as one beat), never spanning more than .05; anything further apart was written as a
+separate moment and stands alone (the eleven stars of Ch 03 are .018 apart). A **stop** is the end of an arrival, or the end of a text-free
+animation over .08 long — and it is nudged past any *short* beat still running (`SETTLE_MAX` .08), so the film never rests on a headline caught
+halfway out of its mask; a long continuous change (an optical size drifting across a chapter) is fine to rest inside. A chapter's own end is not a
+stop: the last line of one chapter and the first of the next are consecutive, and the exit, the seam and the run-in all play inside one gesture.
+About 247 stops across the film, ~18 a chapter.
 
 **The wheel does not scrub.** Inside a film a gesture means *next* (or *back*): `player.step(dir)` plays the film from where it rests to the next
-stop at the pace written here — `beatSeconds(len)` .5–3.2 s for a beat, `HOLD_SECONDS_PER_UNIT` for a still stretch that carries the world's own
-motion — then rests. A fresh gesture always moves one stop, so the smallest nudge is answered; a gesture that keeps going asks for one more every
-150 px of travel, and the player queues at most three, which caps a hard flick. So a sentence always lands whole and in its own time, an animation
-is always seen at the speed it was made for, and no scroll is ever spent on an empty screen. Keys do the same (Home/End jump). Touch stays native
-— a phone still scrubs by distance, which is why `filmLength` gives touch 1.5× the scroll. `?nohold` restores free scrolling for the QA scripts.
+stop at the pace written here — `beatSeconds(len)` .55–4 s for a beat, `HOLD_SECONDS_PER_UNIT` for a still stretch carrying the world's own motion —
+then rests. Scrolling therefore shows exactly the sequence PLAY THE STORY shows; the only difference is who decides when to move on. A fresh
+gesture always moves one stop, so the smallest nudge is answered; a gesture that keeps going asks for one more every 150 px, and the player queues
+at most three, which caps a hard flick. Keys do the same (Home/End jump). Touch stays native — a phone still scrubs by distance, which is why
+`filmLength` gives touch 1.5× the scroll. `?nohold` restores free scrolling (the QA scripts use it).
+
+**Entering a chapter.** A film's section begins with a seam — an empty frame by the seam rule — so a link to `#ch-x` must not land on the section
+top. `ScrollEngine.scrollTo` resolves any element (and `main.ts` routes every in-page `a[href^="#"]` through it) to `entryOf(el)`: the film's first
+stop. A chapter may name a different entry with `data-entry` (a timeline time) — Ch 13 sets `.78`, so REGISTER lands on the form itself.
 
 **The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) runs the whole film the same way, resting on every landing for its
-reading time. Any wheel, key or touch takes it back. `player.estimate()` ≈ 10 min at 1440×900.
+reading time. Any wheel, key or touch takes it back. `player.estimate()` ≈ 11 min at 1440×900.
 
 **Seams.** Two films in a row overlap by one screen (`.chapter--film + .chapter--film { margin-top: -100vh }`): the incoming pin — transparent,
 empty until its first beat — rises over the outgoing film's last screen instead of after it. So a chapter's frame MUST be empty by p .90 (the seam

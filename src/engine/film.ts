@@ -22,11 +22,10 @@ import type { ChapterCtx } from './chapter'
  * own timeline (its children's start and end times), so every chapter breathes without knowing this exists.
  *
  * THE STOPS (why the wheel is "next", not a scrub)
- * The same walk finds every tween that lands text (opacity → 1, a masked line rising) — a LANDING — and every
- * animation that carries none. Lines that follow each other closely are one arrival. The end of each arrival and
- * the end of each animation is a STOP: one wheel gesture plays the film from the stop it is at to the next one,
- * at the pace written here (engine/play.ts), and rests. A sentence lands in half a second; the Shatter takes
- * three; nothing is scrubbed past, and no scroll is spent on nothing.
+ * Every tween that lands text is a LANDING — the points PLAY THE STORY comes to rest at as it runs the film by
+ * itself. Those same points are the STOPS the wheel moves between: one gesture plays the film from the state it
+ * is in to the next line, at the pace the player uses, and rests there. Scrolling and playing therefore show the
+ * same sequence of screens, one after the other; the only difference is who decides when to move on.
  */
 
 /** How much more scroll a still moment gets than an animating one. (Reading TIME is the hold's business — engine/hold.ts — so
@@ -47,8 +46,11 @@ const GAP_MIN = 0.012
 const GROUP_GAP = 0.011
 /** …and however tight the run, one arrival never spans more than this: a chain cannot swallow a whole sequence. */
 const GROUP_MAX = 0.05
-/** An animation without text is a stop of its own if it is at least this long on the timeline. */
-const ANIM_MIN = 0.04
+/** A stretch of animation with no text in it is a stop of its own only if it is at least this long. */
+const ANIM_MIN = 0.08
+/** A stop is nudged clear of a beat still running only if that beat is short — a line rising out of its mask, not
+ *  a slow continuous change (an optical size drifting, a camera crossing a chapter), which one may rest inside. */
+const SETTLE_MAX = 0.08
 
 /**
  * The breath map of every film, by section element. The Stage reads it so that a chapter's `mood(p)` and
@@ -190,15 +192,27 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // `norm` is how much scroll the chapter now wants: 1 would squeeze the pauses out of the beats' own time
   // (a beat would play faster than before, which reads as skipping). Growing the section instead keeps every
   // beat at exactly the speed it had and spends the new length on the stillness between them.
-  // ── the stops: the end of every arrival, the end of every animation that carries none, and the end ──
+  // ── the stops: exactly where the player rests. One gesture goes to the next line, as the player does. ──
+  // A stop is never left inside a beat that is still running: a headline caught halfway out of its mask is not a
+  // frame to come to rest on, so the stop moves to the end of whatever is still moving.
+  const settle = (t: number) => {
+    let out = t
+    for (let i = 0; i < 4; i++) {
+      let next = out
+      for (const [a, b] of beats) if (b - a <= SETTLE_MAX && a < out - 1e-4 && b > out + 1e-4) next = Math.max(next, b)
+      if (next === out) break
+      out = next
+    }
+    return out
+  }
   const stops = new Set<number>()
-  for (const l of landings) stops.add(+l.from.toFixed(4))
+  for (const l of landings) stops.add(+settle(l.from).toFixed(4))
+  // …and the end of a long animation that carries no text at all (nothing lands inside it to rest on)
   for (const [a, b] of beats) {
     if (b - a < ANIM_MIN) continue
-    if (landings.some(l => l.from > a + 1e-4 && l.from <= b + 1e-4)) continue   // text lands inside it: those are the stops
-    stops.add(+b.toFixed(4))
+    if (landings.some(l => l.from > a + 1e-4 && l.from <= b + 1e-4)) continue
+    stops.add(+settle(b).toFixed(4))
   }
-  stops.add(1)
   return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, landings, stops: [...stops].sort((m, n) => m - n) }
 }
 

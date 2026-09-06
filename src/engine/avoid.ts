@@ -8,8 +8,8 @@
  *
  * So the frame is checked after layout: if a text block that comes later in the DOM sits on — or too close under —
  * the headline in the same column, it is pushed down until it clears it by a set amount. Blocks are only
- * moved vertically, only downward, only when their columns genuinely overlap, and never past the frame's foot —
- * the composition the chapter designed is kept; the collision is not.
+ * moved vertically, only downward, only when their columns genuinely overlap, never past the frame's foot, and
+ * never into whatever stands below them — the composition the chapter designed is kept; the collision is not.
  */
 
 const GAP = 26                 // px of clearance a block must keep below the one above it
@@ -24,7 +24,7 @@ const rectOf = (el: HTMLElement, base: DOMRect) => {
 /** Blocks that may be moved: the storyteller lines and anything a chapter marks itself. */
 const MOVABLE = '.s, .story, [data-avoid]'
 /** Blocks that hold their ground: anything with type in it that already sits above the block being placed. */
-const ANCHOR = 'h1, h2, h3, .display, .h1, .h2, .hl, .couplet, .stat, .chip-row, blockquote'
+const ANCHOR = 'h1, h2, h3, .display, .h1, .h2, .hl, .couplet, .stat, .chip-row, .eyebrow, .index, blockquote'
 
 export function avoidOverlaps(frame: HTMLElement) {
   const base = frame.getBoundingClientRect()
@@ -80,7 +80,22 @@ export function avoidOverlaps(frame: HTMLElement) {
     }
 
     if (push < 2) { if (prev && !box.dataset.avoidTop) box.style.top = prev; placed.push(r); continue }
-    const maxTop = base.height * FOOT - r.h
+    // a floor: whatever stands below this block in the same column (the think-tank grid, the Forum, a stat band)
+    // is not to be walked into — better a tight clearance above than a collision below
+    let floor = base.height * FOOT
+    for (const other of Array.from(frame.children)) {
+      if (!(other instanceof HTMLElement) || other === box || other.contains(box) || box.contains(other)) continue
+      if (!other.offsetHeight) continue
+      const cs = getComputedStyle(other)
+      if (cs.visibility === 'hidden' || +cs.opacity < 0.02) continue
+      const o = rectOf(other, base)
+      if (o.top <= r.top + 4) continue
+      const overlapX = Math.min(r.right, o.right) - Math.max(r.left, o.left)
+      if (overlapX / (Math.min(r.w, o.w) || 1) < COL_OVERLAP) continue
+      floor = Math.min(floor, o.top - GAP)
+    }
+    // a block is only ever moved DOWN: if there is no room below, it stays where the chapter put it
+    const maxTop = Math.max(r.top, floor - r.h)
     const style = getComputedStyle(box)
     if (style.position === 'absolute' || style.position === 'fixed') {
       if (!box.dataset.avoidTop) box.dataset.avoidTop = box.style.top || `${r.top}px`

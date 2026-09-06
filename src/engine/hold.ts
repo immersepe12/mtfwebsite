@@ -55,35 +55,56 @@ export function withinFilms(y: number, vh: number): boolean {
   return false
 }
 
-/** The next stop after `y` (the first film's start counts), or Infinity. */
+/**
+ * The next stop after `y`. A chapter's own end is NOT a stop: the last line of one chapter and the first of the
+ * next are consecutive, and the exit, the seam and the new chapter's run-in all play inside that one gesture.
+ * The film's end is only a fallback, so the reader is never stuck in a chapter's tail.
+ */
 export function stopAfter(y: number): number {
-  let best = Infinity
+  let best = Infinity, fallback = Infinity
   for (const f of films) {
     const [s, e] = f.range()
-    if (!(e > s) || e <= y + 2 || s >= best) continue
-    if (s > y + 2) { best = Math.min(best, s); continue }
+    if (!(e > s) || e <= y + 2) continue
+    fallback = Math.min(fallback, e)
     const map = f.map()
-    if (!map) { best = Math.min(best, e); continue }
+    if (!map) continue
     const travel = e - s
     for (const t of map.stops) { const sy = yOf(s, travel, map, t); if (sy > y + 2 && sy < best) best = sy }
   }
-  return best
+  return best !== Infinity ? best : fallback
 }
 
 /** The stop before `y`, or 0. */
 export function stopBefore(y: number): number {
-  let best = 0
+  let best = -Infinity, fallback = -Infinity
   for (const f of films) {
     const [s, e] = f.range()
     if (!(e > s) || s >= y - 2) continue
-    if (e < y - 2) { best = Math.max(best, e); continue }
-    best = Math.max(best, s)
+    fallback = Math.max(fallback, s)
     const map = f.map()
     if (!map) continue
     const travel = e - s
     for (const t of map.stops) { const sy = yOf(s, travel, map, t); if (sy < y - 2 && sy > best) best = sy }
   }
-  return best
+  return Math.max(0, best !== -Infinity ? best : fallback === -Infinity ? 0 : fallback)
+}
+
+/**
+ * Where a link to a chapter should land: its first stop — the frame with its first line in it. A film's section
+ * begins with a seam (an empty frame by the seam rule), so jumping to the section itself lands the reader on
+ * nothing and makes them scroll to find the chapter they asked for.
+ */
+export function entryOf(el: HTMLElement): number | null {
+  const f = films.find(x => x.el === el)
+  if (!f) return null
+  const [s, e] = f.range()
+  const map = f.map()
+  if (!map || !map.stops.length) return s
+  // a chapter may name where a link should enter it (`data-entry`, in timeline time): the register form is the
+  // point of that chapter, and a reader who presses REGISTER wants the form, not the chapter's first line
+  const want = parseFloat(el.dataset.entry ?? '')
+  const stop = (Number.isFinite(want) && map.stops.find(t => t >= want)) || map.stops[0]
+  return yOf(s, e - s, map, stop)
 }
 
 /** Player pacing: px per second through page position `y` (vh = viewport height, for the distance-paced parts). */

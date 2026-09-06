@@ -28,9 +28,10 @@ export interface Seg {
 export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number }
 
 /**
- * The breath. `stops` are the timeline times the film comes to rest at under the wheel: the end of every
- * arrival of text (lines that follow each other closely are one arrival) and the end of every animation that
- * carries no text — one gesture plays the film from one stop to the next (engine/play.ts).
+ * The breath. `stops` are the timeline times the film comes to rest at under the wheel: the end of each RUN of
+ * activity — everything the composition does between one quiet moment and the next, which is one state of the
+ * frame. One gesture plays the film from one stop to the next at the pace written here (engine/play.ts), so a
+ * scroll advances a whole moment (a stanza, the eleven stars lighting one by one, the Shatter) and then rests.
  */
 export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; landings: Landing[]; stops: number[] }
 
@@ -69,8 +70,8 @@ export function readingMs(chars: number): number {
   return Math.min(2800, Math.max(1400, 300 + 32 * chars))
 }
 
-/** The pace of a beat: a line lands in half a second; a long animation (the Shatter, an island rising) takes its time. */
-export const beatSeconds = (len: number) => Math.min(3.2, Math.max(0.5, len * 22))
+/** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */
+export const beatSeconds = (len: number) => Math.min(4, Math.max(0.55, len * 30))
 /** A still moment carries the world's own motion (a camera move, the sun): it is crossed at this rate, never faster than a rest. */
 export const REST_SECONDS = 0.35
 export const HOLD_SECONDS_PER_UNIT = 9

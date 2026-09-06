@@ -20,7 +20,7 @@ for (const [w, h] of widths) {
   for (const c of chapters) {
     for (const p of [0.12, 0.25, 0.4, 0.55, 0.7, 0.85]) {
       await page.evaluate(y => { window.__mtf.stage.scroll.lenis.scrollTo(y, { immediate: true }); window.__mtf.ScrollTrigger.update() }, c.top + (c.film ? c.travel : c.travel) * p)
-      await new Promise(r => setTimeout(r, 260))
+      await new Promise(r => setTimeout(r, 520))   // the film's timeline and the overlap resolver both settle on the ticker
       const hits = await page.evaluate(() => {
         // ask the browser: this also excludes anything inside a content-visibility-skipped section
         const vis = (e) => {

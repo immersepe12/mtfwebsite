@@ -26,7 +26,9 @@
 #ch-eleven .stamp{left:auto;right:7%;top:9%;opacity:0}
 #ch-eleven .stamp__n{color:var(--gold-leaf)}
 
-#ch-eleven .stack{top:38.5%;width:min(42%,38rem)}
+/* the storyteller's slot ends where the sector band begins, so the stack cannot grow into the grid however the
+   headline breaks (engine/avoid.ts keeps it out of the band; this is the guarantee) */
+#ch-eleven .stack{top:38.5%;height:14%;width:min(42%,38rem);overflow:hidden}
 #ch-eleven .s{--old:0;max-height:2.9em;overflow:hidden;margin-bottom:.34em;color:color-mix(in oklab,var(--cream) calc(100% - var(--old)*42%),transparent)}
 #ch-eleven .s--last{font-weight:400;letter-spacing:.01em}
 
@@ -82,7 +84,7 @@
 #ch-eleven .stamp,#ch-eleven.chapter--film :is(.forum__who,.forum__out,.sectors,.tile__s,.tile__g){display:none}
 #ch-eleven .head{top:8%;max-width:88%}
 #ch-eleven .eye{margin-bottom:.8rem}
-#ch-eleven .stack{top:34%;width:88%}
+#ch-eleven .stack{top:34%;height:11%;width:88%}
 #ch-eleven .forum{left:7%;right:auto;top:34%;width:88%;gap:.45rem}
 #ch-eleven .cta{margin-top:.5rem}
 /* portrait has no room for eleven cards, so the wall becomes the ledger it always was: eleven hairline-ruled

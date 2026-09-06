@@ -231,7 +231,7 @@ export const eleven: Chapter = {
     const fOut = qa('.forum__out .chip'), fProc = q('.forum__proc'), cta = q('.cta')
     const sectors = q('.sectors'), sRules = qa('.sector__rule'), sLabs = qa('.sector__i, .sector__l')
     const tilesEl = q('.tiles'), tiles = qa('.tile'), card = q('.tile__card')
-    const MAX = 3                                                 // visible storyteller lines (≤ 6; the tiles need the room)
+    const MAX = 2                                                 // visible storyteller lines: the slot between a three-line headline and the grid holds two
 
     /* head sequence: rule → eyebrow → headline lines (masked) → the date stamp; the island fades up with the first day */
     tl.fromTo(wash, { opacity: 0 }, { opacity: 1, duration: .05 }, .06)

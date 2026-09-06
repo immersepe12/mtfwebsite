@@ -181,7 +181,7 @@ function frameHTML(c: any): string {
       </div>
       <div class="stack" aria-label="The Storyteller">${story(STACK_A, 's--a')}${story(STACK_B, 's--b')}</div>
       <p class="s s--c">${esc(NOBODY)}</p>
-      <p class="ulysses h1">${ULYSSES}</p>
+      <p class="ulysses h1" data-avoid>${ULYSSES}</p>
     </div>
     <ul class="bearings" aria-label="Four specialist events · 27 November">${panels}</ul>
     <a class="link link--mono cta" href="#ch-paradise">THE FOUR — FULL DETAILS<span class="btn__arrow" aria-hidden="true">→</span></a>`

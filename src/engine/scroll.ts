@@ -2,7 +2,7 @@ import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { prefersReducedMotion, isTouch } from './utils'
-import { holdEnabled, withinFilms } from './hold'
+import { entryOf, holdEnabled, withinFilms } from './hold'
 import { player } from './play'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -109,9 +109,13 @@ export class ScrollEngine {
   }
 
   onScroll(fn: (s: ScrollEngine) => void) { this.listeners.add(fn); return () => this.listeners.delete(fn) }
+  /** Go to a chapter (or a position). A chapter is entered at its first stop, never on its empty opening frame. */
   scrollTo(target: number | string | HTMLElement, opts: Record<string, unknown> = {}) {
     player.interrupt()
-    this.lenis?.scrollTo(target as any, { duration: 1.6, easing: (t: number) => 1 - Math.pow(1 - t, 4), ...opts })
+    let t: number | string | HTMLElement = target
+    if (typeof t === 'string' && t.startsWith('#')) t = document.getElementById(t.slice(1)) ?? t
+    if (t instanceof HTMLElement) { const y = entryOf(t); if (y !== null) t = y }
+    this.lenis?.scrollTo(t as any, { duration: 1.6, easing: (t2: number) => 1 - Math.pow(1 - t2, 4), ...opts })
   }
   stop() { this.lenis?.stop(); document.documentElement.classList.add('is-locked') }
   start() { this.lenis?.start(); document.documentElement.classList.remove('is-locked') }

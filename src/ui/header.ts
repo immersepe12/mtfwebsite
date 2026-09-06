@@ -259,7 +259,8 @@ export function initHeader({ scroll, chapters, content, stage }: { scroll: Scrol
     const t = document.getElementById(id)
     if (t) go(t)
   })
-  brand?.addEventListener('click', e => { e.preventDefault(); go(0) })
+  // home is the first frame of the film that has anything in it, not the empty seam at y 0
+  brand?.addEventListener('click', e => { e.preventDefault(); go(document.getElementById('ch-hero') ?? 0) })
   for (const p of pills) p.addEventListener('click', e => {
     const t = document.getElementById('ch-register')
     if (!t) return
