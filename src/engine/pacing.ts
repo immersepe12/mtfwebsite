@@ -29,5 +29,10 @@ export const PACING: Record<string, number> = {
   sunrise: 1.4,   // 12 beats — the whole sunrise happened in one screen
 }
 
+/** Touch is not stepped (a swipe scrolls natively), so on a phone the film is still scrubbed by distance and
+ *  needs the room the wheel no longer does. */
+const TOUCH_SCALE = 1.5
+
 export const filmLength = (id: string | undefined, base: number) =>
-  base * ((id && PACING[id]) || FILM_SCALE_DEFAULT)
+  base * ((id && PACING[id]) || FILM_SCALE_DEFAULT) *
+  (typeof matchMedia !== 'undefined' && matchMedia('(hover: none), (pointer: coarse)').matches ? TOUCH_SCALE : 1)

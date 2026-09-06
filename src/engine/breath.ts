@@ -21,19 +21,18 @@ export interface Seg {
 }
 
 /**
- * A landing: text began arriving at `arm` and was whole at `from`; it is owed `ms` milliseconds on screen from
- * the moment it was actually there (`opened`, a wall-clock stamp; −1 while it has not happened yet). Scrolling
- * back above `arm` un-lands it.
+ * A landing: text began arriving at `arm` and was whole at `from`; the player pauses on it for `ms` from the
+ * moment it was actually there (`opened`, a wall-clock stamp; −1 while it has not happened yet). Scrolling back
+ * above `arm` un-lands it.
  */
 export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number }
-/**
- * A gate: a landing whose text is later taken off the screen — the tween that hides it begins at `at`. The
- * wheel may not carry the reader past `at` until the landing has had its time. Landings that are never hidden
- * (a headline that stays while the story arrives beneath it) make no gate: nothing is lost by moving on.
- */
-export interface Gate extends Landing { at: number }
 
-export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; gates: Gate[]; landings: Landing[] }
+/**
+ * The breath. `stops` are the timeline times the film comes to rest at under the wheel: the end of every
+ * arrival of text (lines that follow each other closely are one arrival) and the end of every animation that
+ * carries no text — one gesture plays the film from one stop to the next (engine/play.ts).
+ */
+export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; landings: Landing[]; stops: number[] }
 
 /** scroll fraction → timeline time, through the map. */
 export function through(map: Breath | null, p: number): number {
@@ -62,18 +61,16 @@ export function inverse(map: Breath | null, t: number): number {
 }
 
 /**
- * How long a landed line is owed before the scroll may move on. Two seconds is the floor the reader asked for;
- * longer copy earns more at about a word every fifth of a second, with a ceiling so a paragraph never feels
- * like a locked door. Measured in characters: SplitText hands the film letters, not words.
+ * How long the player rests on a landed line before going on (under the wheel the reader decides). Measured in
+ * characters: SplitText hands the film letters, not words.
  */
 export function readingMs(chars: number): number {
-  if (chars <= 12) return 1000            // "Salt." · "They knew." — a glance, then a breath
-  return Math.min(3000, Math.max(1600, 400 + 34 * chars))
+  if (chars <= 12) return 900             // "Salt." · "They knew." — a glance, then a breath
+  return Math.min(2800, Math.max(1400, 300 + 32 * chars))
 }
-/** The player pauses on every landing for this share of its reading time: a viewer who operates nothing reads a little faster. */
-export const PLAYER_READ = 0.8
 
-/** The player's pace for a beat: short beats still take a moment, long ones (an island rising) are not rushed. */
-export const beatSeconds = (len: number) => Math.min(2.4, Math.max(0.55, len * 24))
-/** The player's pace for a still moment that is not a reading hold (an empty screen between two exits). */
-export const REST_SECONDS = 0.4
+/** The pace of a beat: a line lands in half a second; a long animation (the Shatter, an island rising) takes its time. */
+export const beatSeconds = (len: number) => Math.min(3.2, Math.max(0.5, len * 22))
+/** A still moment carries the world's own motion (a camera move, the sun): it is crossed at this rate, never faster than a rest. */
+export const REST_SECONDS = 0.35
+export const HOLD_SECONDS_PER_UNIT = 9

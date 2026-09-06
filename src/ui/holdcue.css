@@ -1,5 +1,0 @@
-/* the reading cue — a hairline that drains while the hold keeps the scroll on a sentence (engine/hold.ts) */
-.holdcue { position: fixed; left: 0; right: 0; bottom: 0; height: 2px; z-index: var(--z-header); pointer-events: none; opacity: 0; transition: opacity .28s linear; }
-.holdcue__bar { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left center; transform: scaleX(0); transition: transform .12s linear; }
-.holdcue.is-on { opacity: .85; }
-html.reduced-motion .holdcue { display: none; }

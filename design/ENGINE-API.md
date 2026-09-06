@@ -20,9 +20,9 @@ src/engine/mood.ts              lead     — Mood type (all world params), DEFAU
 src/engine/chapter.ts           lead     — Chapter + ChapterCtx + Shared types
 src/engine/stage.ts             lead     — mounts chapters into #app, per-chapter ScrollTrigger, blends moods
 src/engine/film.ts              lead     — createFilm(ctx,{length,onUpdate}) → sticky pinned frame + scrubbed timeline; builds the breath map and the reading gates; .attach(el) re-hangs the scrub
-src/engine/breath.ts            lead     — the breath's pure maths: Breath/Seg/Gate types, through()/inverse(), readingMs(), beatSeconds()
-src/engine/hold.ts              lead     — the hold: film registry, limitAhead() (the scroll governor), speedAt() (player pace), tickGates()
-src/engine/play.ts              lead     — the player (PLAY THE STORY): drives Lenis at the film's pace, waits at gates, stops on any input
+src/engine/breath.ts            lead     — the breath's pure maths: Breath/Seg/Landing, through()/inverse(), readingMs(), beatSeconds()
+src/engine/hold.ts              lead     — the film registry: stopAfter()/stopBefore() (where the wheel goes), speedAt() (the pace), playerLimit()
+src/engine/play.ts              lead     — the player: step(dir) for one wheel gesture, and PLAY THE STORY for the whole film
 src/engine/pacing.ts            lead     — per-chapter scroll multiplier table (filmLength)
 src/engine/avoid.ts             lead     — overlap resolver: pushes text blocks clear of the headline after layout
 src/engine/text.ts              lead     — reveal() (SplitText masked lines/words/chars), rise(), drawRule(), countUp()
@@ -30,7 +30,6 @@ src/engine/utils.ts             lead     — clamp, lerp, damp, smoothstep, el()
 src/gl/layers/{sky,sun,sea,stars,tesserae}.ts   one GL agent each — implement Layer; read Mood every frame
 src/gl/layers/island.ts         lead     — the island (Ogygia): faceted limestone mesas + a rock window; placed by the island* mood keys; a mirrored reflection
 src/chapters/scene.ts           lead     — shared anchors of the Ogygia scene: ISLE, ISLE_SCALE, CAVE (chapters 04 and 05)
-src/ui/holdcue.ts               lead     — the reading cue: a hairline that drains while the hold keeps the scroll on a sentence
 src/gl/post/mosaic.ts           gl/post agent — MosaicEffect (postprocessing Effect); World sets .amount from mood.mosaic
 src/ui/preloader.ts             ui/preloader agent — must keep initPreloader().done() contract (resolves when curtain opened)
 src/ui/header.ts                ui/header agent — header + nav overlay; ids #site-header, #site-nav, [data-nav-toggle]
@@ -112,23 +111,20 @@ time, piecewise-linear. Beats (any tween) pass at their natural speed; the still
 the section (`--film-len` × stretch, ≤ 1.6×), never by speeding beats up. `filmTime(el, p)` is what the Stage feeds `mood(p)` and `onProgress(p)`,
 so the world and the copy share one clock.
 
-The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising (`startAt` yPercent → 0):
-a **landing**, owed `readingMs(chars)` on screen (1 s for a glance, 1.6 s floor, 3 s cap). A landing whose text is later **taken off the
-screen** (opacity → 0, a collapse, a masked line dropping) makes a **gate** at the tween that hides it; text that stays (a headline while the
-story lands under it, the faint older lines of a stack) makes none. Landings within .012 of each other are one arrival; a container fading in
-while its lines land separately is not a landing; SVG, `aria-hidden` and mono metadata count little or nothing. A gate opens when the reader
-has had time to read its text and everything that landed after it, in order (`readEnd(i) = max(readEnd(i−1), landed(i)) + ms(i)`), capped at
-4 s past the landing — so a flick that lands a stanza owes the stanza's time, never a locked door.
-`ScrollEngine` meters **forward wheel input** against `limitAhead(y)`: input that would carry past a closed gate is shortened so the scroll
-settles exactly where the text starts to leave, and the gesture is REMEMBERED (`pending`) and released the moment the gate opens, to the next
-landing whole (`nextStop`); input that reaches into a landing (or stops within 48 px of one) is extended to its completion (`settleTarget`),
-so a sentence arrives whole or not at all. Keys are routed the same way; touch stays native; programmatic jumps are never metered. `?nohold`
-switches it off (the QA scripts use it).
+The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising — and every animation that
+carries none. Landings within .011 of each other are one arrival (a line's own stagger, a stanza set as one beat), never spanning more than .05;
+anything further apart was written as a separate moment and stands alone (the eleven stars of Ch 03 are .018 apart). The end of each arrival and
+the end of each text-free animation over .04 long is a **stop**. About 278 across the film, ~20 a chapter.
 
-**The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) moves a Lenis target at `speedAt(y)`: beats take
-`beatSeconds(len)` (.55–2.4 s), still spans a .4 s rest, seams 1.15 vh/s, flowing sections .9 vh/s — and it pauses on EVERY landing for
-`PLAYER_READ` (.8) of its reading time (`playerLimit`), hidden later or not. Any wheel, key or touch stops it. `player.estimate()` ≈ the whole
-film's running time (≈ 11 min at 1440×900).
+**The wheel does not scrub.** Inside a film a gesture means *next* (or *back*): `player.step(dir)` plays the film from where it rests to the next
+stop at the pace written here — `beatSeconds(len)` .5–3.2 s for a beat, `HOLD_SECONDS_PER_UNIT` for a still stretch that carries the world's own
+motion — then rests. A fresh gesture always moves one stop, so the smallest nudge is answered; a gesture that keeps going asks for one more every
+150 px of travel, and the player queues at most three, which caps a hard flick. So a sentence always lands whole and in its own time, an animation
+is always seen at the speed it was made for, and no scroll is ever spent on an empty screen. Keys do the same (Home/End jump). Touch stays native
+— a phone still scrubs by distance, which is why `filmLength` gives touch 1.5× the scroll. `?nohold` restores free scrolling for the QA scripts.
+
+**The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) runs the whole film the same way, resting on every landing for its
+reading time. Any wheel, key or touch takes it back. `player.estimate()` ≈ 10 min at 1440×900.
 
 **Seams.** Two films in a row overlap by one screen (`.chapter--film + .chapter--film { margin-top: -100vh }`): the incoming pin — transparent,
 empty until its first beat — rises over the outgoing film's last screen instead of after it. So a chapter's frame MUST be empty by p .90 (the seam

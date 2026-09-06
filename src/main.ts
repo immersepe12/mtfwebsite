@@ -22,7 +22,6 @@ import { initPreloader } from './ui/preloader'
 import { initHeader } from './ui/header'
 import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
-import { initHoldCue } from './ui/holdcue'
 import { player } from './engine/play'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
@@ -81,7 +80,6 @@ async function boot() {
   initHeader({ scroll, chapters, content, stage })
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
-  initHoldCue()
   ;(window as any).__mtf.play = player
 
   // wait for fonts, then a frame, then open the curtain

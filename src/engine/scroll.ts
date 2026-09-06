@@ -2,7 +2,7 @@ import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { prefersReducedMotion, isTouch } from './utils'
-import { holdState, limitAhead, nextStop, settleTarget } from './hold'
+import { holdEnabled, withinFilms } from './hold'
 import { player } from './play'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -12,11 +12,9 @@ gsap.registerPlugin(ScrollTrigger)
  * Everything scroll-driven in the site reads `scroll.y`, `scroll.progress` (0..1 of the whole page)
  * and `scroll.velocity`, or uses ScrollTrigger directly.
  *
- * Wheel input passes through the hold (engine/hold.ts): when the text on screen is owed reading time before it
- * leaves, forward input is shortened so the scroll settles on it. A gesture made against that gate is not lost —
- * it is remembered and let go the moment the time is up, to the next sentence whole. A gesture that reaches into
- * a sentence's arrival completes it. Any input hands the film back from the player (engine/play.ts). The keys are
- * routed the same way.
+ * Inside the film the wheel does not scrub: a gesture means "next" (or "back"), and the film plays itself to the
+ * next stop at its written pace (engine/play.ts · engine/hold.ts). Outside the film (the footer) it scrolls
+ * freely. The keys do the same. Touch stays native. Any input takes the film back from PLAY THE STORY.
  */
 export class ScrollEngine {
   lenis: Lenis | null = null
@@ -25,8 +23,11 @@ export class ScrollEngine {
   velocity = 0
   limit = 1
   private listeners = new Set<(s: ScrollEngine) => void>()
-  /** page y of the closed gate the reader last pushed against (−1 = none): their intent, kept until the gate opens */
-  private pending = -1
+  /** a wheel gesture is counted in distance: every NOTCH px of travel asks for one more stop */
+  private wheeled = 0
+  private lastWheel = 0
+  private dir: 1 | -1 = 1
+  private static NOTCH = 150
 
   constructor() {
     const reduced = prefersReducedMotion()
@@ -47,7 +48,7 @@ export class ScrollEngine {
       ScrollTrigger.update()
       this.listeners.forEach(fn => fn(this))
     })
-    gsap.ticker.add(t => { this.lenis?.raf(t * 1000); this.release() })
+    gsap.ticker.add(t => this.lenis?.raf(t * 1000))
     gsap.ticker.lagSmoothing(0)
     // Touch devices: Lenis still runs but keeps native feel.
     if (isTouch()) document.documentElement.classList.add('is-touch')
@@ -55,51 +56,30 @@ export class ScrollEngine {
     window.addEventListener('keydown', e => this.keys(e))
   }
 
-  /** The hold, applied to wheel input (touch stays native and is not metered). */
+  /** The wheel, inside the film: one gesture, one step. */
   private meter(data: { deltaX: number; deltaY: number; event: Event }): boolean {
     const l = this.lenis
     if (!l) return true
     const e = data.event
-    const isWheel = e.type.includes('wheel')
+    if (!e.type.includes('wheel')) return true                 // touch stays native
     if (data.deltaY !== 0 || data.deltaX !== 0) player.interrupt()
-    if (!isWheel) return true
-    if (data.deltaY <= 0) { if (data.deltaY < 0) this.pending = -1; return true }
+    if (!holdEnabled || data.deltaY === 0 || l.isStopped) return true
+    if (!withinFilms(l.animatedScroll, window.innerHeight)) return true   // the footer scrolls freely
+    if (e.cancelable) e.preventDefault()
     const now = performance.now()
-    const limit = limitAhead(l.animatedScroll, now)
-    const target = l.targetScroll + data.deltaY
-    if (target > limit) {
-      // a closed gate ahead: go up to it, and remember that the reader wanted more
-      this.pending = limit
-      const room = limit - l.targetScroll
-      if (room <= 0.5) {
-        if (e.cancelable) e.preventDefault()
-        const h = holdState()
-        if (h) document.dispatchEvent(new CustomEvent('mtf:hold', { detail: h }))
-        return false
-      }
-      data.deltaY = room
-      return true
+    const dir = data.deltaY > 0 ? 1 : -1
+    // a new gesture always moves one stop, so the smallest deliberate nudge is answered; a gesture that keeps
+    // going asks for another stop every notch of travel (the player queues at most a few, which caps a hard flick)
+    if (now - this.lastWheel > 260 || dir !== this.dir) { this.wheeled = 0; this.dir = dir; player.step(dir) }
+    else {
+      this.wheeled += Math.abs(data.deltaY)
+      while (this.wheeled >= ScrollEngine.NOTCH) { this.wheeled -= ScrollEngine.NOTCH; player.step(dir) }
     }
-    // the way is open: a gesture that reaches into a sentence's arrival brings it in whole
-    const settled = Math.min(settleTarget(target), limit)
-    if (settled > target) data.deltaY = settled - l.targetScroll
-    return true
+    this.lastWheel = now
+    return false
   }
 
-  /** The remembered gesture: when the gate it pushed against opens, carry the reader on to the next sentence, whole. */
-  private release() {
-    const l = this.lenis
-    if (!l || this.pending < 0) return
-    if (l.animatedScroll < this.pending - window.innerHeight) { this.pending = -1; return }   // they went back up: forget it
-    const now = performance.now()
-    const limit = limitAhead(l.animatedScroll, now)
-    if (limit <= this.pending + 1) return                                                    // still closed
-    const stop = Math.min(nextStop(this.pending + 1, window.innerHeight), limit, l.limit)
-    this.pending = -1
-    if (stop > l.targetScroll + 0.5) l.scrollTo(stop, { programmatic: false, lerp: l.options.lerp, duration: l.options.duration, easing: l.options.easing })
-  }
-
-  /** The keys scroll through the same hold as the wheel (natively they would go around it). */
+  /** The keys: next and back, like the wheel; Home and End jump. */
   private keys(e: KeyboardEvent) {
     const l = this.lenis
     if (!l || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return
@@ -108,27 +88,24 @@ export class ScrollEngine {
     if (t && /^(BUTTON|A)$/.test(t.tagName) && e.key === ' ') return   // space presses the control it is on
     if (e.key === 'Escape') { player.interrupt(); return }
     if (document.documentElement.classList.contains('nav-open') || l.isStopped) return
-    const vh = window.innerHeight
-    let step = 0
+    let dir: 1 | -1 | 0 = 0, jump: number | null = null
     switch (e.key) {
-      case 'ArrowDown': step = 96; break
-      case 'ArrowUp': step = -96; break
-      case 'PageDown': step = vh * 0.7; break
-      case 'PageUp': step = -vh * 0.7; break
-      case ' ': step = e.shiftKey ? -vh * 0.7 : vh * 0.7; break
-      case 'End': step = Infinity; break
-      case 'Home': step = -Infinity; break
+      case 'ArrowDown': case 'PageDown': dir = 1; break
+      case 'ArrowUp': case 'PageUp': dir = -1; break
+      case ' ': dir = e.shiftKey ? -1 : 1; break
+      case 'End': jump = l.limit; break
+      case 'Home': jump = 0; break
       default: return
     }
     e.preventDefault()
     player.interrupt()
-    let target = Math.min(l.limit, Math.max(0, l.targetScroll + step))
-    if (step > 0) {
-      const limit = limitAhead(l.animatedScroll, performance.now())
-      if (target > limit) { this.pending = limit; target = limit }
-      else target = Math.min(settleTarget(target), limit)
-    } else this.pending = -1
-    l.scrollTo(target, { programmatic: false, lerp: l.options.lerp, duration: l.options.duration, easing: l.options.easing })
+    if (jump !== null) { l.scrollTo(jump, { programmatic: false, lerp: l.options.lerp, duration: l.options.duration, easing: l.options.easing }); return }
+    if (!holdEnabled || !withinFilms(l.animatedScroll, window.innerHeight)) {
+      const step = (dir as number) * window.innerHeight * 0.7
+      l.scrollTo(Math.min(l.limit, Math.max(0, l.targetScroll + step)), { programmatic: false, lerp: l.options.lerp, duration: l.options.duration, easing: l.options.easing })
+      return
+    }
+    player.step(dir as 1 | -1)
   }
 
   onScroll(fn: (s: ScrollEngine) => void) { this.listeners.add(fn); return () => this.listeners.delete(fn) }
