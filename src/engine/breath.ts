@@ -21,14 +21,19 @@ export interface Seg {
 }
 
 /**
- * A gate: text finished landing at time `from`; the next change on the timeline begins at `at`. The scroll may
- * not carry the reader past `at` until `ms` milliseconds after the landing was actually on screen (`opened`,
- * a wall-clock stamp; −1 while the landing has not happened yet). `arm` is where the landing began — scrolling
- * back above it un-lands the text, and the gate closes again.
+ * A landing: text began arriving at `arm` and was whole at `from`; it is owed `ms` milliseconds on screen from
+ * the moment it was actually there (`opened`, a wall-clock stamp; −1 while it has not happened yet). Scrolling
+ * back above `arm` un-lands it.
  */
-export interface Gate { at: number; from: number; arm: number; ms: number; chars: number; opened: number }
+export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number }
+/**
+ * A gate: a landing whose text is later taken off the screen — the tween that hides it begins at `at`. The
+ * wheel may not carry the reader past `at` until the landing has had its time. Landings that are never hidden
+ * (a headline that stays while the story arrives beneath it) make no gate: nothing is lost by moving on.
+ */
+export interface Gate extends Landing { at: number }
 
-export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; gates: Gate[] }
+export interface Breath { x: number[]; y: number[]; stretch: number; segs: Seg[]; gates: Gate[]; landings: Landing[] }
 
 /** scroll fraction → timeline time, through the map. */
 export function through(map: Breath | null, p: number): number {
@@ -62,9 +67,11 @@ export function inverse(map: Breath | null, t: number): number {
  * like a locked door. Measured in characters: SplitText hands the film letters, not words.
  */
 export function readingMs(chars: number): number {
-  if (chars <= 12) return 1200            // "Salt." · "They knew." — a glance, then a breath
-  return Math.min(4200, Math.max(2000, 600 + 42 * chars))
+  if (chars <= 12) return 1000            // "Salt." · "They knew." — a glance, then a breath
+  return Math.min(3000, Math.max(1600, 400 + 34 * chars))
 }
+/** The player pauses on every landing for this share of its reading time: a viewer who operates nothing reads a little faster. */
+export const PLAYER_READ = 0.8
 
 /** The player's pace for a beat: short beats still take a moment, long ones (an island rising) are not rushed. */
 export const beatSeconds = (len: number) => Math.min(2.4, Math.max(0.55, len * 24))

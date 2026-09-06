@@ -1,12 +1,12 @@
 import gsap from 'gsap'
 import type Lenis from 'lenis'
-import { estimateSeconds, limitAhead, speedAt } from './hold'
+import { estimateSeconds, playerLimit, speedAt } from './hold'
 
 /**
  * The player — PLAY THE STORY.
  *
- * The film scrolls itself at the pace it was written for: a beat takes the moment its motion needs, a landed
- * sentence holds for its reading time (the same time the hold owes it under the wheel), the empty seams pass
+ * The film scrolls itself at the pace it was written for: a beat takes the moment its motion needs, every landed
+ * sentence holds for its reading time (a little less than the hold owes it under the wheel), the empty seams pass
  * briskly. The pace comes from each film's breath map (engine/breath.ts · engine/hold.ts), so a chapter never
  * has to know it can be played. The reader takes the film back with any wheel, key or touch — the player stops
  * the instant they do.
@@ -53,8 +53,8 @@ class Player {
     const dt = Math.min(deltaMs, 50) / 1000
     const now = performance.now()
     const v = speedAt(this.y, window.innerHeight)
-    // the player waits at a gate the way the wheel does: the sentence gets its time, then the film goes on
-    this.y = Math.min(this.y + v * dt, l.limit, Math.max(this.y, limitAhead(l.animatedScroll, now)))
+    // the player pauses on every sentence: it lands, gets its time, then the film goes on
+    this.y = Math.min(this.y + v * dt, l.limit, Math.max(this.y, playerLimit(l.animatedScroll, now)))
     l.scrollTo(this.y, { programmatic: false, lerp: l.options.lerp, duration: l.options.duration, easing: l.options.easing })
     if (this.y >= l.limit - 0.5) this.stop()
   }

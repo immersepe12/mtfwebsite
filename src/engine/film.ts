@@ -1,6 +1,6 @@
 import { gsap, ScrollTrigger } from './scroll'
 import { filmLength } from './pacing'
-import { beatSeconds, readingMs, through, REST_SECONDS, type Breath, type Gate, type Seg } from './breath'
+import { beatSeconds, readingMs, through, REST_SECONDS, type Breath, type Gate, type Landing, type Seg } from './breath'
 import { carryGates, registerFilm, tickGates } from './hold'
 import type { ChapterCtx } from './chapter'
 
@@ -23,14 +23,16 @@ import type { ChapterCtx } from './chapter'
  *
  * THE HOLD (why a flick cannot skip a sentence)
  * Scroll is distance, reading is time. The same walk over the timeline also finds every tween that lands text
- * (opacity → 1, a masked line rising) and turns it into a gate: the next change may not begin until the text has
- * been on screen for its reading time (engine/hold.ts meters the wheel against these; engine/play.ts paces the
- * player by them). Landings that start within a hair of each other are one arrival — a stanza, a staggered
- * block — and share one gate.
+ * (opacity → 1, a masked line rising) — a LANDING, which the player pauses on — and, for each landing whose text
+ * is later taken off the screen, the tween that hides it: a GATE. The wheel may not carry the reader past a gate
+ * until the text has had its reading time (engine/hold.ts). Text that stays (a headline while the story arrives
+ * under it, the older lines of a stack) makes no gate, so a reader moves at their own pace and only a flick that
+ * would erase something unread is stopped. Landings that start within a hair of each other are one arrival.
  */
 
-/** How much more scroll a still moment gets than an animating one. */
-const HOLD_WEIGHT = 2.2
+/** How much more scroll a still moment gets than an animating one. (Reading TIME is the hold's business — engine/hold.ts — so
+ *  a pause needs only a little more scroll than its beats, not double.) */
+const HOLD_WEIGHT = 1.5
 /** The pauses are paid for with extra length, not by speeding the beats up. Cap how much a chapter may grow. */
 const STRETCH_MAX = 1.6
 /** No single pause may eat more than this share of a chapter, however long the gap. */
@@ -63,7 +65,7 @@ export const filmTime = (el: HTMLElement, p: number): number => {
   return get ? through(get(), p) : p
 }
 
-interface Span { a: number; b: number; landing: boolean; chars: number; els: Element[] }
+interface Span { a: number; b: number; landing: boolean; leaving: boolean; chars: number; els: Element[] }
 const META = '.eyebrow, .eye__t, .eye__d, .label, .index, .coords, .chip, .chip-row, .stamp, .stamp__n, .fine, .note, .signoff, .day__head, .forum__label, .forum__lab, .sector__i, .sector__l'
 
 /** Readable characters under an element: glyphs, SVG titles and anything aria-hidden are not copy. */
@@ -81,6 +83,12 @@ function readableChars(root: Element): number {
   if (root.tagName === 'svg' || root.getAttribute('aria-hidden') === 'true') return 0
   for (let node = walker.nextNode(); node; node = walker.nextNode()) n += (node.textContent || '').replace(/\s+/g, ' ').trim().length
   return n
+}
+
+/** Does this tween take something off the screen (opacity → 0, a collapse, a masked line dropping out)? */
+function leaves(tw: gsap.core.Tween): boolean {
+  const v: any = tw.vars || {}
+  return v.opacity === 0 || v.autoAlpha === 0 || v.height === 0 || v.maxHeight === 0 || (typeof v.yPercent === 'number' && Math.abs(v.yPercent) >= 100 && !v.startAt)
 }
 
 /** Does this tween bring something onto the screen (opacity → 1, a masked line rising, a `from` hidden)? */
@@ -106,7 +114,7 @@ function spansOf(tl: gsap.core.Timeline, spacerTarget: object): Span[] {
     if (b <= a) continue
     const targets = (typeof tw.targets === 'function' ? tw.targets() : []) as unknown[]
     const els = targets.filter((t): t is Element => t instanceof Element)
-    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), chars: 0, els })
+    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), leaving: els.length > 0 && leaves(tw), chars: 0, els })
   }
   // a landing is text arriving. A container that fades in while its lines land one by one is not a landing —
   // the lines are; and a frieze or a glyph fading in has nothing to read at all.
@@ -127,20 +135,23 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   const spans = spansOf(tl, spacerTarget)
   if (!spans.length) return null
 
-  // ── the gates: each arrival of text, and the next change after it ──
-  const groups: { a: number; e: number; chars: number }[] = []
+  // ── the landings: each arrival of text; and the gates: the moment that arrival is taken away again ──
+  const groups: { a: number; e: number; chars: number; els: Element[] }[] = []
   for (const s of spans) {
     if (!s.landing) continue
     const g = groups[groups.length - 1]
-    if (g && s.a - g.a <= GROUP_GAP) { g.e = Math.max(g.e, s.b); g.chars += s.chars }
-    else groups.push({ a: s.a, e: s.b, chars: s.chars })
+    if (g && s.a - g.a <= GROUP_GAP) { g.e = Math.max(g.e, s.b); g.chars += s.chars; g.els.push(...s.els) }
+    else groups.push({ a: s.a, e: s.b, chars: s.chars, els: [...s.els] })
   }
+  const landings: Landing[] = []
   const gates: Gate[] = []
+  const touches = (a: Element[], b: Element[]) => a.some(x => b.some(y => x === y || x.contains(y) || y.contains(x)))
   for (const g of groups) {
-    let at = 1
-    for (const s of spans) if (s.a >= g.e - 1e-4 && s.a > g.a && s.a < at) at = s.a
-    if (at - g.e < -1e-4) continue
-    gates.push({ at, from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1 })
+    const landing: Landing = { from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1 }
+    landings.push(landing)
+    let at = Infinity
+    for (const s of spans) if (s.leaving && s.a >= g.e - 1e-4 && s.a > g.a && s.a < at && touches(s.els, g.els)) at = s.a
+    if (at !== Infinity) gates.push(Object.assign(landing, { at }))
   }
 
   // ── the beats: merge overlapping tweens — simultaneous tweens are one moment of movement ──
@@ -190,7 +201,7 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // `norm` is how much scroll the chapter now wants: 1 would squeeze the pauses out of the beats' own time
   // (a beat would play faster than before, which reads as skipping). Growing the section instead keeps every
   // beat at exactly the speed it had and spends the new length on the stillness between them.
-  return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, gates }
+  return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, gates, landings }
 }
 
 export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: number | boolean; snap?: boolean; onUpdate?: (p: number) => void; breathe?: boolean } = {}) {
@@ -223,7 +234,7 @@ export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: num
   const build = () => {
     const prev = map
     map = opts.breathe === false ? null : breathe(tl, spacerTarget)
-    if (map) carryGates(prev?.gates, map.gates)
+    if (map) carryGates(prev?.landings, map.landings)
     built = true
     // pay for the pauses in length, once, before the visitor gets here
     if (map && !stretched && map.stretch > 1.01) {
@@ -239,7 +250,7 @@ export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: num
     if (Math.abs(t - lastT) < 1e-4) return
     lastT = t
     tl.progress(t)
-    if (map) tickGates(map.gates, t, performance.now())
+    if (map) tickGates(map.landings, t, performance.now())
   }
   // build once the chapter's timeline exists (the first refresh happens after every chapter has mounted),
   // and rebuild when it re-splits text or the layout changes

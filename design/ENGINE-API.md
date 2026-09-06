@@ -112,17 +112,23 @@ time, piecewise-linear. Beats (any tween) pass at their natural speed; the still
 the section (`--film-len` × stretch, ≤ 1.6×), never by speeding beats up. `filmTime(el, p)` is what the Stage feeds `mood(p)` and `onProgress(p)`,
 so the world and the copy share one clock.
 
-The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising (`startAt` yPercent → 0) —
-and makes a **gate**: the next change on the timeline may not begin until the text has been on screen for `readingMs(chars)` (1.2 s for a
-glance, 2 s floor, up to 4.2 s). Landings that begin within .012 of each other are one arrival (a stanza, a staggered block) and share a gate; a
-container fading in while its lines land separately is not a landing; SVG, `aria-hidden` and mono metadata (`.eyebrow .label .chip …`) count
-little or nothing. `ScrollEngine` meters **forward wheel input** against `limitAhead(y)`: input that would carry past a closed gate is shortened so
-the scroll settles exactly where the next change begins, and is absorbed (with `mtf:hold` → the reading cue) until the time is given. Keys are
-routed through the same hold; touch stays native; programmatic jumps are never metered. `?nohold` switches it off (the QA scripts use it).
+The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising (`startAt` yPercent → 0):
+a **landing**, owed `readingMs(chars)` on screen (1 s for a glance, 1.6 s floor, 3 s cap). A landing whose text is later **taken off the
+screen** (opacity → 0, a collapse, a masked line dropping) makes a **gate** at the tween that hides it; text that stays (a headline while the
+story lands under it, the faint older lines of a stack) makes none. Landings within .012 of each other are one arrival; a container fading in
+while its lines land separately is not a landing; SVG, `aria-hidden` and mono metadata count little or nothing. A gate opens when the reader
+has had time to read its text and everything that landed after it, in order (`readEnd(i) = max(readEnd(i−1), landed(i)) + ms(i)`), capped at
+4 s past the landing — so a flick that lands a stanza owes the stanza's time, never a locked door.
+`ScrollEngine` meters **forward wheel input** against `limitAhead(y)`: input that would carry past a closed gate is shortened so the scroll
+settles exactly where the text starts to leave, and the gesture is REMEMBERED (`pending`) and released the moment the gate opens, to the next
+landing whole (`nextStop`); input that reaches into a landing (or stops within 48 px of one) is extended to its completion (`settleTarget`),
+so a sentence arrives whole or not at all. Keys are routed the same way; touch stays native; programmatic jumps are never metered. `?nohold`
+switches it off (the QA scripts use it).
 
 **The player** (`player.start/stop/toggle`, the header's PLAY pill, `?autoplay`) moves a Lenis target at `speedAt(y)`: beats take
-`beatSeconds(len)` (.55–2.4 s), still spans a .4 s rest, seams 1.15 vh/s, flowing sections .9 vh/s — and it waits at gates exactly as the wheel does.
-Any wheel, key or touch stops it. `player.estimate()` ≈ the whole film's running time (≈ 13½ min at 1440×900).
+`beatSeconds(len)` (.55–2.4 s), still spans a .4 s rest, seams 1.15 vh/s, flowing sections .9 vh/s — and it pauses on EVERY landing for
+`PLAYER_READ` (.8) of its reading time (`playerLimit`), hidden later or not. Any wheel, key or touch stops it. `player.estimate()` ≈ the whole
+film's running time (≈ 11 min at 1440×900).
 
 **Seams.** Two films in a row overlap by one screen (`.chapter--film + .chapter--film { margin-top: -100vh }`): the incoming pin — transparent,
 empty until its first beat — rises over the outgoing film's last screen instead of after it. So a chapter's frame MUST be empty by p .90 (the seam

@@ -78,3 +78,13 @@ Client: "the last two lines are coming in the middle of the transition"; "the se
 - Real-device trackpad feel of the hold (the QA drives synthetic wheel events at 60 Hz); tune `readingMs` if 2 s per line feels long in practice.
 - The player's total (~13½ min) is honest reading pace; if a brisker sit-back mode is wanted, scale the gate time for the player only.
 - Reduced-motion and no-gl stacks after the island: the static frames have no island (the GL layer only).
+
+## Round 6 — "every sentence needs four scrolls" (2026-09-06)
+Client: "the scroll has become way too long, 17 minutes, every word is loading after like 4 scrolls — the first screen especially."
+The hold was gating every arrival and throwing away any swipe made before the two seconds were up. Simple fix, four parts:
+- a swipe made against a closed gate is remembered and released the moment the time is up (to the next sentence, whole);
+- a swipe that reaches into a sentence's arrival completes it (no half-faded lines, no second swipe to finish one);
+- only text that is about to LEAVE the screen is held — a headline stays while the story lands under it, the older lines of a stack stay faint — so a reader moves at their own pace and only a flick that would erase something unread is stopped; a stanza landed by one flick owes its lines' time in sequence, capped at 4 s;
+- reading times 1.6 s floor / 3 s cap (1 s for a glance); holds get 1.5× scroll instead of 2.2×; the pacing table × .8. Page 57.9k → 44.7k px; the player ≈ 11 min; the player still pauses on every sentence.
+Traces (scratchpad/gesture.mjs — 160 px swipes 1.3 s apart): hero 1 swipe → headline, 2 → the stanza, 3 → the three questions; warning 1 → headline, 2 → two lines, 3 → four more, 4 → Zeus, then the Shatter holds until the stanza has had its time.
+Open: Ch 07 renders at ~36 ms/frame at 1440×900 (steady, not spikes) — attribute by `?nolayer=` before touching anything.
