@@ -48,6 +48,10 @@ const GROUP_GAP = 0.011
 const GROUP_MAX = 0.05
 /** A stretch of animation with no text in it is a stop of its own only if it is at least this long. */
 const ANIM_MIN = 0.08
+/** Arrivals that follow one another this closely belong to the same moment: one gesture plays them all. */
+const STOP_GAP = 0.09
+/** …and one moment never spans more than this much of a chapter, so a long sequence is two or three gestures. */
+const STOP_SPAN = 0.15
 /** A stop is nudged clear of a beat still running only if that beat is short — a line rising out of its mask, not
  *  a slow continuous change (an optical size drifting, a camera crossing a chapter), which one may rest inside. */
 const SETTLE_MAX = 0.08
@@ -205,8 +209,17 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
     }
     return out
   }
+  // A gesture should advance a MOMENT, not a tween: arrivals that follow one another closely are played by one
+  // gesture, at the pace the timeline wrote them — the stanza arrives line by line over several seconds, exactly
+  // as it does when the film plays itself, and the reader decides when the next moment begins.
   const stops = new Set<number>()
-  for (const l of landings) stops.add(+settle(l.from).toFixed(4))
+  const moments: { a: number; b: number }[] = []
+  for (const l of landings) {
+    const m = moments[moments.length - 1]
+    if (m && l.arm - m.b <= STOP_GAP && l.from - m.a <= STOP_SPAN) m.b = Math.max(m.b, l.from)
+    else moments.push({ a: l.arm, b: l.from })
+  }
+  for (const m of moments) stops.add(+settle(m.b).toFixed(4))
   // …and the end of a long animation that carries no text at all (nothing lands inside it to rest on)
   for (const [a, b] of beats) {
     if (b - a < ANIM_MIN) continue

@@ -113,13 +113,14 @@ so the world and the copy share one clock.
 
 The same walk finds every tween that **lands text** — opacity/autoAlpha → 1, a `from` hidden, a masked line rising. Landings within .011 of
 each other are one arrival (a line's own stagger, a stanza set as one beat), never spanning more than .05; anything further apart was written as a
-separate moment and stands alone (the eleven stars of Ch 03 are .018 apart). A **stop** is the end of an arrival, or the end of a text-free
-animation over .08 long — and it is nudged past any *short* beat still running (`SETTLE_MAX` .08), so the film never rests on a headline caught
+separate moment and stands alone (the eleven stars of Ch 03 are .018 apart). Arrivals that follow one another within .09, up to a span of .15, are one **moment**, and a moment's end is a
+**stop** — so one gesture plays a stanza line by line over several seconds, exactly as the film plays it to itself. The end of a text-free
+animation over .08 long is also a stop — and it is nudged past any *short* beat still running (`SETTLE_MAX` .08), so the film never rests on a headline caught
 halfway out of its mask; a long continuous change (an optical size drifting across a chapter) is fine to rest inside. A chapter's own end is not a
 stop: the last line of one chapter and the first of the next are consecutive, and the exit, the seam and the run-in all play inside one gesture.
-About 247 stops across the film, ~18 a chapter.
+About 79 stops across the film, five to seven a chapter.
 
-**The wheel does not scrub.** Inside a film a gesture means *next* (or *back*): `player.step(dir)` plays the film from where it rests to the next
+**The wheel does not scrub.** Inside a film a gesture means *next moment* (or *back*): `player.step(dir)` plays the film from where it rests to the next
 stop at the pace written here — `beatSeconds(len)` .55–4 s for a beat, `HOLD_SECONDS_PER_UNIT` for a still stretch carrying the world's own motion —
 then rests. Scrolling therefore shows exactly the sequence PLAY THE STORY shows; the only difference is who decides when to move on. A fresh
 gesture always moves one stop, so the smallest nudge is answered; a gesture that keeps going asks for one more every 150 px, and the player queues

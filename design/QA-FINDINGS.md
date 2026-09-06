@@ -107,3 +107,9 @@ Client: "when I click on play it works perfectly well, it is playing at good spe
 - Also: eyebrows and index lines are anchors now (Ch 04 portrait); Ch 04's Kalyptein waits for the Forum to clear the single portrait column (.885); Ch 08's *I AM ULYSSES.* can be moved by the resolver; `overlap.mjs` waits 520 ms so it stops reporting mid-transition frames. **No text overlaps at 1440×900, 1920×1080 or 390×844.**
 - Frames p50 16.8 ms, 9.6 % over 32 ms.
 Open: Ch 07 renders steadily at ~36 ms/frame — attribute with `?nolayer=`. Touch is still a distance scrub.
+
+## Round 9 — a gesture is a moment, not a tween (2026-09-06)
+Client: "still way too many scrolls, the first screen itself — open it in preview and try scrolling, you will know." So I did, in the browser pane: three gestures on the hero and the screen had barely changed — a tagline, then one paragraph line, then another. One gesture was advancing ONE arrival of text.
+- **A stop is now the end of a MOMENT**: arrivals within .09 of each other, up to a span of .15, are played by a single gesture — the stanza still lands line by line over several seconds, at the pace the timeline wrote, exactly as PLAY renders it. 247 → **79 stops across the whole film, five to seven a chapter**; the hero went 9 → 5. Verified by scrolling it: gesture 1 the tagline and the opening paragraph, 2 the rest of the copy, 3–4 the three question cards and *The Sun fills the screens.*, 5 the seam into Ch 02, 6 the headline with the cattle on the horizon and four storyteller lines, 7 the lightning and the Shatter.
+- 116 gestures reach the end of the page (79 through the film, the rest the footer, which scrolls freely).
+Open: the one remaining `overlap.mjs` hit (rudder p .85, *I AM ULYSSES.*) is a false positive — measured directly at five positions there is a 32 px gap, and the frame is clean in a screenshot. Ch 07's steady ~36 ms/frame; touch still scrubs by distance.
