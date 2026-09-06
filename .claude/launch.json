@@ -3,8 +3,7 @@
   "configurations": [
     {
       "name": "mtf-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "url": "http://localhost:5173",
       "port": 5173
     }
   ]
