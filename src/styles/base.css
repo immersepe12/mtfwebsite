@@ -111,5 +111,15 @@ html.nav-open #app { pointer-events: none; }
 @media (max-width: 820px) { .grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; } }
 .stack > * + * { margin-top: 1.25rem; }
 
+/* Thirteen of the fourteen chapters are always off screen, and the browser was still styling, laying out and
+   painting every one of them on every frame. `content-visibility` lets it skip that work entirely until the
+   section is near the viewport; the height is already known from --film-len, so nothing jumps. */
+.chapter { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
+.chapter--film { contain-intrinsic-size: auto calc(var(--film-len, 3) * 100vh); }
+
+/* A chapter that is not on screen must not animate: idle loops (rims, shine, glints) in the other thirteen
+   chapters cost main-thread time every frame and show up as dropped frames while scrolling. */
+.chapter:not(.is-active) *, .chapter:not(.is-active) *::before, .chapter:not(.is-active) *::after { animation-play-state: paused !important; }
+
 /* reduced motion: no loops, no transitions of consequence */
 html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; }

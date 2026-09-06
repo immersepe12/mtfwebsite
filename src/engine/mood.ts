@@ -69,6 +69,22 @@ export function lerpMood(a: Mood, b: Mood, t: number, out: Mood = { ...a }): Moo
   return out
 }
 
+/**
+ * Resolve a chapter's mood for progress `p` INTO `out` (no allocation): the Stage calls this every frame for the
+ * current chapter and the next one, and returning fresh objects here is a steady drip of garbage at 60fps.
+ */
+export function resolveMoodInto(out: Mood, spec: MoodSpec | undefined, p: number, base: Mood = DEFAULT_MOOD): Mood {
+  copyMood(base, out)
+  const patch = typeof spec === 'function' ? spec(p) : (spec ?? {})
+  for (const k in patch) {
+    const v = (patch as any)[k]
+    if (v === undefined) continue
+    if (isRGB(v)) { const o = out[k as keyof Mood] as RGB; o[0] = v[0]; o[1] = v[1]; o[2] = v[2] }
+    else (out as any)[k] = v
+  }
+  return out
+}
+
 export function resolveMood(spec: MoodSpec | undefined, p: number, base: Mood = DEFAULT_MOOD): Mood {
   const patch = typeof spec === 'function' ? spec(p) : (spec ?? {})
   return { ...base, ...patch }

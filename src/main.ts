@@ -56,7 +56,10 @@ async function boot() {
   try {
     if (canvas && !html.classList.contains('no-gl')) {
       world = new World(canvas, shared)
-      world.addLayer(new SkyLayer()).addLayer(new StarsLayer()).addLayer(new SunLayer()).addLayer(new SeaLayer()).addLayer(new TesseraeLayer())
+      // ?nolayer=tesserae,sea — diagnostic: leave layers out to find what a frame is actually spending its time on
+      const skip = new Set((qsBoot.get('nolayer') || '').split(',').filter(Boolean))
+      for (const [name, make] of [['sky', () => new SkyLayer()], ['stars', () => new StarsLayer()], ['sun', () => new SunLayer()], ['sea', () => new SeaLayer()], ['tesserae', () => new TesseraeLayer()]] as const)
+        if (!skip.has(name)) world.addLayer(make())
     }
   } catch (e) { console.warn('[gl] WebGL unavailable, running DOM-only', e); html.classList.add('no-gl'); world = null }
 
@@ -98,7 +101,7 @@ async function boot() {
     stage.frame(shared)
     world?.update(shared)
   })
-  if (world) { stage.frame(shared); world.snap(); world.update(shared) }
+  if (world) { stage.frame(shared); world.snap(); world.update(shared); world.prewarm(shared) }
   progress('frame', 1)
 
   await preloader.done()

@@ -41,6 +41,11 @@ export class World {
   private ctx: LayerCtx
   private dprCap = 1.75
   private cssTick = 0
+  private lastSky = -1
+  private lastWarmth = -1
+  private lastVeil = -1
+  private lastTear = -1
+  private lastHorizon = -1
   private tmpV = new THREE.Vector3()
   private idleFor = 0
   private frameParity = 0
@@ -82,6 +87,28 @@ export class World {
   /** Convenience accessors for layers other modules need to talk to (e.g. the tesserae formation anchors). */
   layer<T extends Layer = Layer>(name: string): T | undefined { return this.layers.find(l => l.name === name) as T | undefined }
   get tesserae() { return this.layer<any>('tesserae') }
+  /**
+   * Compile every material and warm the post chain before the film starts. A shader that first compiles when
+   * its chapter arrives stalls the main thread for hundreds of milliseconds — exactly the hitch you feel as
+   * the scroll "sticking" at a transition.
+   */
+  prewarm(shared: Shared) {
+    try {
+      this.renderer.compile(this.scene, this.camera)
+      const m = this.mood
+      const was = { mosaic: m.mosaic, tess: m.tess, tessForm: m.tessForm, stars: m.stars, veil: m.veil }
+      // touch the states that own their own shader branches so nothing compiles mid-scroll
+      for (const form of [0, 1, 2, 3, 4, 5]) {
+        m.tess = 1; m.tessForm = form; m.mosaic = form === 0 ? 0.5 : 0; m.stars = 1
+        for (const l of this.layers) l.update(m, shared, this.ctx)
+        this.composer.render(1 / 60)
+      }
+      Object.assign(m, was)
+      for (const l of this.layers) l.update(m, shared, this.ctx)
+      this.composer.render(1 / 60)
+    } catch (e) { console.warn('[gl] prewarm skipped', e) }
+  }
+
   setTarget(m: Mood) { copyMood(m, this.target) }
   snap() { copyMood(this.target, this.mood); this.forceRender = true }
   forceRender = true
@@ -123,18 +150,25 @@ export class World {
     this.tmpV.copy(this.sunWorld).project(this.camera)
     this.sunNdc.set(this.tmpV.x, this.tmpV.y)
     // expose the live sky to CSS (chrome tints itself from the world: --sky-now, --warmth-now)
+    // ── the world's live values, published to CSS ──────────────────────────────────────────────────
+    // Writing a custom property on the root invalidates style for the whole document, so each value is
+    // quantised and only written when it has actually changed: at 60fps an unquantised write is a full
+    // style recalculation several times a second, and that is what a stutter is made of.
     this.cssTick = (this.cssTick + 1) % 3
     if (this.cssTick === 0) {
-      const r = Math.round(m.skyBottom[0] * 255), g = Math.round(m.skyBottom[1] * 255), b = Math.round(m.skyBottom[2] * 255)
       const root = document.documentElement.style
-      root.setProperty('--sky-now', `rgb(${r} ${g} ${b})`)
-      root.setProperty('--warmth-now', m.warmth.toFixed(3))
-      root.setProperty('--veil-now', m.veil.toFixed(4))
-      root.setProperty('--tear-now', m.p4.toFixed(4))
-      // horizon: a point far ahead on the sea plane in the camera's heading
+      const r = Math.round(m.skyBottom[0] * 255), g = Math.round(m.skyBottom[1] * 255), b = Math.round(m.skyBottom[2] * 255)
+      const sky = (r << 16) | (g << 8) | b
+      if (sky !== this.lastSky) { this.lastSky = sky; root.setProperty('--sky-now', `rgb(${r} ${g} ${b})`) }
+      const w = Math.round(m.warmth * 50) / 50
+      if (w !== this.lastWarmth) { this.lastWarmth = w; root.setProperty('--warmth-now', w.toFixed(2)) }
+      const v = Math.round(m.veil * 500) / 500
+      if (v !== this.lastVeil) { this.lastVeil = v; root.setProperty('--veil-now', v.toFixed(3)) }
+      const tr = Math.round(m.p4 * 500) / 500
+      if (tr !== this.lastTear) { this.lastTear = tr; root.setProperty('--tear-now', tr.toFixed(3)) }
       this.tmpV.set(m.camX - Math.sin(m.camYaw) * 400, m.seaY, m.camZ - Math.cos(m.camYaw) * 400).project(this.camera)
-      const hy = Math.min(80, Math.max(30, (1 - this.tmpV.y) * 50))
-      root.setProperty('--horizon-now', `${hy.toFixed(2)}%`)
+      const hy = Math.round(Math.min(80, Math.max(30, (1 - this.tmpV.y) * 50)) * 8) / 8
+      if (hy !== this.lastHorizon) { this.lastHorizon = hy; root.setProperty('--horizon-now', `${hy.toFixed(2)}%`) }
     }
     // effects
     this.effects.bloom.intensity = m.bloom

@@ -168,7 +168,7 @@ export function initRail({ stage, scroll, world, chapters, content }: RailArgs) 
   const rest = new Map<HTMLElement, { x: number; y: number }>()
   const sunPx = () => {
     if (world) return { x: (world.sunNdc.x * 0.5 + 0.5) * innerWidth, y: (1 - (world.sunNdc.y * 0.5 + 0.5)) * innerHeight }
-    const hz = parseFloat(getComputedStyle(html).getPropertyValue('--horizon-now')) || 62
+    const hz = parseFloat(html.style.getPropertyValue('--horizon-now')) || 62
     return { x: innerWidth * 0.5, y: innerHeight * (hz / 100) }
   }
   const measureRest = () => {

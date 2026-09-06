@@ -29,6 +29,7 @@ import type { Shared } from '../../engine/chapter'
  * No allocations in update(): every value is a scalar uniform write or an in-place copy.
  */
 
+const SUN_DISTANCE = 140   // world units: far enough to sit behind the sea disc (r 392) at the horizon
 const MIN_QUAD_PX = 72
 
 const vert = /* glsl */ `
@@ -199,14 +200,26 @@ export class SunLayer implements Layer {
     ctx.scene.add(this.mesh)
   }
 
+  private dir = new THREE.Vector3()
+
   update(m: Mood, s: Shared, ctx: LayerCtx) {
     const cam = ctx.camera
     const radius = Math.max(m.sunRadius, 1e-3)
-    this.mesh.position.set(m.sunX, m.sunY, m.sunZ)
+    // ── the sun is a celestial body, never an object in the scene ──────────────────────────────────
+    // A chapter declares where the sun should APPEAR (sunX/Y/Z); if that point is close to the camera the
+    // billboard renders in front of the water and reads as a lamp floating on the sea. So the declared point
+    // is treated as a DIRECTION: the disc is pushed out along the same ray to a fixed far distance and its
+    // radius scaled by the same factor, which keeps its screen position and apparent size exactly as declared
+    // while putting it beyond every other object. The sea then cuts it at the horizon, the way a real sunset is.
+    this.dir.set(m.sunX, m.sunY, m.sunZ).sub(cam.position)
+    const declared = Math.max(this.dir.length(), 0.05)
+    const far = Math.max(declared, SUN_DISTANCE)
+    this.mesh.position.copy(cam.position).addScaledVector(this.dir.multiplyScalar(1 / declared), far)
+    const push = far / declared
     // world units per CSS pixel at the billboard's distance (vertical fov)
-    const dist = Math.max(cam.position.distanceTo(this.mesh.position), 0.05)
+    const dist = far
     const worldPerPx = (2 * dist * Math.tan((cam.fov * Math.PI) / 360)) / Math.max(s.vh, 1)
-    const nominal = radius * 3.2
+    const nominal = radius * push * 3.2
     const sc = Math.max(nominal, MIN_QUAD_PX * worldPerPx)
     this.mesh.scale.set(sc, sc, 1)
     this.mesh.quaternion.copy(cam.quaternion)

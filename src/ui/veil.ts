@@ -149,7 +149,7 @@ export function initVeil({ world }: { world: World | null }) {
   let lastEdge = ''
   let lastTear = -1
   let torn = false
-  const cs = getComputedStyle(html) // live declaration: one read of each var per frame, no re-query
+  const cs = html.style            // the world writes these inline; reading the inline value costs no style flush
   const readVeil = () => parseFloat(cs.getPropertyValue('--veil-now')) || 0
 
   const build = () => {

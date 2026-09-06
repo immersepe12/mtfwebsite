@@ -1,8 +1,9 @@
 import { ScrollTrigger } from './scroll'
+import { filmTime } from './film'
 import type { ScrollEngine } from './scroll'
 import type { World } from './gl'
 import type { Chapter, ChapterCtx, Shared } from './chapter'
-import { DEFAULT_MOOD, lerpMood, resolveMood, type Mood } from './mood'
+import { DEFAULT_MOOD, lerpMood, resolveMoodInto, type Mood } from './mood'
 import { clamp, smoothstep } from './utils'
 
 interface Mounted { chapter: Chapter; el: HTMLElement; ctx: ChapterCtx; top: number; height: number; active: boolean; film: boolean; filmLen: number }
@@ -63,7 +64,8 @@ export class Stage {
   /** Local progress of a mounted chapter for the current scroll position (film: pinned travel; flowing: centre passage). */
   travelOf(m: Mounted, vh: number) { return Math.max(1, (m.filmLen ? m.filmLen * vh : m.height) - vh) }
   progressOf(m: Mounted, scrollY: number, vh: number) {
-    if (m.film) return clamp((scrollY - m.top) / this.travelOf(m, vh))
+    // a film's p is its timeline's own time, so the world and the copy move together (see engine/film.ts)
+    if (m.film) return filmTime(m.el, clamp((scrollY - m.top) / this.travelOf(m, vh)))
     return clamp((scrollY + vh * 0.5 - m.top) / m.height)
   }
 
@@ -78,13 +80,13 @@ export class Stage {
     if (i < 0) i = centre < list[0].top ? 0 : list.length - 1
     const cur = list[i]
     const p = this.progressOf(cur, scrollY, vh)
-    Object.assign(this.tmpA, resolveMood(cur.chapter.mood, p, DEFAULT_MOOD))
+    resolveMoodInto(this.tmpA, cur.chapter.mood, p, DEFAULT_MOOD)
     const next = list[i + 1]
     if (next) {
       // films hand over at the seam (their frames are empty by p .90); flowing sections blend earlier
       const s = cur.film ? smoothstep(0.86, 1.0, p) : smoothstep(0.62, 1.0, p)
       if (s > 0) {
-        Object.assign(this.tmpB, resolveMood(next.chapter.mood, 0, DEFAULT_MOOD))
+        resolveMoodInto(this.tmpB, next.chapter.mood, 0, DEFAULT_MOOD)
         lerpMood(this.tmpA, this.tmpB, s, this.target)
         return this.target
       }
