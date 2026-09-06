@@ -30,7 +30,6 @@ html.theme-paper :focus-visible { outline-color: var(--terra); }
 #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: var(--z-gl); pointer-events: none; }
 html.no-gl #gl { display: none; }
 #app { position: relative; z-index: var(--z-app); }
-#veil { position: fixed; inset: 0; z-index: var(--z-veil); pointer-events: none; }
 #corners { position: fixed; inset: 0; z-index: var(--z-header); pointer-events: none; }
 
 /* chapters */

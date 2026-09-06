@@ -85,7 +85,9 @@ const STORY: string[][] = [
   ['A nymph.', 'Calypso.', 'And her island was called…', 'Ogygia.', 'An ancient name.'],
   ['Primeval.', 'Through the centuries, Ogygia became rooted in the identity of an island at the heart of this sea:', 'Gozo.', 'Red earth at Ramla.', 'Honey-coloured limestone.'],
   ['Caves watching the horizon.', 'The heart of the Mediterranean.', 'Its eye upon the sea.', 'Its soul carved in stone.'],
+  ['Kalyptein.', 'To cover. To conceal.', 'To draw a veil.'],
 ]
+/** The cloth is gone; these lines are the Storyteller's and stay in the chapter's own frame. */
 const VEIL_LINE = 'Kalyptein. / To cover. To conceal. / To draw a veil.'
 const HOTEL = 'BOOK A HOTEL IN MALTA'
 
@@ -107,8 +109,6 @@ let lastCx = -1, lastCy = -1, lastPpu = -1
 const setVeilLine = (on: boolean) => {
   if (on === veilSet) return
   veilSet = on
-  if (on) veilEl?.setAttribute('data-veil-line', VEIL_LINE)
-  else veilEl?.removeAttribute('data-veil-line')
 }
 
 function frameHTML(c: any): string {
@@ -182,7 +182,7 @@ export const ogygia: Chapter = {
     const qa = (sel: string) => Array.from(pin.querySelectorAll<HTMLElement>(sel))
     const rise = qa('.isle__rise'), ripplesEl = q('.ripples'), rings = qa('.ripple'), plate = q('.plate'), fr = q('.glyph--frame')
     const eyeRule = q('.eye__rule'), eyeT = q('.eye__t'), coords = q('.coords'), hl = q('.hl'), head = q('.head')
-    const stacks = [qa('.stack--0 .s'), qa('.stack--1 .s'), qa('.stack--2 .s')]
+    const stacks = [qa('.stack--0 .s'), qa('.stack--1 .s'), qa('.stack--2 .s'), qa('.stack--3 .s')]
     const forum = q('.forum'), fRule = q('.forum__rule'), fLabel = q('.forum__label')
     const mvA = qa('.mv--a > *'), mvM = qa('.mv--m > *'), mvC = qa('.mv--c > *')
     const statRules = qa('.stat__rule')
@@ -232,7 +232,8 @@ export const ogygia: Chapter = {
     /* stack 3's last line lands at .506, so its exit must sit after it on the timeline (a stack that
        exits before its own lines land leaves them stranded on screen — QA round 3, mobile). */
     const HEAD_OUT = .534
-    const starts = [.21, .328, .446], exits = [.318, .436, HEAD_OUT]
+    // stack 4 (Kalyptein) closes the chapter where the veil used to carry it
+    const starts = [.21, .328, .446, .86], exits = [.318, .436, HEAD_OUT, .95]
     stacks.forEach((lines, s) => {
       lines.forEach((l, i) => land(l, starts[s] + i * .02, lines[i - 1]))
       tl.to(lines, { opacity: 0, y: -8, duration: .014 }, exits[s])

@@ -1,5 +1,6 @@
 import { ScrollTrigger } from './scroll'
 import { filmTime } from './film'
+import { avoidAll, avoidOverlaps } from './avoid'
 import type { ScrollEngine } from './scroll'
 import type { World } from './gl'
 import type { Chapter, ChapterCtx, Shared } from './chapter'
@@ -41,16 +42,26 @@ export class Stage {
       ScrollTrigger.create({
         trigger: el, start: m.film ? 'top top' : 'top bottom', end: m.film ? filmEnd : 'bottom top',
         onUpdate: st => chapter.onProgress?.(st.progress, ctx),
-        onEnter: () => { m.active = true; el.classList.add('is-active'); chapter.onEnter?.(ctx) },
-        onEnterBack: () => { m.active = true; el.classList.add('is-active'); chapter.onEnter?.(ctx) },
+        onEnter: () => { m.active = true; el.classList.add('is-active'); this.resolve(el); chapter.onEnter?.(ctx) },
+        onEnterBack: () => { m.active = true; el.classList.add('is-active'); this.resolve(el); chapter.onEnter?.(ctx) },
         onLeave: () => { m.active = false; el.classList.remove('is-active'); chapter.onLeave?.(ctx) },
         onLeaveBack: () => { m.active = false; el.classList.remove('is-active'); chapter.onLeave?.(ctx) },
       })
+      // resolve this chapter's collisions the first time it comes near — its headline's line breaks are only
+      // knowable once it is laid out, and the frames are skipped (content-visibility) until then
+      ScrollTrigger.create({ trigger: el, start: 'top bottom+=60%', end: 'bottom top-=60%', onEnter: () => this.resolve(el), onEnterBack: () => this.resolve(el) })
       // films also count as active while they are entering/leaving the viewport (for onFrame work near the seams)
       if (m.film) ScrollTrigger.create({ trigger: el, start: 'top bottom', end: 'bottom top', onToggle: st => { if (!st.isActive) { m.active = false; el.classList.remove('is-active') } } })
     }
     this.measure()
-    ScrollTrigger.addEventListener('refresh', () => this.measure())
+    ScrollTrigger.addEventListener('refresh', () => { this.measure(); avoidAll() })
+    // the headline's line breaks decide where the story can start, so resolve collisions once the type is set
+    document.fonts?.ready.then(() => avoidAll()).catch(() => {})
+  }
+
+  /** Push any block that has landed on the headline clear of it, once the chapter is laid out. */
+  resolve(el: HTMLElement) {
+    for (const frame of Array.from(el.querySelectorAll<HTMLElement>('.pin__frame, .ch-inner'))) avoidOverlaps(frame)
   }
 
   measure() {

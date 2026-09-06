@@ -26,6 +26,8 @@ const HOLD_WEIGHT = 2.2
 const STRETCH_MAX = 1.6
 /** No single pause may eat more than this share of a chapter, however long the gap. */
 const HOLD_MAX_SHARE = 0.14
+/** The empty run-up and run-out of a chapter are seams, not reading pauses — they are tightened, not stretched. */
+const SEAM_WEIGHT = 0.75
 /** Gaps shorter than this (in timeline units) are part of the beat, not a pause. */
 const GAP_MIN = 0.012
 
@@ -75,12 +77,13 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   const segs: { a: number; b: number; w: number }[] = []
   let t = 0
   for (const [a, b] of beats) {
-    if (a - t > GAP_MIN) segs.push({ a: t, b: a, w: HOLD_WEIGHT })   // a still moment: give it room
+    // the run-up to the first beat is a seam, not a pause: it is scroll with nothing in it, so it is tightened
+    if (a - t > GAP_MIN) segs.push({ a: t, b: a, w: t === 0 ? SEAM_WEIGHT : HOLD_WEIGHT })
     else if (a > t) segs.push({ a: t, b: a, w: 1 })
     segs.push({ a: Math.max(t, a), b, w: 1 })                        // the beat itself: normal speed
     t = b
   }
-  if (t < 1) segs.push({ a: t, b: 1, w: HOLD_WEIGHT })
+  if (t < 1) segs.push({ a: t, b: 1, w: SEAM_WEIGHT })               // and so is the run-out
 
   // cap any one pause, then normalise into a monotone piecewise map
   const total = segs.reduce((s, g) => s + (g.b - g.a) * g.w, 0) || 1

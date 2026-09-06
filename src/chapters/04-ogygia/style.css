@@ -46,3 +46,8 @@
 #ch-ogygia .plate{display:none}
 }
 #ch-ogygia.chapter--static :is(.head,.stack,.forum,.mv,.statband){position:static;width:auto;max-width:var(--measure);margin:0 0 var(--gap-y);grid-template-columns:1fr}
+
+/* the Kalyptein lines close the chapter (the cloth that used to carry them is gone) */
+#ch-ogygia .stack--3{left:7%;top:38%;max-width:26em}
+#ch-ogygia .stack--3 .s{font-size:var(--fs-h3)}
+@media (max-width:820px){#ch-ogygia .stack--3{top:30%}}

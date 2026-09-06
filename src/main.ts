@@ -21,7 +21,6 @@ import { initPreloader } from './ui/preloader'
 import { initHeader } from './ui/header'
 import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
-import { initVeil } from './ui/veil'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
 const qsBoot = new URLSearchParams(location.search)
@@ -78,7 +77,6 @@ async function boot() {
   progress('chapters', 1)
   initHeader({ scroll, chapters, content, stage })
   initRail({ stage, scroll, world, chapters, content })
-  initVeil({ world })
   initCursor(shared)
 
   // wait for fonts, then a frame, then open the curtain
