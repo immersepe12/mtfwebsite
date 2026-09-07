@@ -25,7 +25,7 @@ export interface Seg {
  * moment it was actually there (`opened`, a wall-clock stamp; −1 while it has not happened yet). Scrolling back
  * above `arm` un-lands it.
  */
-export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number; block?: Element | null; story?: boolean }
+export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number; block?: Element | null; story?: boolean; meta?: boolean; leaveAt?: number }
 
 /**
  * The breath. `stops` are the timeline times the film comes to rest at under the wheel: the end of each RUN of
@@ -74,6 +74,8 @@ export function readingMs(chars: number): number {
   return Math.min(7000, Math.max(1400, 300 + 30 * chars))
 }
 
+/** Inside a moment, the still after a line has landed is that line's reading time, at this share of `readingMs`. */
+export const READ_INSIDE = 0.75
 /** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */
 export const beatSeconds = (len: number) => Math.min(4, Math.max(0.55, len * 30))
 /** A still moment carries the world's own motion (a camera move, the sun): it is crossed at this rate, never faster than a rest. */

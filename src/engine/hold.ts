@@ -1,4 +1,4 @@
-import { inverse, type Breath, type Landing } from './breath'
+import { inverse, READ_INSIDE, type Breath, type Landing } from './breath'
 
 /**
  * The film registry — every film's breath map, by page position — and what the wheel and the player ask of it.
@@ -12,6 +12,8 @@ import { inverse, type Breath, type Landing } from './breath'
 
 export interface FilmHold {
   el: HTMLElement
+  /** a chapter's own tempo (`data-tempo`, 1 = as written): the sunrise wanted to be a touch brisker */
+  tempo?: number
   /** page px of the film's pinned travel: [start, end] (ScrollTrigger's numbers, valid after refresh) */
   range: () => [number, number]
   /** the film's breath map (built lazily by the film) */
@@ -21,7 +23,7 @@ export interface FilmHold {
 const films: FilmHold[] = []
 export const holdEnabled = typeof location === 'undefined' || !new URLSearchParams(location.search).has('nohold')
 
-export function registerFilm(f: FilmHold) { films.push(f) }
+export function registerFilm(f: FilmHold) { f.tempo = parseFloat(f.el.dataset.tempo ?? '') || 1; films.push(f) }
 // dev: window.__mtf_gates(el) → the film's landings, stops and segments
 if (typeof window !== 'undefined') (window as any).__mtf_gates = (el: HTMLElement) => { const f = films.find(x => x.el === el); const m = f?.map(); return m ? { range: f!.range(), stretch: m.stretch, landings: m.landings, stops: m.stops, rests: m.rests, segs: m.segs } : null }
 export const holdFilms = (): readonly FilmHold[] => films
@@ -129,9 +131,26 @@ export function speedAt(y: number, vh: number): number {
     let seg = segs[segs.length - 1]
     for (const g of segs) if (p < g.x1) { seg = g; break }
     if (seg.kind === 'seam') return SEAM_VH_PER_S * vh
-    return Math.max(30, ((seg.x1 - seg.x0) * travel) / Math.max(seg.dur, 0.05))
+    // a still after a landed line may be only a few pixels long and owe a second of reading: no speed floor to
+    // speak of, or the wait would be skipped
+    return Math.max(2, ((seg.x1 - seg.x0) * travel) / Math.max(seg.dur, 0.05)) * (f.tempo ?? 1)
   }
   return FLOW_VH_PER_S * vh
+}
+
+/** The reading time owed INSIDE a step (y0, y1]: every line that lands before the step's last, so a press that
+ *  brings a stanza may take as long as the stanza takes to read. Seconds. */
+export function readInside(y0: number, y1: number): number {
+  let t = 0
+  for (const f of films) {
+    const [s, e] = f.range()
+    if (!(e > s) || e < y0 || s > y1) continue
+    const map = f.map()
+    if (!map) continue
+    const travel = e - s
+    for (const l of map.landings) { const fy = yOf(s, travel, map, l.from); if (fy > y0 + 1 && fy < y1 - 1) t += (l.ms * READ_INSIDE) / 1000 }
+  }
+  return t
 }
 
 /** How long PLAY rests on the moment that ends at page position `y` (the nearest stop). */

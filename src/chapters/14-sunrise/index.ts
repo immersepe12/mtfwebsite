@@ -205,6 +205,7 @@ function buildFilm(ctx: ChapterCtx) {
     if (p < .42 || lastP < .42) document.dispatchEvent(new CustomEvent('mtf:sunrise', { detail: { p } }))
     lastP = p
   }
+  el.dataset.tempo = '1.25'   // the sunrise plays a touch brisker than written
   const { pin, tl, attach } = createFilm(ctx, { length, onUpdate: onFilm })
   // the section is film + footer: move the pin into a film-length wrapper and hang the scrub on that wrapper
   const film = document.createElement('div')

@@ -1,6 +1,6 @@
 import gsap from 'gsap'
 import type Lenis from 'lenis'
-import { atEnd, estimateSeconds, restAt, speedAt, stopAfter, stopBefore } from './hold'
+import { atEnd, estimateSeconds, readInside, restAt, speedAt, stopAfter, stopBefore } from './hold'
 
 /**
  * The player.
@@ -77,7 +77,9 @@ class Player {
     this.y = l.animatedScroll; this.until = to; this.dir = dir; this.stepping = true
     // even out the tempo: the moment keeps its shape, but every step lasts about as long as every other
     const natural = this.timeAcross(Math.min(from, to), Math.max(from, to))
-    const want = Math.min(STEP_MAX, Math.max(STEP_MIN, natural))
+    // a press that brings several lines may last as long as they take to read; a press that brings one thing
+    // is evened into the usual window
+    const want = Math.min(STEP_MAX + readInside(Math.min(from, to), Math.max(from, to)), Math.max(STEP_MIN, natural))
     this.scale = natural > 0.05 ? natural / want : 1
     this.setBusy(true, want * 1000)
   }
@@ -88,7 +90,7 @@ class Player {
     const N = 32, dx = (b - a) / N
     if (dx <= 0) return 0
     let t = 0
-    for (let i = 0; i < N; i++) t += dx / Math.max(40, speedAt(a + dx * (i + 0.5), vh))
+    for (let i = 0; i < N; i++) t += dx / Math.max(2, speedAt(a + dx * (i + 0.5), vh))
     return t
   }
   get busy() { return this.stepping || this.playing }

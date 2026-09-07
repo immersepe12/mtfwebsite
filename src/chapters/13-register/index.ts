@@ -138,6 +138,7 @@ export const register: Chapter = {
     const { pin, tl } = createFilm(ctx, { length: shared.mobile ? 2.5 : 3.5 })
     el.classList.add('chapter--stays')   // the form stays live to p 1 (the documented exception to the seam rule): no film overlaps it
     el.dataset.entry = '0.78'            // REGISTER, and every link to this chapter, lands on the form itself
+    el.dataset.momentSpan = '0.30'       // the form arrives as one block, not a field a press
     pin.innerHTML = shadow + frame
     glyph = pin.querySelector('.glyph--raft'); glyphWrap = pin.querySelector('.raft__glyph')
     if (glyph) assemble(glyph, 0)

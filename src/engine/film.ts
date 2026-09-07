@@ -1,6 +1,6 @@
 import { gsap, ScrollTrigger } from './scroll'
 import { filmLength } from './pacing'
-import { beatSeconds, readingMs, through, HOLD_SECONDS_PER_UNIT, REST_SECONDS, type Breath, type Landing, type Seg } from './breath'
+import { beatSeconds, readingMs, through, HOLD_SECONDS_PER_UNIT, READ_INSIDE, REST_SECONDS, type Breath, type Landing, type Seg } from './breath'
 import { carryLandings, registerFilm, tickLandings } from './hold'
 import type { ChapterCtx } from './chapter'
 
@@ -58,6 +58,8 @@ const TOGETHER = 0.006
  *  now and half on the next press. The Forum's column is tighter: its blocks are separate things to read. */
 const STOP_SPAN_STORY = 0.26
 const STOP_SPAN_CONTENT = 0.14
+/** how far past its span a moment may reach to take a piece of metadata with it */
+const META_SLACK = 0.06
 /** A stop is nudged clear of a beat still running only if that beat is short — a line rising out of its mask, not
  *  a slow continuous change (an optical size drifting, a camera crossing a chapter), which one may rest inside. */
 const SETTLE_MAX = 0.08
@@ -81,8 +83,8 @@ export const filmTime = (el: HTMLElement, p: number): number => {
   return get ? through(get(), p) : p
 }
 
-interface Span { a: number; b: number; landing: boolean; chars: number; els: Element[]; block: Element | null; story: boolean }
-const META = '.eyebrow, .eye__t, .eye__d, .label, .index, .coords, .chip, .chip-row, .stamp, .stamp__n, .fine, .note, .signoff, .day__head, .forum__label, .forum__lab, .sector__i, .sector__l'
+interface Span { a: number; b: number; landing: boolean; leaving: boolean; meta: boolean; chars: number; els: Element[]; block: Element | null; story: boolean }
+const META = '.eyebrow, .eye__t, .eye__d, .label, .index, .coords, .chip, .chip-row, .stamp, .stamp__n, .fine, .note, .signoff, .day__head, .forum__label, .forum__lab, .sector__i, .sector__l, .field, .field__label'
 /** The Storyteller: the voice that narrates. It is read on its own, never at the same time as the Forum's column. */
 const STORY = '.s, .story, .stack, .couplet, .cp1, .cp2, .st'
 
@@ -121,6 +123,12 @@ function slotOf(el: Element): Element | null {
   return frame ? child : null
 }
 
+/** Does this tween take something off the screen (opacity → 0, a collapse, a masked line dropping out)? */
+function leaves(tw: gsap.core.Tween): boolean {
+  const v: any = tw.vars || {}
+  return v.opacity === 0 || v.autoAlpha === 0 || v.height === 0 || v.maxHeight === 0 || (typeof v.yPercent === 'number' && Math.abs(v.yPercent) >= 100 && !v.startAt)
+}
+
 /** Does this tween bring something onto the screen (opacity → 1, a masked line rising, a `from` hidden)? */
 function arrives(tw: gsap.core.Tween): boolean {
   const v: any = tw.vars || {}
@@ -144,7 +152,7 @@ function spansOf(tl: gsap.core.Timeline, spacerTarget: object): Span[] {
     if (b <= a) continue
     const targets = (typeof tw.targets === 'function' ? tw.targets() : []) as unknown[]
     const els = targets.filter((t): t is Element => t instanceof Element)
-    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), chars: 0, els, block: null, story: false })
+    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), leaving: els.length > 0 && leaves(tw), meta: false, chars: 0, els, block: null, story: false })
   }
   // a landing is text arriving. A container that fades in while its lines land one by one is not a landing —
   // the lines are; and a frieze or a glyph fading in has nothing to read at all.
@@ -153,28 +161,38 @@ function spansOf(tl: gsap.core.Timeline, spacerTarget: object): Span[] {
     const holdsAnother = arriving.some(o => o !== sp && o.els.some(e => sp.els.some(c => c !== e && c.contains(e))))
     sp.chars = holdsAnother ? 0 : sp.els.reduce((n, e) => n + readableChars(e), 0)
     // eyebrows, labels, coordinates, chips: metadata in mono caps, a glance rather than a sentence
-    if (sp.chars > 0 && sp.els.every(e => e.matches(META))) sp.chars = Math.min(sp.chars, 12)
+    if (sp.chars > 0 && sp.els.every(e => e.matches(META))) { sp.chars = Math.min(sp.chars, 12); sp.meta = true }
     sp.landing = sp.chars > 0
-    if (sp.landing) { sp.block = slotOf(sp.els[0]); sp.story = sp.els.some(e => e.matches(STORY) || !!e.closest(STORY)) }
+    if (sp.landing) { sp.block = slotOf(sp.els[0]); sp.story = !sp.meta && sp.els.some(e => e.matches(STORY) || !!e.closest(STORY)) }
   }
   spans.sort((m, n) => m.a - n.a)
   return spans
 }
 
 /** Build the scroll → timeline map, the player's pacing and the reading gates from the timeline's own beats. */
-function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
+function breathe(tl: gsap.core.Timeline, spacerTarget: object, el?: HTMLElement): Breath | null {
   const spans = spansOf(tl, spacerTarget)
   if (!spans.length) return null
+  // a chapter may say its content comes as one block (`data-moment-span`, in timeline time): the register form
+  const contentSpan = Math.max(STOP_SPAN_CONTENT, parseFloat(el?.dataset.momentSpan ?? '') || 0)
 
   // ── the landings: each arrival of text (lines that follow one another closely are one arrival) ──
-  const groups: { a: number; e: number; last: number; chars: number; block: Element | null; story: boolean }[] = []
+  const groups: { a: number; e: number; last: number; chars: number; block: Element | null; story: boolean; meta: boolean; els: Element[] }[] = []
   for (const s of spans) {
     if (!s.landing) continue
     const g = groups[groups.length - 1]
-    if (g && g.block === s.block && s.a - g.last <= GROUP_GAP && s.b - g.a <= GROUP_MAX) { g.e = Math.max(g.e, s.b); g.last = s.a; g.chars += s.chars }
-    else groups.push({ a: s.a, e: s.b, last: s.a, chars: s.chars, block: s.block, story: s.story })
+    if (g && g.block === s.block && s.a - g.last <= GROUP_GAP && s.b - g.a <= GROUP_MAX) { g.e = Math.max(g.e, s.b); g.last = s.a; g.chars += s.chars; g.meta = g.meta && s.meta; g.els.push(...s.els) }
+    else groups.push({ a: s.a, e: s.b, last: s.a, chars: s.chars, block: s.block, story: s.story, meta: s.meta, els: [...s.els] })
   }
-  const landings: Landing[] = groups.map(g => ({ from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1, block: g.block, story: g.story }))
+  // when does each arrival start to leave the screen again? (a stack replaced by the next, the numbers fading
+  // before the close) — a moment must never contain both a text's arrival and its departure
+  const touches = (a: Element[], b: Element[]) => a.some(x => b.some(y => x === y || x.contains(y) || y.contains(x)))
+  const leaveOf = (g: typeof groups[number]) => {
+    let at = Infinity
+    for (const s of spans) if (s.leaving && s.a >= g.e - 1e-4 && s.a < at && touches(s.els, g.els)) at = s.a
+    return at
+  }
+  const landings: Landing[] = groups.map(g => ({ from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1, block: g.block, story: g.story, meta: g.meta, leaveAt: leaveOf(g) }))
 
   // ── the beats: merge overlapping tweens — simultaneous tweens are one moment of movement ──
   const beats: [number, number][] = []
@@ -187,8 +205,12 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // ── walk the timeline as alternating moving / still segments and weight them ──
   const segs: (Omit<Seg, 'x0' | 'x1'> & { w: number })[] = []
   // a still moment carries the world's own motion (the camera, the sun, the tesserae): crossed at a steady rate,
-  // and never faster than a rest
-  const holdFor = (a: number, b: number) => Math.max(REST_SECONDS, (b - a) * HOLD_SECONDS_PER_UNIT)
+  // and never faster than a rest — and when a line has just landed, the still after it is that line's reading
+  // time, so a stanza arrives at the pace of reading, not word after word after word
+  const holdFor = (a: number, b: number) => {
+    const landed = landings.find(l => Math.abs(l.from - a) < 2e-3)
+    return Math.max(REST_SECONDS, (b - a) * HOLD_SECONDS_PER_UNIT, landed && !landed.meta ? (landed.ms * READ_INSIDE) / 1000 : 0)
+  }
   let t = 0
   for (const [a, b] of beats) {
     // the run-up to the first beat is a seam, not a pause: it is scroll with nothing in it, so it is tightened
@@ -239,18 +261,29 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // A gesture should advance a MOMENT, not a tween: arrivals that follow one another closely are played by one
   // gesture, at the pace the timeline wrote them — the stanza arrives line by line over several seconds, exactly
   // as it does when the film plays itself, and the reader decides when the next moment begins.
-  const moments: { a: number; b: number; chars: number; block: Element | null; story: boolean }[] = []
+  const moments: { a: number; b: number; chars: number; block: Element | null; story: boolean; meta: boolean; leaveAt: number }[] = []
   for (const l of landings) {
     const m = moments[moments.length - 1]
     // The Storyteller is read on its own. A moment never mixes the narrating voice with the Forum's column beside
     // it: the story plays, comes to rest, and only then does the content begin (and the other way round). Within
     // one voice, arrivals that follow closely — or arrive together, like a star and its label — are one moment.
+    // Metadata (an eyebrow, a hint, a date chip) has no voice and joins whichever moment it falls in. And nothing
+    // may leave inside the moment it arrived in: a stack replaced by the next stack, or numbers that fade before
+    // the close, are the reader's to read first — the moment ends where they still stand.
     const gap = m ? l.arm - m.b : Infinity
-    const voice = m ? m.story === l.story : false
-    const span = m && m.story ? STOP_SPAN_STORY : STOP_SPAN_CONTENT
-    const same = m && voice && (gap <= TOGETHER || gap <= STOP_GAP) && l.from - m.a <= span
-    if (same) { m.b = Math.max(m.b, l.from); m.chars += l.chars }
-    else moments.push({ a: l.arm, b: l.from, chars: l.chars, block: l.block ?? null, story: !!l.story })
+    const voice = m ? (m.meta || l.meta || m.story === l.story) : false
+    const stays = m ? l.from <= m.leaveAt + 1e-4 : false
+    // a moment that is only metadata so far (an eyebrow, the coordinates) takes the span of what joins it: the
+    // eyebrow rides in with the headline and the first stanza, not as a press of its own
+    const span = (m && m.meta ? l.story : m?.story) ? STOP_SPAN_STORY : contentSpan
+    // metadata rides along whatever the span — a field's label, a date chip, a hint — but only a little past it,
+    // or a label would tow the next block into this moment
+    const fits = !!m && l.from - m.a <= span + (l.meta ? META_SLACK : 0)
+    const same = m && voice && stays && (gap <= TOGETHER || gap <= STOP_GAP) && fits
+    if (same) {
+      m.b = Math.max(m.b, l.from); m.chars += l.chars; m.leaveAt = Math.min(m.leaveAt, l.leaveAt ?? Infinity)
+      if (m.meta && !l.meta) { m.meta = false; m.story = !!l.story }
+    } else moments.push({ a: l.arm, b: l.from, chars: l.chars, block: l.block ?? null, story: !!l.story, meta: !!l.meta, leaveAt: l.leaveAt ?? Infinity })
   }
   // …and the end of a long animation that carries no text at all (nothing lands inside it to rest on)
   for (const [a, b] of beats) {
@@ -258,7 +291,7 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
     // a press that shows nothing is a dead press: an animation only earns a stop of its own when there is no
     // text arriving anywhere near it, so it is genuinely the thing the reader came to see
     if (landings.some(l => l.from > a - ANIM_CLEAR && l.arm < b + ANIM_CLEAR)) continue
-    moments.push({ a, b, chars: 0, block: null, story: false })
+    moments.push({ a, b, chars: 0, block: null, story: false, meta: false, leaveAt: Infinity })
   }
   const byT = new Map<number, number>()
   for (const m of moments) {
@@ -270,7 +303,7 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   const rests: number[] = []
   for (const t of [...byT.keys()].sort((m, n) => m - n)) {
     const ms = byT.get(t)!
-    if (stops.length && t - stops[stops.length - 1] < 0.012) { rests[rests.length - 1] = Math.max(rests[rests.length - 1], ms); stops[stops.length - 1] = t; continue }
+    if (stops.length && t - stops[stops.length - 1] < 0.02) { rests[rests.length - 1] = Math.max(rests[rests.length - 1], ms); stops[stops.length - 1] = t; continue }
     stops.push(t); rests.push(ms)
   }
   return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, landings, stops, rests }
@@ -305,7 +338,7 @@ export function createFilm(ctx: ChapterCtx, opts: { length?: number; scrub?: num
   FILMS.set(el, get)
   const build = () => {
     const prev = map
-    map = opts.breathe === false ? null : breathe(tl, spacerTarget)
+    map = opts.breathe === false ? null : breathe(tl, spacerTarget, el)
     if (map) carryLandings(prev?.landings, map.landings)
     built = true
     // pay for the pauses in length, once, before the visitor gets here
