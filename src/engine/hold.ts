@@ -148,7 +148,7 @@ export function readInside(y0: number, y1: number): number {
     const map = f.map()
     if (!map) continue
     const travel = e - s
-    for (const l of map.landings) { const fy = yOf(s, travel, map, l.from); if (fy > y0 + 1 && fy < y1 - 1) t += (l.ms * READ_INSIDE) / 1000 }
+    for (const l of map.landings) { if (l.meta) continue; const fy = yOf(s, travel, map, l.from); if (fy > y0 + 1 && fy < y1 - 1) t += (l.ms * READ_INSIDE) / 1000 }
   }
   return t
 }
