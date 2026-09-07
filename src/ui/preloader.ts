@@ -14,7 +14,12 @@ import type { Mood } from '../engine/mood'
  *   Each night is broadcast as `mtf:night { night }` (the rail lights one tick per night; `#preloader[data-night]`
  *   carries the current night for listeners that mount late).
  *
- *   At ready: THE TENTH NIGHT · the star drops below the rule · the rule ignites gold · the black lifts
+ *   At ready the curtain does NOT lift on its own: "Sing to me, Muse…" gives way to THE INVITATION — two ways to
+ *   watch (▶ PLAY: sit back · NEXT / SCROLL: a moment at a time · pause on any frame) — and the film waits for
+ *   the choice. PLAY opens the curtain and starts the player; NEXT, a wheel or a key opens it at the reader's
+ *   pace. `choice` records which. (`?autoplay` skips the question.)
+ *
+ *   Then: THE TENTH NIGHT · the star drops below the rule · the rule ignites gold · the black lifts
  *   bottom → top (clip-path, 1.1 s, --ease-veil) while the world's sun rises (sunY −1.6 → −.35 over 1.4 s
  *   through `stage.override`, cleared afterwards) and the star flies (FLIP, 1.4 s, --ease-tide) to the rail's
  *   tick 01. `done()` resolves when the curtain has opened.
@@ -35,9 +40,11 @@ const globals = (): MtfGlobals => (window as unknown as { __mtf?: MtfGlobals }).
 const pad = (n: number) => String(n).padStart(2, '0')
 const emit = (name: string, detail: Record<string, unknown>) => document.dispatchEvent(new CustomEvent(name, { detail }))
 
-export function initPreloader(): { done(): Promise<void> } {
+export type Choice = 'play' | 'next' | null
+
+export function initPreloader(): { done(): Promise<void>; readonly choice: Choice } {
   const root = document.getElementById('preloader')
-  if (!root) return { done: () => Promise.resolve() }
+  if (!root) return { done: () => Promise.resolve(), choice: null }
   const line = root.querySelector<HTMLElement>('.preloader__line')
   const rule = root.querySelector<HTMLElement>('.preloader__rule')
   const starEl = root.querySelector<HTMLElement>('.preloader__star')
@@ -46,7 +53,9 @@ export function initPreloader(): { done(): Promise<void> } {
   const reduced = prefersReducedMotion()
   let warm = false
   try { warm = sessionStorage.getItem('mtfWarm') === '1' } catch { /* storage may be unavailable */ }
-  const hold = new URLSearchParams(location.search).get('preloader') === 'hold'
+  const params = new URLSearchParams(location.search)
+  const hold = params.get('preloader') === 'hold'
+  const askFirst = !params.has('autoplay') && !params.has('chapter') && !params.has('nohold')   // the dev harness and the QA scripts go straight in
   const tempo = warm ? 0.6 : 1
   const minShow = reduced ? 0 : warm ? 450 : 900
   const maxShow = warm ? 800 : 3500
@@ -65,6 +74,24 @@ export function initPreloader(): { done(): Promise<void> } {
   if (night) { night.textContent = ''; night.append(nightText, announce) }
   root.dataset.night = '1'
   root.setAttribute('aria-valuenow', '11')
+  // ── the invitation: built now, shown when the nights are done
+  const invite = document.createElement('div')
+  invite.className = 'preloader__invite'
+  invite.setAttribute('aria-label', 'How to watch')
+  invite.innerHTML = `
+    <p class="invite__eyebrow">Two ways to watch</p>
+    <button class="invite__way invite__way--play" type="button" data-choice="play">
+      <span class="invite__key">▶ Play</span>
+      <span class="invite__say">Sit back. The film runs itself, and holds on every line long enough to read it.</span>
+    </button>
+    <button class="invite__way invite__way--next" type="button" data-choice="next">
+      <span class="invite__key">Next ⌄ / scroll</span>
+      <span class="invite__say">Take it a moment at a time, at whatever pace you like.</span>
+    </button>
+    <p class="invite__note">Pause on any frame · read · play on</p>`
+  root.appendChild(invite)
+  let choice: Choice = null
+  let asked = false
 
   // ── state
   const phaseValue = new Map<Phase, number>()
@@ -149,11 +176,21 @@ export function initPreloader(): { done(): Promise<void> } {
   }
   document.addEventListener('mtf:progress', onProgress)
 
-  // ── skip: scroll or click collapses the designed wait (readiness itself is main.ts's)
+  // ── skip: scroll or click collapses the designed wait (readiness itself is main.ts's); once the invitation is
+  //    up, a wheel or a key is the reader answering "at my own pace"
   const skip = () => { if (skipped) return; skipped = true; wakers.forEach(w => w()); wakers.clear() }
-  const onKey = (e: KeyboardEvent) => { if ([' ', 'Enter', 'ArrowDown', 'PageDown', 'Escape'].includes(e.key)) skip() }
+  const answer = (c: Exclude<Choice, null>) => { if (opened || choice) return; choice = c; open() }
+  const onWheel = () => { if (asked) answer('next'); else skip() }
+  const onKey = (e: KeyboardEvent) => {
+    if (![' ', 'Enter', 'ArrowDown', 'PageDown', 'Escape'].includes(e.key)) return
+    if (asked) { if (e.key !== 'Escape') answer('next') } else skip()
+  }
+  invite.addEventListener('click', e => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-choice]')
+    if (b) answer(b.dataset.choice as Exclude<Choice, null>)
+  })
   const onResize = () => { if (!opened) placeStar(shown, false) }
-  window.addEventListener('wheel', skip, { passive: true })
+  window.addEventListener('wheel', onWheel, { passive: true })
   window.addEventListener('touchstart', skip, { passive: true })
   window.addEventListener('pointerdown', skip, { passive: true })
   window.addEventListener('keydown', onKey)
@@ -172,13 +209,13 @@ export function initPreloader(): { done(): Promise<void> } {
     wakers.add(w)
   })
 
-  // ── never block longer than the cap, even if boot stalls
-  const cap = window.setTimeout(() => { if (!hold) open() }, maxShow)
+  // ── never block longer than the cap, even if boot stalls: put the question up (the film opens on the answer)
+  const cap = window.setTimeout(() => { if (!hold) (askFirst ? ask() : open()) }, maxShow)
 
   const cleanup = () => {
     clearTimeout(stepTimer); clearTimeout(cap)
     document.removeEventListener('mtf:progress', onProgress)
-    window.removeEventListener('wheel', skip); window.removeEventListener('touchstart', skip)
+    window.removeEventListener('wheel', onWheel); window.removeEventListener('touchstart', skip)
     window.removeEventListener('pointerdown', skip); window.removeEventListener('keydown', onKey)
     window.removeEventListener('resize', onResize)
   }
@@ -211,10 +248,21 @@ export function initPreloader(): { done(): Promise<void> } {
     window.setTimeout(finish, 1300)
   }
 
+  const ask = () => {
+    if (asked || opened) return
+    asked = true
+    clearTimeout(stepTimer)
+    while (shown < NIGHTS) showNight(shown + 1)
+    line?.classList.add('is-out')
+    window.setTimeout(() => invite.classList.add('is-in'), reduced ? 0 : 260)
+    ;(invite.querySelector<HTMLButtonElement>('.invite__way--play'))?.focus({ preventScroll: true })
+  }
+
   const open = () => {
     if (opened) return
     opened = true
     cleanup()
+    invite.classList.remove('is-in'); invite.classList.add('is-out')
     try { sessionStorage.setItem('mtfWarm', '1') } catch { /* fine */ }
     while (shown < NIGHTS) showNight(shown + 1)
     // the tenth night
@@ -251,8 +299,9 @@ export function initPreloader(): { done(): Promise<void> } {
       if (hold) return openP
       await wait(minShow - elapsed())
       await waitFor(() => shown >= NIGHTS, 600) // let the last nights land before the tenth
-      open()
+      if (askFirst) ask(); else open()
       return openP
     },
+    get choice() { return choice },
   }
 }

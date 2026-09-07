@@ -56,13 +56,43 @@
 .preloader__nightText { transition: color .38s linear; }
 .preloader__night.is-tenth .preloader__nightText { color: var(--gold-leaf); }
 
+/* the invitation — two ways to watch, on the black, above the horizon; the film waits for the answer */
+.preloader__invite {
+  position: absolute; left: 50%; top: calc(var(--horizon-now, 62%) - 9%); width: min(92vw, 44rem);
+  transform: translate(-50%, -100%) translateY(10px);
+  display: grid; gap: 1.1rem; margin: 0; text-align: left;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .7s linear, transform .7s var(--ease), visibility 0s linear .7s, top var(--dur-6) var(--ease-tide);
+}
+.preloader__invite.is-in { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, -100%); transition: opacity .7s linear, transform .7s var(--ease), visibility 0s, top var(--dur-6) var(--ease-tide); }
+.preloader__invite.is-out { opacity: 0; transform: translate(-50%, -100%) translateY(-10px); transition: opacity .35s linear, transform .35s var(--ease); pointer-events: none; }
+.invite__eyebrow { margin: 0 0 .2rem; font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-index); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--gold-leaf); }
+.invite__way {
+  display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: baseline;
+  width: 100%; margin: 0; padding: .2rem 0; text-align: left; color: var(--fg); background: none; cursor: pointer;
+  border-radius: 2px;
+}
+.invite__key { font-family: var(--font-mono); font-weight: 500; font-size: var(--fs-index); letter-spacing: var(--ls-label); text-transform: uppercase; white-space: nowrap;
+  padding: .45em .8em .4em; border-radius: var(--radius-pill); box-shadow: inset 0 0 0 1px var(--rule-strong); transition: box-shadow .26s linear, background-color .3s linear, color .3s linear; }
+.invite__say { font-family: var(--font-display); font-style: italic; font-weight: 300; font-optical-sizing: auto; font-variation-settings: "WONK" 1, "SOFT" 12;
+  font-size: var(--fs-h3); line-height: var(--lh-story); letter-spacing: -.006em; color: var(--fg-muted); transition: color .3s linear; }
+.invite__way:hover .invite__key, .invite__way:focus-visible .invite__key { box-shadow: inset 0 0 0 1px var(--gold); color: var(--gold-leaf); }
+.invite__way:hover .invite__say, .invite__way:focus-visible .invite__say { color: var(--fg); }
+.invite__way--play .invite__key { background: var(--gold); color: var(--press); box-shadow: none; }
+.invite__way--play:hover .invite__key, .invite__way--play:focus-visible .invite__key { background: var(--gold-leaf); color: var(--press); box-shadow: none; }
+.invite__way:focus-visible { outline: none; }
+.invite__note { margin: .3rem 0 0; font-family: var(--font-mono); font-size: var(--fs-index); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--fg-faint); }
+
 @media (max-width: 600px) {
   .preloader__line { top: calc(var(--horizon-now, 62%) - 18%); }
+  .preloader__invite { top: calc(var(--horizon-now, 62%) - 6%); gap: .9rem; }
+  .invite__way { grid-template-columns: 1fr; gap: .35rem; }
+  .invite__say { font-size: var(--fs-body); }
 }
 
 /* reduced motion: static star, no arc, 0-duration reveal */
 html.reduced-motion #preloader.preloader, html.reduced-motion .preloader__line, html.reduced-motion .preloader__rule,
-html.reduced-motion .preloader__star, html.reduced-motion .preloader__nightText { transition: none !important; }
+html.reduced-motion .preloader__star, html.reduced-motion .preloader__nightText, html.reduced-motion .preloader__invite { transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   #preloader.preloader, .preloader__line, .preloader__rule, .preloader__star, .preloader__nightText { transition: none !important; }
 }

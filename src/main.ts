@@ -24,7 +24,6 @@ import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
 import { player } from './engine/play'
 import { initNext } from './ui/next'
-import { initIntro } from './ui/intro'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
 const qsBoot = new URLSearchParams(location.search)
@@ -83,7 +82,6 @@ async function boot() {
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
   const nextBtn = initNext(scroll)
-  initIntro()
   // every in-page link lands on the chapter's first frame with something in it, through Lenis rather than a
   // native jump (a native jump leaves the smooth scroller behind and drops the reader on an empty seam)
   document.addEventListener('click', e => {
@@ -131,7 +129,8 @@ async function boot() {
 
   // dev harness: ?chapter=<id>&p=<0..1> jumps into a chapter; ?debug shows a mood readout; ?autoplay presses play
   const q = new URLSearchParams(location.search)
-  if (q.has('autoplay')) requestAnimationFrame(() => player.start())
+  // the curtain asked how to watch; PLAY means the film runs itself from here
+  if (q.has('autoplay') || preloader.choice === 'play') requestAnimationFrame(() => player.start())
   const ch = q.get('chapter')
   if (ch) {
     const m = stage.mounted.find(x => x.chapter.id === ch)

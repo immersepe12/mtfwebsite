@@ -132,3 +132,8 @@ Client: "both the story on the left and the content on the right load at the sam
 - **The corner readout** says what it counts: `CH 01 / 14`. (`#corners` is decorative and ignores the pointer, so a hover caption could not work there.)
 - **The invitation** (`src/ui/intro.ts`): once per visitor, after the curtain, a low card in the film's own type — TWO WAYS TO WATCH · ▶ Play, sit back · Next / scroll, at your own pace · pause on any frame, read, play on · BEGIN. It leaves on the first press, gesture or key, and never returns (`?intro` to see it again).
 Open: Ch 08's opening still lands the headline, the storyteller and the first bearing card together (its timeline composes them simultaneously) — that one wants retiming in the chapter, not in the engine.
+
+## Round 12 — the invitation moves onto the curtain (2026-09-07)
+Client, on the card that appeared over the running page: "it looks overlaid, it's breaking the design… first show the two ways to watch, let the website load behind it, and then the website starts."
+- The invitation is now the preloader's last frame. The nine nights load as before; when they are done, *Sing to me, Muse…* leaves and TWO WAYS TO WATCH arrives on the black above the horizon — ▶ PLAY (sit back) and NEXT ⌄ / SCROLL (a moment at a time), with *pause on any frame · read · play on*. The curtain does not lift until the reader answers: PLAY lifts it and starts the film playing; NEXT, a wheel or a key lifts it at the reader's pace. Every visit, as asked. `src/ui/intro.*` is gone.
+- Verified headless for all three answers (PLAY → playing; NEXT and a wheel → at rest), and in the pane. `?chapter=`, `?autoplay` and `?nohold` go straight in, so the harness and the QA scripts are unaffected.
