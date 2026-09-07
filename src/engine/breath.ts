@@ -25,7 +25,7 @@ export interface Seg {
  * moment it was actually there (`opened`, a wall-clock stamp; −1 while it has not happened yet). Scrolling back
  * above `arm` un-lands it.
  */
-export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number }
+export interface Landing { from: number; arm: number; ms: number; chars: number; opened: number; block?: Element | null; story?: boolean }
 
 /**
  * The breath. `stops` are the timeline times the film comes to rest at under the wheel: the end of each RUN of
@@ -68,8 +68,10 @@ export function inverse(map: Breath | null, t: number): number {
  */
 export function readingMs(chars: number): number {
   if (chars <= 0) return 700
-  if (chars <= 12) return 900             // "Salt." · "They knew." — a glance, then a breath
-  return Math.min(3200, Math.max(1200, 300 + 26 * chars))
+  if (chars <= 12) return 1000            // "Salt." · "They knew." — a glance, then a breath
+  // ~30 ms a character is an unhurried reading pace with the eye moving over a composed frame rather than a page.
+  // A whole panel of copy earns the ceiling; PAUSE is there for a reader who wants longer still.
+  return Math.min(7000, Math.max(1400, 300 + 30 * chars))
 }
 
 /** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */

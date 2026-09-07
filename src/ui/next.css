@@ -2,19 +2,26 @@
 .next {
   position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 1.6rem); z-index: var(--z-header);
   transform: translateX(-50%);
-  display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%;
-  color: var(--fg); background: color-mix(in oklab, var(--press) 42%, transparent);
-  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
+  color: var(--gold-leaf); background: color-mix(in oklab, var(--press) 55%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 42%, transparent);
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   cursor: pointer; opacity: 0; visibility: hidden;
   transition: opacity .42s linear, visibility 0s linear .42s, box-shadow .26s linear, background-color .42s linear;
 }
 .next.is-on { opacity: 1; visibility: visible; transition: opacity .42s linear, visibility 0s, box-shadow .26s linear, background-color .42s linear; }
-.next:hover { background: color-mix(in oklab, var(--press) 62%, transparent); box-shadow: inset 0 0 0 1px var(--gold); }
+.next:hover { background: color-mix(in oklab, var(--press) 72%, transparent); box-shadow: inset 0 0 0 1px var(--gold), 0 0 0 6px color-mix(in oklab, var(--gold) 8%, transparent); }
 .next:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 /* the chevron */
-.next__v { display: block; width: 15px; height: 15px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-3px) rotate(45deg); transition: transform .3s var(--ease); }
-.next:hover .next__v { transform: translateY(-1px) rotate(45deg); }
+.next__v { display: block; width: 11px; height: 11px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .3s var(--ease); }
+.next:hover .next__v { transform: translateY(0) rotate(45deg); }
+/* at rest, the control asks to be pressed: a slow breath on the rim and the chevron, stilled the moment it is */
+.next.is-on:not(.is-busy) { animation: next-breathe 2.6s ease-in-out infinite; }
+.next.is-on:not(.is-busy):hover { animation: none; }
+@keyframes next-breathe {
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 42%, transparent), 0 0 0 0 color-mix(in oklab, var(--gold) 22%, transparent); }
+  50%      { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 85%, transparent), 0 0 0 7px color-mix(in oklab, var(--gold) 0%, transparent); }
+}
 /* the ring: drawn while the moment plays, so the wait is visible rather than guessed */
 .next__ring { position: absolute; inset: -1px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .2s linear;
   background: conic-gradient(var(--gold) calc(var(--t, 0) * 360deg), transparent 0);
@@ -22,7 +29,8 @@
   mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); }
 .next.is-busy { color: var(--fg-muted); cursor: default; }
 .next.is-busy .next__ring { opacity: 1; animation: next-ring var(--dur, 2s) linear forwards; }
-.next.is-busy .next__v { transform: translateY(-3px) rotate(45deg) scale(.86); }
+.next.is-busy .next__v { transform: translateY(-2px) rotate(45deg) scale(.8); }
+.next.is-busy { animation: none; }
 @keyframes next-ring { from { --t: 0 } to { --t: 1 } }
 @property --t { syntax: '<number>'; inherits: false; initial-value: 0; }
 /* the label, for a reader who has not met the control yet */
@@ -32,7 +40,7 @@
 .next.is-hint .next__hint, .next:hover .next__hint { opacity: 1; }
 /* portrait: the REGISTER pill owns the bottom centre, so NEXT sits to its right */
 @media (max-width: 599.98px) {
-  .next { left: auto; right: 1rem; transform: none; width: 50px; height: 50px; bottom: calc(env(safe-area-inset-bottom, 0px) + 1.1rem); }
+  .next { left: auto; right: 1rem; transform: none; width: 40px; height: 40px; bottom: calc(env(safe-area-inset-bottom, 0px) + 1.1rem); }
   .next__hint { display: none; }
 }
 html.nav-open .next { opacity: 0; visibility: hidden; pointer-events: none; }

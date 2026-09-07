@@ -24,6 +24,7 @@ import { initCursor } from './ui/cursor'
 import { initRail } from './ui/rail'
 import { player } from './engine/play'
 import { initNext } from './ui/next'
+import { initIntro } from './ui/intro'
 
 // dev harness flags: ?reduced (reduced-motion stack), ?nogl (DOM-only mode)
 const qsBoot = new URLSearchParams(location.search)
@@ -82,6 +83,7 @@ async function boot() {
   initRail({ stage, scroll, world, chapters, content })
   initCursor(shared)
   const nextBtn = initNext(scroll)
+  initIntro()
   // every in-page link lands on the chapter's first frame with something in it, through Lenis rather than a
   // native jump (a native jump leaves the smooth scroller behind and drops the reader on an empty seam)
   document.addEventListener('click', e => {

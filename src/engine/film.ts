@@ -46,12 +46,18 @@ const GAP_MIN = 0.012
 const GROUP_GAP = 0.011
 /** …and however tight the run, one arrival never spans more than this: a chain cannot swallow a whole sequence. */
 const GROUP_MAX = 0.05
-/** A stretch of animation with no text in it is a stop of its own only if it is at least this long. */
+/** A stretch of animation with no text in it is a stop of its own only if it is at least this long… */
 const ANIM_MIN = 0.08
+/** …and only when no text lands within this of it, or the press would show nothing the reader had not seen. */
+const ANIM_CLEAR = 0.10
 /** Arrivals that follow one another this closely belong to the same moment: one gesture plays them all. */
 const STOP_GAP = 0.09
-/** …and one moment never spans more than this much of a chapter, so a long sequence is two or three gestures. */
-const STOP_SPAN = 0.15
+/** Arrivals this close together are SIMULTANEOUS — one moment whatever slots they are in (a star and its label). */
+const TOGETHER = 0.006
+/** How much of a chapter one moment may span. The Storyteller's is generous — a stanza arrives whole, never half
+ *  now and half on the next press. The Forum's column is tighter: its blocks are separate things to read. */
+const STOP_SPAN_STORY = 0.26
+const STOP_SPAN_CONTENT = 0.14
 /** A stop is nudged clear of a beat still running only if that beat is short — a line rising out of its mask, not
  *  a slow continuous change (an optical size drifting, a camera crossing a chapter), which one may rest inside. */
 const SETTLE_MAX = 0.08
@@ -75,8 +81,10 @@ export const filmTime = (el: HTMLElement, p: number): number => {
   return get ? through(get(), p) : p
 }
 
-interface Span { a: number; b: number; landing: boolean; chars: number; els: Element[] }
+interface Span { a: number; b: number; landing: boolean; chars: number; els: Element[]; block: Element | null; story: boolean }
 const META = '.eyebrow, .eye__t, .eye__d, .label, .index, .coords, .chip, .chip-row, .stamp, .stamp__n, .fine, .note, .signoff, .day__head, .forum__label, .forum__lab, .sector__i, .sector__l'
+/** The Storyteller: the voice that narrates. It is read on its own, never at the same time as the Forum's column. */
+const STORY = '.s, .story, .stack, .couplet, .cp1, .cp2, .st'
 
 /** Readable characters under an element: glyphs, SVG titles and anything aria-hidden are not copy. */
 function readableChars(root: Element): number {
@@ -93,6 +101,24 @@ function readableChars(root: Element): number {
   if (root.tagName === 'svg' || root.getAttribute('aria-hidden') === 'true') return 0
   for (let node = walker.nextNode(); node; node = walker.nextNode()) n += (node.textContent || '').replace(/\s+/g, ' ').trim().length
   return n
+}
+
+/**
+ * The SLOT a landing belongs to: the block of the composition it is part of — the storyteller stack, the Forum's
+ * host column, a panel, the tile grid. It is the nearest positioned ancestor (chapters place their slots with
+ * `position: absolute`), or failing that the frame's own child. Two landings in different slots are two different
+ * things to read, and must never arrive in the same moment.
+ */
+function slotOf(el: Element): Element | null {
+  const frame = el.closest('.pin__frame, .pin__layer, .ch-inner')
+  let node: Element | null = el
+  let child: Element = el
+  while (node && node !== frame) {
+    if (node instanceof HTMLElement && getComputedStyle(node).position !== 'static') return node
+    child = node
+    node = node.parentElement
+  }
+  return frame ? child : null
 }
 
 /** Does this tween bring something onto the screen (opacity → 1, a masked line rising, a `from` hidden)? */
@@ -118,7 +144,7 @@ function spansOf(tl: gsap.core.Timeline, spacerTarget: object): Span[] {
     if (b <= a) continue
     const targets = (typeof tw.targets === 'function' ? tw.targets() : []) as unknown[]
     const els = targets.filter((t): t is Element => t instanceof Element)
-    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), chars: 0, els })
+    spans.push({ a: Math.max(0, a), b: Math.min(1, b), landing: els.length > 0 && arrives(tw), chars: 0, els, block: null, story: false })
   }
   // a landing is text arriving. A container that fades in while its lines land one by one is not a landing —
   // the lines are; and a frieze or a glyph fading in has nothing to read at all.
@@ -129,6 +155,7 @@ function spansOf(tl: gsap.core.Timeline, spacerTarget: object): Span[] {
     // eyebrows, labels, coordinates, chips: metadata in mono caps, a glance rather than a sentence
     if (sp.chars > 0 && sp.els.every(e => e.matches(META))) sp.chars = Math.min(sp.chars, 12)
     sp.landing = sp.chars > 0
+    if (sp.landing) { sp.block = slotOf(sp.els[0]); sp.story = sp.els.some(e => e.matches(STORY) || !!e.closest(STORY)) }
   }
   spans.sort((m, n) => m.a - n.a)
   return spans
@@ -140,14 +167,14 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   if (!spans.length) return null
 
   // ── the landings: each arrival of text (lines that follow one another closely are one arrival) ──
-  const groups: { a: number; e: number; last: number; chars: number }[] = []
+  const groups: { a: number; e: number; last: number; chars: number; block: Element | null; story: boolean }[] = []
   for (const s of spans) {
     if (!s.landing) continue
     const g = groups[groups.length - 1]
-    if (g && s.a - g.last <= GROUP_GAP && s.b - g.a <= GROUP_MAX) { g.e = Math.max(g.e, s.b); g.last = s.a; g.chars += s.chars }
-    else groups.push({ a: s.a, e: s.b, last: s.a, chars: s.chars })
+    if (g && g.block === s.block && s.a - g.last <= GROUP_GAP && s.b - g.a <= GROUP_MAX) { g.e = Math.max(g.e, s.b); g.last = s.a; g.chars += s.chars }
+    else groups.push({ a: s.a, e: s.b, last: s.a, chars: s.chars, block: s.block, story: s.story })
   }
-  const landings: Landing[] = groups.map(g => ({ from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1 }))
+  const landings: Landing[] = groups.map(g => ({ from: g.e, arm: g.a, ms: readingMs(g.chars), chars: g.chars, opened: -1, block: g.block, story: g.story }))
 
   // ── the beats: merge overlapping tweens — simultaneous tweens are one moment of movement ──
   const beats: [number, number][] = []
@@ -212,25 +239,40 @@ function breathe(tl: gsap.core.Timeline, spacerTarget: object): Breath | null {
   // A gesture should advance a MOMENT, not a tween: arrivals that follow one another closely are played by one
   // gesture, at the pace the timeline wrote them — the stanza arrives line by line over several seconds, exactly
   // as it does when the film plays itself, and the reader decides when the next moment begins.
-  const moments: { a: number; b: number; chars: number }[] = []
+  const moments: { a: number; b: number; chars: number; block: Element | null; story: boolean }[] = []
   for (const l of landings) {
     const m = moments[moments.length - 1]
-    if (m && l.arm - m.b <= STOP_GAP && l.from - m.a <= STOP_SPAN) { m.b = Math.max(m.b, l.from); m.chars += l.chars }
-    else moments.push({ a: l.arm, b: l.from, chars: l.chars })
+    // The Storyteller is read on its own. A moment never mixes the narrating voice with the Forum's column beside
+    // it: the story plays, comes to rest, and only then does the content begin (and the other way round). Within
+    // one voice, arrivals that follow closely — or arrive together, like a star and its label — are one moment.
+    const gap = m ? l.arm - m.b : Infinity
+    const voice = m ? m.story === l.story : false
+    const span = m && m.story ? STOP_SPAN_STORY : STOP_SPAN_CONTENT
+    const same = m && voice && (gap <= TOGETHER || gap <= STOP_GAP) && l.from - m.a <= span
+    if (same) { m.b = Math.max(m.b, l.from); m.chars += l.chars }
+    else moments.push({ a: l.arm, b: l.from, chars: l.chars, block: l.block ?? null, story: !!l.story })
   }
   // …and the end of a long animation that carries no text at all (nothing lands inside it to rest on)
   for (const [a, b] of beats) {
     if (b - a < ANIM_MIN) continue
-    if (landings.some(l => l.from > a + 1e-4 && l.from <= b + 1e-4)) continue
-    moments.push({ a, b, chars: 0 })
+    // a press that shows nothing is a dead press: an animation only earns a stop of its own when there is no
+    // text arriving anywhere near it, so it is genuinely the thing the reader came to see
+    if (landings.some(l => l.from > a - ANIM_CLEAR && l.arm < b + ANIM_CLEAR)) continue
+    moments.push({ a, b, chars: 0, block: null, story: false })
   }
   const byT = new Map<number, number>()
   for (const m of moments) {
     const t = +settle(m.b).toFixed(4)
     byT.set(t, Math.max(byT.get(t) ?? 0, readingMs(m.chars)))
   }
-  const stops = [...byT.keys()].sort((m, n) => m - n)
-  const rests = stops.map(t => byT.get(t)!)
+  // two stops a hair apart are one place to stand: a gesture that moved a few pixels would read as a dead press
+  const stops: number[] = []
+  const rests: number[] = []
+  for (const t of [...byT.keys()].sort((m, n) => m - n)) {
+    const ms = byT.get(t)!
+    if (stops.length && t - stops[stops.length - 1] < 0.012) { rests[rests.length - 1] = Math.max(rests[rests.length - 1], ms); stops[stops.length - 1] = t; continue }
+    stops.push(t); rests.push(ms)
+  }
   return { x, y, stretch: Math.min(STRETCH_MAX, Math.max(1, norm)), segs: out, landings, stops, rests }
 }
 

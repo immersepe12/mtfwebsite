@@ -96,7 +96,11 @@ export function initRail({ stage, scroll, world, chapters, content }: RailArgs) 
   corners.innerHTML =
     `<div class="corners__wrap">` +
     `<div class="corner corner--bl"><span class="cross"></span><span class="index corner__label">${(chapters[0]?.label ?? '').toUpperCase()}</span></div>` +
-    `<div class="corner corner--br"><span class="index corner__count">01 / ${pad2(chapters.length)}</span><span class="corner__scroll"><i class="corner__pulse"></i><span class="index corner__canto">SCROLL</span></span><span class="index tnum corner__clock">16:56 · SUNSET</span></div>` +
+    `<div class="corner corner--br">` +
+      `<span class="index corner__count"><span class="corner__what">CH</span>01 / ${pad2(chapters.length)}</span>` +
+      `<span class="corner__scroll"><i class="corner__pulse"></i><span class="index corner__canto">SCROLL</span></span>` +
+      `<span class="index tnum corner__clock">16:56 · SUNSET</span>` +
+    `</div>` +
     `</div>`
 
   const ticks = Array.from(rail.querySelectorAll<HTMLElement>('.rail__tick'))
