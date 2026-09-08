@@ -18,8 +18,8 @@ import { atEnd, estimateSeconds, readInside, restAt, speedAt, stopAfter, stopBef
  * It drives Lenis the way the wheel does (a moving target, the same lerp), so the world glides rather than steps.
  */
 /** Every moment takes between these, whatever it contains: one press of NEXT always feels the same weight. */
-const STEP_MIN = 1.8
-const STEP_MAX = 4.2
+const STEP_MIN = 1.2
+const STEP_MAX = 3.0
 class Player {
   /** the whole film is playing itself (PLAY THE STORY) */
   playing = false

@@ -68,16 +68,19 @@ export function inverse(map: Breath | null, t: number): number {
  */
 export function readingMs(chars: number): number {
   if (chars <= 0) return 700
-  if (chars <= 12) return 1000            // "Salt." · "They knew." — a glance, then a breath
+  if (chars <= 12) return 800             // "Salt." · "They knew." — a glance, then a breath
   // ~30 ms a character is an unhurried reading pace with the eye moving over a composed frame rather than a page.
   // A whole panel of copy earns the ceiling; PAUSE is there for a reader who wants longer still.
-  return Math.min(7000, Math.max(1400, 300 + 30 * chars))
+  return Math.min(4500, Math.max(1100, 250 + 22 * chars))
 }
 
+/** PLAY's rest after a moment, as a share of its reading time — the press itself already held every line for
+ *  READ_INSIDE of its time, so the rest at the end need not pay for the whole moment again. */
+export const PLAYER_REST = 0.55
 /** Inside a moment, the still after a line has landed is that line's reading time, at this share of `readingMs`. */
-export const READ_INSIDE = 0.75
+export const READ_INSIDE = 0.5
 /** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */
-export const beatSeconds = (len: number) => Math.min(4, Math.max(0.55, len * 30))
+export const beatSeconds = (len: number) => Math.min(3, Math.max(0.4, len * 22))
 /** A still moment carries the world's own motion (a camera move, the sun): it is crossed at this rate, never faster than a rest. */
-export const REST_SECONDS = 0.35
-export const HOLD_SECONDS_PER_UNIT = 9
+export const REST_SECONDS = 0.25
+export const HOLD_SECONDS_PER_UNIT = 7

@@ -145,3 +145,9 @@ Client: the star into the cave took three small presses; in Ogygia "the story ru
 - **Inside a press, a landed line holds for its reading time** (`READ_INSIDE` .75 × `readingMs`; not for metadata), and a press may last that long (`STEP_MAX` + the reading inside). A six-line stanza now arrives at ~1.7 s a line instead of half a second. `speedAt` lost its 30 px/s floor (a hold a few pixels long owes a second).
 - **Register**: `data-moment-span` .30 — the form arrives as one block (fields are metadata); one press, then the rest. **Sunrise**: `data-tempo` 1.25.
 - 92 stops; PLAY ≈ 11 min (the reading inside the presses is most of the growth). No text overlaps at 1440×900 / 390×844.
+
+## staging — THE CUT (2026-09-08, branch `staging`, never on main)
+Client: "close to twelve minutes on Play… on a staging branch, a version under five minutes: cut the story aspects, keep the best animations (the compass!), and on scroll make things come faster — not all the words at once, just brisker."
+- Ten chapters of the fourteen: the four that are narrative alone are left out (Unity, Forever, What Remains, Homer; `omitted` in registry.ts keeps them one line away). The seams the cut creates were checked: the island recedes to the horizon into the paper world, the net over the night sea opens the hand, the bearing star stands over the raft.
+- Pace: a press is 1.2–3 s (was 1.8–4.2), a line holds for half its reading time inside a press (was ¾), reading 22 ms a character capped at 4.5 s (was 30 / 7), and PLAY's rest after a moment is .55 of the reading time, since the press already gave every line its own. 69 presses; PLAY ≈ 4.4 min by estimate — a real headless run is logged below.
+- Not done: the chapters' own numbering in their eyebrows ("05 — PARADISE" is chapter 5 of 10 here but says 06 in its copy) — the corner count is right, the eyebrow text is the chapter's own.

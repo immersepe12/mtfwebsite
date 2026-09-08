@@ -1,6 +1,11 @@
 import type { Chapter } from '../engine/chapter'
 /**
  * The ordered list of chapters (DESIGN-BIBLE §6.0). Owned by the lead; chapter agents never edit this file.
+ *
+ * THE CUT (staging): the compact film — under five minutes played — keeps the set pieces (the sun, the
+ * lightning and the Shatter, the constellation, the island and its star, the paper world's three days, the
+ * think tanks, the compass, the hand that cuts the net, the raft, the sunrise) and leaves out the four
+ * chapters that are narrative alone: Unity, Forever, What Remains, Homer.
  */
 import { hero } from './01-hero/index'
 import { warning } from './02-warning/index'
@@ -18,5 +23,7 @@ import { register } from './13-register/index'
 import { sunrise } from './14-sunrise/index'
 
 export const chapters: Chapter[] = [
-  hero, warning, stars, ogygia, unity, paradise, eleven, rudder, forever, remains, hand, homer, register, sunrise,
+  hero, warning, stars, ogygia, paradise, eleven, rudder, hand, register, sunrise,
 ]
+/** the four the cut leaves out, kept importable so the full film is one line away */
+export const omitted: Chapter[] = [unity, forever, remains, homer]

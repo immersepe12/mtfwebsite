@@ -1,4 +1,4 @@
-import { inverse, READ_INSIDE, type Breath, type Landing } from './breath'
+import { inverse, PLAYER_REST, READ_INSIDE, type Breath, type Landing } from './breath'
 
 /**
  * The film registry — every film's breath map, by page position — and what the wheel and the player ask of it.
@@ -167,7 +167,7 @@ export function restAt(y: number): number {
       if (d < bestD) { bestD = d; best = map.rests[i] }
     })
   }
-  return best
+  return best * PLAYER_REST
 }
 
 /** Rough running time of the whole film at the player's pace, in seconds (dev readout). */
@@ -181,7 +181,7 @@ export function estimateSeconds(vh: number, limit: number): number {
     const map = f.map(), travel = e - s
     if (map) {
       for (const g of map.segs) total += g.kind === 'seam' ? ((g.x1 - g.x0) * travel) / (SEAM_VH_PER_S * vh) : g.dur
-      for (const g of map.rests) total += g / 1000
+      for (const g of map.rests) total += (g * PLAYER_REST) / 1000
     } else total += travel / (FLOW_VH_PER_S * vh)
     cursor = e
   }
