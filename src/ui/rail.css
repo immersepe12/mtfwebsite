@@ -124,6 +124,8 @@ html.is-ready:not(.reduced-motion) #corners .corner--bl .cross { animation: shin
 #corners .corner__label { display: inline-block; min-width: 1ch; }
 /* the count says what it counts: CH 01 / 14 — the numbers in the corner should never be a puzzle */
 #corners .corner__what { color: var(--fg-faint); margin-right: .5ch; }
+/* the ticks and the glyphs are links to their chapters */
+.rail__tick, .rail__g { pointer-events: auto; cursor: pointer; }
 
 /* `SCROLL` with a breathing 1 px rule — becomes the canto after the first scroll */
 #corners .corner__scroll { display: inline-flex; align-items: center; gap: .8rem; }

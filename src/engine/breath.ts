@@ -76,9 +76,9 @@ export function readingMs(chars: number): number {
 
 /** PLAY's rest after a moment, as a share of its reading time — the press itself already held every line for
  *  READ_INSIDE of its time, so the rest at the end need not pay for the whole moment again. */
-export const PLAYER_REST = 0.55
+export const PLAYER_REST = 0.75
 /** Inside a moment, the still after a line has landed is that line's reading time, at this share of `readingMs`. */
-export const READ_INSIDE = 0.5
+export const READ_INSIDE = 0.25
 /** The pace of a beat: a line lands unhurried; a long animation (the Shatter, an island rising) takes its time. */
 export const beatSeconds = (len: number) => Math.min(3, Math.max(0.4, len * 22))
 /** A still moment carries the world's own motion (a camera move, the sun): it is crossed at this rate, never faster than a rest. */

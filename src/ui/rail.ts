@@ -105,6 +105,14 @@ export function initRail({ stage, scroll, world, chapters, content }: RailArgs) 
 
   const ticks = Array.from(rail.querySelectorAll<HTMLElement>('.rail__tick'))
   const glyphs = Array.from(rail.querySelectorAll<HTMLElement>('.rail__g'))
+  // a tick is a chapter; a glyph is the chapter its question belongs to — both go there
+  rail.addEventListener('click', e => {
+    const t = (e.target as HTMLElement).closest<HTMLElement>('.rail__tick, .rail__g')
+    if (!t) return
+    const i = t.classList.contains('rail__g') ? tickOf(t.dataset.letter ?? '') : Number(t.dataset.i)
+    const target = document.getElementById(`ch-${chapters[i]?.id}`)
+    if (target) { e.preventDefault(); scroll.scrollTo(target) }
+  })
   const starEl = rail.querySelector('.rail__star') as HTMLElement
   const strandSvg = rail.querySelector('.rail__strand') as SVGSVGElement
   const strandA = rail.querySelector('.strand--a') as SVGPathElement

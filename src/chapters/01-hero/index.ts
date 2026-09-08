@@ -156,7 +156,9 @@ export const hero: Chapter = {
       return
     }
 
-    const { pin, tl } = createFilm(ctx, { length: mobile ? 2 : 3 })
+        el.dataset.tempo = '1.4'         // the overture is brisk
+    el.dataset.momentSpan = '0.6'    // the copy and the three questions arrive in one press
+const { pin, tl } = createFilm(ctx, { length: mobile ? 2 : 3 })
     pin.innerHTML = `<div class="pin__layer plate">${PLATE}</div>
       <div class="pin__frame"><span class="hero__probe" aria-hidden="true"></span><div class="hero__type">${typeHTML(c, false)}</div></div>
       <div class="pin__layer fx"><span class="hero__ember"></span></div>`

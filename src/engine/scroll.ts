@@ -68,14 +68,19 @@ export class ScrollEngine {
     if (e.cancelable) e.preventDefault()
     const now = performance.now()
     const dir = data.deltaY > 0 ? 1 : -1
+    const fresh = now - this.lastWheel > 260
+    this.lastWheel = now
+    // a trackpad's tail is a few tiny events, sometimes the other way: never a reversal mid-gesture, never a step
+    // for a bounce — that is what sent the film forward and straight back again
+    if (Math.abs(data.deltaY) < 8) return false
+    if (!fresh && dir !== this.dir) return false
     // a new gesture always moves one stop, so the smallest deliberate nudge is answered; a gesture that keeps
     // going asks for another stop every notch of travel (the player queues at most a few, which caps a hard flick)
-    if (now - this.lastWheel > 260 || dir !== this.dir) { this.wheeled = 0; this.dir = dir; player.step(dir) }
+    if (fresh) { this.wheeled = 0; this.dir = dir; player.step(dir) }
     else {
       this.wheeled += Math.abs(data.deltaY)
       while (this.wheeled >= ScrollEngine.NOTCH) { this.wheeled -= ScrollEngine.NOTCH; player.step(dir) }
     }
-    this.lastWheel = now
     return false
   }
 
@@ -111,7 +116,7 @@ export class ScrollEngine {
   onScroll(fn: (s: ScrollEngine) => void) { this.listeners.add(fn); return () => this.listeners.delete(fn) }
   /** Go to a chapter (or a position). A chapter is entered at its first stop, never on its empty opening frame. */
   scrollTo(target: number | string | HTMLElement, opts: Record<string, unknown> = {}) {
-    player.interrupt()
+    player.cancel()
     let t: number | string | HTMLElement = target
     if (typeof t === 'string' && t.startsWith('#')) t = document.getElementById(t.slice(1)) ?? t
     if (t instanceof HTMLElement) { const y = entryOf(t); if (y !== null) t = y }

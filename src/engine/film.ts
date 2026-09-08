@@ -51,13 +51,13 @@ const ANIM_MIN = 0.08
 /** …and only when no text lands within this of it, or the press would show nothing the reader had not seen. */
 const ANIM_CLEAR = 0.10
 /** Arrivals that follow one another this closely belong to the same moment: one gesture plays them all. */
-const STOP_GAP = 0.09
+const STOP_GAP = 0.12
 /** Arrivals this close together are SIMULTANEOUS — one moment whatever slots they are in (a star and its label). */
 const TOGETHER = 0.006
 /** How much of a chapter one moment may span. The Storyteller's is generous — a stanza arrives whole, never half
  *  now and half on the next press. The Forum's column is tighter: its blocks are separate things to read. */
-const STOP_SPAN_STORY = 0.26
-const STOP_SPAN_CONTENT = 0.14
+const STOP_SPAN_STORY = 0.40
+const STOP_SPAN_CONTENT = 0.30
 /** how far past its span a moment may reach to take a piece of metadata with it */
 const META_SLACK = 0.06
 /** A stop is nudged clear of a beat still running only if that beat is short — a line rising out of its mask, not

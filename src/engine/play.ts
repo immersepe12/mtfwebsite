@@ -61,8 +61,10 @@ class Player {
     this.listeners.forEach(fn => fn(false))
   }
   toggle() { this.playing ? this.stop() : this.start() }
-  /** The reader touched the wheel or the keys: the film is theirs again. */
+  /** The reader touched the wheel or the keys: the film is theirs again (a press in flight finishes). */
   interrupt() { this.stop() }
+  /** A jump elsewhere (the menu, the logo, the rail): drop whatever press was in flight, or it would drag the film back. */
+  cancel() { this.stop(); if (this.stepping) { this.stepping = false; this.queued = 0; this.setBusy(false) } }
 
   /** One gesture: play the film to the next stop (dir 1) or back to the previous one (−1). */
   step(dir: 1 | -1, fromPlayer = false) {
