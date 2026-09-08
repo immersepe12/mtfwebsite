@@ -16,7 +16,7 @@
 #ch-hand :is(.eye__rule,.forum__rule){display:block;width:11em;height:1px;background:var(--rule);transform-origin:left center}
 #ch-hand .hl__sub{display:block;font-style:italic;font-size:var(--fs-h3);margin-top:.5em;color:var(--fg-muted)}
 #ch-hand .stack{position:absolute;left:0;top:13vh;width:100%}
-#ch-hand .stack .s{margin:0 0 .45em;max-width:none}
+#ch-hand .stack .s{margin:0 0 .45em;max-width:none;max-height:3.2em;overflow:hidden}
 #ch-hand .cut-slot{position:absolute;left:7%;top:41%;width:min(30%,27rem)}
 #ch-hand .cutline{margin:0;color:var(--cream);font-weight:400;max-width:none}
 /* the Gala sits UNDER the drawn headline; the Awards takes the whole column after the headline has left */

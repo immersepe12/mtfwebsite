@@ -101,9 +101,9 @@ function frameHTML(c: any, mobile: boolean): string {
     <div class="head">
       <p class="eyebrow eye"><span class="eye__rule" aria-hidden="true"></span><span class="eye__t">${eyebrow}</span></p>
       <h2 class="h1 hl">${wrapNumerals(sentenceCase(val(tt.closingLine)))}</h2>
+      <div class="stack" aria-label="The Storyteller">${story(STORY_I, 0)}${story(STORY_II, STORY_I.length)}</div>
     </div>
     <p class="stamp index tnum" aria-label="Edition"><span class="stamp__l">EDITION</span> <span class="stamp__n">XI</span></p>
-    <div class="stack" aria-label="The Storyteller">${story(STORY_I, 0)}${story(STORY_II, STORY_I.length)}</div>
     <div class="forum">
       <i class="forum__rule" aria-hidden="true"></i>
       <p class="label forum__lab">${esc(val(tt.heading))}</p>

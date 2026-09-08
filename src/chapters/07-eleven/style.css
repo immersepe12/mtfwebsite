@@ -12,7 +12,7 @@
     linear-gradient(0deg,color-mix(in oklab,var(--press) calc(50% + var(--day,0)*32%),transparent) 0%,color-mix(in oklab,var(--press) calc(20% + var(--day,0)*22%),transparent) 36%,transparent 60%)}
 
 /* ── regions ── */
-#ch-eleven :is(.head,.stack,.forum,.sectors,.tiles,.stamp){position:absolute;left:7%;z-index:1}
+#ch-eleven :is(.head,.forum,.sectors,.tiles,.stamp){position:absolute;left:7%;z-index:1}
 #ch-eleven :is(p,h2,ul){margin:0}
 #ch-eleven ul{list-style:none;padding:0}
 /* a whisper of the world's own dark behind every line of type — placement first, halo only as insurance */
@@ -28,7 +28,9 @@
 
 /* the storyteller's slot ends where the sector band begins, so the stack cannot grow into the grid however the
    headline breaks (engine/avoid.ts keeps it out of the band; this is the guarantee) */
-#ch-eleven .stack{top:38.5%;height:14%;width:min(42%,38rem);overflow:hidden}
+/* the storyteller lives INSIDE the head, in flow after the headline: wherever the headline's lines break, on any
+   screen, the story begins below it — nothing is positioned, so nothing can be printed over the title */
+#ch-eleven .stack{position:static;margin-top:.55em;width:100%;max-height:3.4em;overflow:hidden}
 #ch-eleven .s{--old:0;max-height:2.9em;overflow:hidden;margin-bottom:.34em;color:color-mix(in oklab,var(--cream) calc(100% - var(--old)*42%),transparent)}
 #ch-eleven .s--last{font-weight:400;letter-spacing:.01em}
 
@@ -84,7 +86,7 @@
 #ch-eleven .stamp,#ch-eleven.chapter--film :is(.forum__who,.forum__out,.sectors,.tile__s,.tile__g){display:none}
 #ch-eleven .head{top:8%;max-width:88%}
 #ch-eleven .eye{margin-bottom:.8rem}
-#ch-eleven .stack{top:34%;height:11%;width:88%}
+#ch-eleven .stack{max-height:3em}
 #ch-eleven .forum{left:7%;right:auto;top:34%;width:88%;gap:.45rem}
 #ch-eleven .cta{margin-top:.5rem}
 /* portrait has no room for eleven cards, so the wall becomes the ledger it always was: eleven hairline-ruled

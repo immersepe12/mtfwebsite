@@ -266,12 +266,14 @@ export const hand: Chapter = {
     tl.fromTo(eyeT, { opacity: 0 }, { opacity: 1, duration: .028 }, .068)
     tl.to([eyeRule, eyeT], { opacity: 0, y: -8, duration: .03 }, .262)
 
-    /* ── the Storyteller stack: one line per beat, 4 px rise; older lines to --fg-faint; max 6 visible ── */
+    /* ── the Storyteller stack: one line per beat, 4 px rise; older lines to --fg-faint; max 4 visible ── */
     stackLines.forEach((line, i) => {
       const at = .095 + i * .024
       tl.fromTo(line, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: .022 }, at)
       if (i > 0) tl.to(stackLines[i - 1], { opacity: .55, duration: .022 }, at)
-      if (i >= 6) tl.to(stackLines[i - 6], { opacity: 0, duration: .018 }, at)
+      // at most four on screen: the fifth arrival collapses the oldest, so the stack never grows past its slot on a
+      // short viewport (six accumulated lines ran off the foot of the frame and over the corner label)
+      if (i >= 4) tl.to(stackLines[i - 4], { opacity: 0, maxHeight: 0, marginBottom: 0, duration: .018 }, at - .012)
     })
     tl.to(stackLines, { opacity: 0, y: -8, duration: .03 }, .262)
     // the cut line stands alone in its own slot while the strands retreat

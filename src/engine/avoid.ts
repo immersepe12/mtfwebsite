@@ -59,6 +59,9 @@ export function avoidOverlaps(frame: HTMLElement) {
   const placed: { top: number; bottom: number; left: number; right: number; w: number; h: number }[] = []
   for (const box of boxes) {
     if (anchors.some(a => a === box || a.contains(box) || box.contains(a))) continue
+    // a group none of whose lines is showing (the Awards before the Gala has left, say) holds no ground: it
+    // is not to push the stack that IS showing halfway down the frame
+    const showing = groups.get(box)!.some(l => { const cs = getComputedStyle(l); return cs.visibility !== 'hidden' && +cs.opacity > 0.02 })
     const prev = box.style.top
     // measure from the chapter's own placement, not from a previous correction
     if (box.dataset.avoidTop) box.style.top = box.dataset.avoidTop
@@ -79,7 +82,7 @@ export function avoidOverlaps(frame: HTMLElement) {
       push = Math.max(push, GAP - clearance)
     }
 
-    if (push < 2) { if (prev && !box.dataset.avoidTop) box.style.top = prev; placed.push(r); continue }
+    if (push < 2) { if (prev && !box.dataset.avoidTop) box.style.top = prev; if (showing) placed.push(r); continue }
     // a floor: whatever stands below this block in the same column (the think-tank grid, the Forum, a stat band)
     // is not to be walked into — better a tight clearance above than a collision below
     let floor = base.height * FOOT
@@ -104,7 +107,7 @@ export function avoidOverlaps(frame: HTMLElement) {
       box.style.marginTop = `${Math.min(push, Math.max(0, maxTop - r.top))}px`
     }
     const moved = Math.min(push, Math.max(0, maxTop - r.top))
-    placed.push({ ...r, top: r.top + moved, bottom: r.bottom + moved })
+    if (showing) placed.push({ ...r, top: r.top + moved, bottom: r.bottom + moved })
   }
 }
 
