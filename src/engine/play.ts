@@ -1,6 +1,6 @@
 import gsap from 'gsap'
 import type Lenis from 'lenis'
-import { atEnd, estimateSeconds, readInside, restAt, speedAt, stopAfter, stopBefore } from './hold'
+import { atEnd, estimateSeconds, readInside, restAt, speedAt, stopAfter, stopBefore, tempoAt } from './hold'
 
 /**
  * The player.
@@ -81,7 +81,10 @@ class Player {
     const natural = this.timeAcross(Math.min(from, to), Math.max(from, to))
     // a press that brings several lines may last as long as they take to read; a press that brings one thing
     // is evened into the usual window
-    const want = Math.min(STEP_MAX + readInside(Math.min(from, to), Math.max(from, to)), Math.max(STEP_MIN, natural))
+    // a chapter that asks to be slower than written (tempo < 1) must not be evened back up to the usual window:
+    // its window grows by the same share. A brisk chapter keeps the window — that is what it was tuned against.
+    const slow = Math.max(1, 1 / tempoAt((from + to) / 2))
+    const want = Math.min((STEP_MAX + readInside(Math.min(from, to), Math.max(from, to))) * slow, Math.max(STEP_MIN * slow, natural))
     this.scale = natural > 0.05 ? natural / want : 1
     this.setBusy(true, want * 1000)
   }

@@ -116,6 +116,12 @@ export function entryOf(el: HTMLElement): number | null {
   return yOf(s, e - s, map, stop)
 }
 
+/** The tempo of the film at page position `y` (1 outside any film). */
+export function tempoAt(y: number): number {
+  for (const f of films) { const [s, e] = f.range(); if (e > s && y >= s && y < e) return f.tempo ?? 1 }
+  return 1
+}
+
 /** Player pacing: px per second through page position `y` (vh = viewport height, for the distance-paced parts). */
 export const FLOW_VH_PER_S = 0.9     // flowing sections and the slide between two films
 export const SEAM_VH_PER_S = 1.15    // the empty run-in and run-out of a film

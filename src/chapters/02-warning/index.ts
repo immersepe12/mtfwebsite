@@ -120,6 +120,7 @@ export const warning: Chapter = {
       el.innerHTML = `<div class="pin__frame">${frameHTML(content)}</div>`
       return
     }
+    el.dataset.tempo = '0.9'         // the warning plays a tenth slower than written: it read as rushed
     const { pin, tl } = createFilm(ctx, { length: shared.mobile ? 2.5 : 4 })
     pin.innerHTML = `
       <div class="pin__layer shadow tess-out">
